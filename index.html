@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F.R.I.D.A.Y. — ManageAI Build OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FFFFFF;
+      --surface: #F5F6F8;
+      --surface2: #EDF0F4;
+      --border: #E2E6EC;
+      --nav: #1E3348;
+      --accent: #4A8FD6;
+      --accent-light: #EBF3FC;
+      --accent-mid: #6BAAE0;
+      --text: #1E293B;
+      --text-mid: #475569;
+      --text-dim: #7A8B9A;
+      --green: #16A34A;
+      --green-light: #E8F8EE;
+      --amber: #D97706;
+      --amber-light: #FEF8E8;
+      --red: #DC2626;
+      --red-light: #FEF2F2;
+      --purple: #7C3AED;
+      --purple-light: #EDE9FE;
+      --mono: 'JetBrains Mono', monospace;
+      --font: 'Montserrat', sans-serif;
+    }
+
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+    input, select, textarea, button { font-family: var(--font); }
+    button { cursor: pointer; }
+
+    /* ===== LOGIN ===== */
+    #login-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--nav);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #login-screen.hidden { display: none; }
+    .login-card {
+      background: #fff; border-radius: 16px; padding: 40px 44px;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+    }
+    .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+    .login-logo .brand { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .login-logo .brand .m { color: var(--nav); }
+    .login-logo .brand .ai { color: var(--accent); }
+    .login-logo .tag { font-size: 11px; color: var(--text-dim); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    .login-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .login-sub { font-size: 13px; color: var(--text-mid); margin-bottom: 28px; }
+    .login-field { margin-bottom: 16px; }
+    .login-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-mid); margin-bottom: 6px; }
+    .login-field input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: var(--font); outline: none; transition: border-color 0.2s; }
+    .login-field input:focus { border-color: var(--accent); }
+    .login-error { background: var(--red-light); color: var(--red); font-size: 12px; padding: 9px 12px; border-radius: 7px; margin-bottom: 14px; display: none; }
+    .btn-login { width: 100%; padding: 13px; background: var(--nav); color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-login:hover { background: #2a4a6e; }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ===== LAYOUT ===== */
+    .page { max-width: 1320px; margin: 0 auto; padding: 32px 40px 60px; }
+
+    .header {
+      display: flex; align-items: center; gap: 16px;
+      padding-bottom: 24px; border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .wordmark { display: flex; align-items: baseline; gap: 0; }
+    .wordmark .m { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.03em; }
+    .wordmark .ai { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.03em; }
+    .h-div { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+    .h-meta { display: flex; flex-direction: column; gap: 1px; }
+    .h-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .h-sub { font-size: 11px; font-weight: 500; color: var(--text-dim); font-family: var(--mono); }
+    .h-status { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--green); }
+    .h-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulseDot 2s infinite; }
+
+    /* ===== MODE TABS ===== */
+    .mode-tabs { display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; width: fit-content; margin-bottom: 28px; }
+    .mode-tab {
+      padding: 10px 18px; border-radius: 7px; border: none;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+      transition: all 0.2s ease; color: var(--text-dim); background: transparent;
+    }
+    .mode-tab.active { background: var(--nav); color: #fff; }
+    .mode-tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+    .mode-content.hidden { display: none; }
+    .mode-content { animation: fadeIn 0.25s ease; }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: box-shadow 0.25s ease;
+    }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .card-sub { font-size: 12px; font-weight: 500; color: var(--text-mid); line-height: 1.6; margin-bottom: 22px; }
+    .section-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+
+    /* ===== FORM FIELDS ===== */
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 10px 13px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-size: 12px; font-weight: 500;
+      transition: border-color 0.2s; outline: none;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); background: var(--bg); }
+    .field textarea { resize: vertical; min-height: 100px; line-height: 1.65; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .hint { font-size: 11px; font-weight: 500; color: var(--text-dim); margin-top: 4px; font-family: var(--mono); }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      padding: 13px 24px; border-radius: 10px; border: none;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.01em;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-mid); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74,143,214,0.3); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary {
+      padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); font-size: 12px; font-weight: 700;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { background: var(--surface); border-color: var(--text-dim); }
+
+    /* ===== CHIPS ===== */
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+      font-size: 11px; font-weight: 700; transition: all 0.15s; color: var(--text-dim); background: var(--bg);
+    }
+    .chip.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+    .chip:hover:not(.active) { border-color: var(--text-dim); color: var(--text); }
+
+    /* ===== BADGES ===== */
+    .badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .badge-blue { background: var(--accent-light); color: var(--accent); }
+    .badge-green { background: var(--green-light); color: var(--green); }
+    .badge-amber { background: var(--amber-light); color: var(--amber); }
+    .badge-red { background: var(--red-light); color: var(--red); }
+    .badge-purple { background: var(--purple-light); color: var(--purple); }
+    .badge-gray { background: var(--surface); color: var(--text-dim); }
+
+    /* ===== STATUS CHIPS ===== */
+    .status-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+    .status-chip.active { background: var(--accent-light); color: var(--accent); }
+    .status-chip.done { background: var(--green-light); color: var(--green); }
+    .status-chip.pending { background: var(--amber-light); color: var(--amber); }
+    .status-chip.failed { background: var(--red-light); color: var(--red); }
+    .status-chip.building { background: var(--purple-light); color: var(--purple); }
+    .status-chip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .status-chip.active .status-chip-dot, .status-chip.building .status-chip-dot { animation: pulseDot 1.2s infinite; }
+
+    /* ===== KPI CARDS ===== */
+    .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .dash-kpi {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px 22px; position: relative; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .dash-kpi:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+    .dash-kpi-accent { border-left: 3px solid var(--accent); }
+    .dash-kpi-green { border-left: 3px solid var(--green); }
+    .dash-kpi-amber { border-left: 3px solid var(--amber); }
+    .dash-kpi-purple { border-left: 3px solid var(--purple); }
+    .dash-kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 8px; }
+    .dash-kpi-value { font-size: 32px; font-weight: 800; font-family: var(--mono); color: var(--text); line-height: 1; margin-bottom: 4px; }
+    .dash-kpi-sub { font-size: 11px; font-weight: 500; color: var(--text-dim); }
+    .dash-section-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .dash-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .dash-loading { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-dim); font-weight: 600; padding: 16px 0; }
+    .dash-loading-ring { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    .dash-empty { padding: 20px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-dim); }
+    .dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+    /* ===== PRIORITY GRID ===== */
+    .priority-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .priority-opt { border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 10px; }
+    .priority-opt:hover { border-color: var(--accent); }
+    .priority-opt.selected { border-color: var(--accent); background: var(--accent-light); }
+    .priority-opt.selected.high { border-color: var(--red); background: var(--red-light); }
+    .priority-opt.selected.medium { border-color: var(--amber); background: var(--amber-light); }
+    .priority-opt.selected.low { border-color: var(--green); background: var(--green-light); }
+    .priority-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot-high { background: var(--red); }
+    .dot-medium { background: var(--amber); }
+    .dot-low { background: var(--green); }
+    .priority-label { font-size: 13px; font-weight: 600; }
+    .priority-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ===== PLATFORM CHIPS ===== */
+    .platform-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .platform-chip { border: 2px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .platform-chip:hover { border-color: var(--accent); }
+    .platform-chip.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+    /* ===== FILE PATHS ===== */
+    .file-paths { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .file-path-row { display: flex; gap: 8px; align-items: center; }
+    .file-path-row input { flex: 1; font-family: var(--mono); font-size: 12px; }
+    .btn-icon { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-dim); flex-shrink: 0; transition: all 0.15s; }
+    .btn-icon:hover { border-color: var(--red); color: var(--red); }
+    .add-path-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--accent); background: none; border: none; cursor: pointer; padding: 4px 0; }
+
+    /* ===== FRIDAY AGENT PANEL ===== */
+    .rb-layout { display: flex; gap: 20px; min-height: calc(100vh - 260px); }
+    .rb-left { width: 28%; min-width: 240px; }
+    .rb-right { width: 72%; flex: 1; display: flex; flex-direction: column; }
+    .rb-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .rb-photo { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid var(--nav); box-shadow: 0 6px 24px rgba(0,0,0,0.18); display: block; margin: 0 auto; }
+    .rb-name { font-size: 20px; font-weight: 700; color: var(--nav); text-align: center; margin-top: 14px; }
+    .rb-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); text-align: center; margin-top: 4px; }
+    .rb-reports { font-size: 12px; color: var(--accent); text-align: center; margin-top: 4px; }
+    .rb-divider { height: 1px; background: var(--border); margin: 16px 0; }
+    .rb-status { display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; color: var(--green); font-weight: 600; }
+    .rb-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulseDot 2s infinite; }
+    .rb-stats-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .rb-pill { background: var(--surface); border-radius: 20px; padding: 6px 14px; font-size: 12px; text-align: center; margin: 4px; }
+    .rb-pill-label { color: var(--text-dim); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .rb-pill-value { font-weight: 700; color: var(--text); margin-top: 2px; }
+    .rb-section-head { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 8px; }
+    .rb-about { font-size: 13px; color: var(--text-dim); line-height: 1.6; padding: 0 4px; }
+    .rb-list { list-style: none; padding: 0; margin: 0; }
+    .rb-list li { font-size: 13px; color: var(--text); line-height: 1.8; padding-left: 20px; position: relative; }
+    .rb-list li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    .rb-chat-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .rb-chat-header-left { display: flex; align-items: center; gap: 10px; }
+    .rb-chat-avatar-sm { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .rb-chat-avatar-xs { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .rb-chat-name { font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .rb-chat-name .rb-dot-sm { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .rb-chat-sub { font-size: 11px; color: var(--text-dim); }
+    .rb-clear-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 14px; color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
+    .rb-clear-btn:hover { background: var(--surface); color: var(--text); }
+    #friday-messages { height: calc(100vh - 320px); min-height: 420px; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
+    .rb-msg-row { display: flex; gap: 10px; margin-bottom: 16px; max-width: 75%; }
+    .rb-msg-row.user { margin-left: auto; max-width: 70%; justify-content: flex-end; }
+    .rb-msg-bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; }
+    .rb-msg-bubble.assistant { background: #fff; color: #374151; border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .rb-msg-bubble.user { background: var(--nav); color: #fff; border-radius: 16px 16px 4px 16px; }
+    .rb-msg-meta { font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
+    .rb-typing { display: none; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .rb-typing.visible { display: flex; }
+    .rb-typing-dots { display: flex; gap: 4px; padding: 12px 16px; background: #fff; border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; }
+    .rb-typing-dots span { width: 7px; height: 7px; border-radius: 50%; background: #9ca3af; animation: rbBounce 1.2s infinite; }
+    .rb-typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .rb-typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+    #friday-suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 16px; }
+    .rb-suggestion { border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 13px; cursor: pointer; background: #fff; color: var(--text); transition: background 0.15s; font-family: var(--font); }
+    .rb-suggestion:hover { background: var(--surface); }
+    .rb-input-area { display: flex; align-items: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
+    #friday-input { flex: 1; border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 14px; resize: none; height: 44px; max-height: 120px; font-family: var(--font); outline: none; transition: border-color 0.2s; }
+    #friday-input:focus { border-color: var(--accent); }
+    #friday-send { width: 44px; height: 44px; border-radius: 50%; background: var(--nav); color: #fff; border: none; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
+    #friday-send:hover { background: #2a4a6e; }
+
+    /* ===== CLIENTS / PROJECTS ===== */
+    .client-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+      margin-bottom: 16px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .client-header {
+      display: flex; align-items: center; gap: 16px; padding: 20px 24px;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .client-header:hover { background: var(--surface); }
+    .client-avatar {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: var(--nav); color: #fff; font-size: 16px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .client-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .client-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+    .client-chevron { margin-left: auto; font-size: 12px; color: var(--text-dim); transition: transform 0.2s; }
+    .client-chevron.open { transform: rotate(90deg); }
+    .client-projects { display: none; border-top: 1px solid var(--border); padding: 16px 24px; background: var(--surface); }
+    .client-projects.open { display: block; }
+    .project-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 10px;
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .project-card:last-child { margin-bottom: 0; }
+    .project-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--accent-light); color: var(--accent); font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .project-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .project-platform { font-size: 11px; color: var(--text-dim); margin-top: 2px; font-family: var(--mono); }
+    .project-meta-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .project-actions { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
+    .btn-sm { padding: 6px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); color: var(--text-mid); font-size: 11px; font-weight: 600; transition: all 0.15s; font-family: var(--font); }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .add-project-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--accent); background: none; border: none; cursor: pointer; padding: 8px 0; }
+
+    /* ===== BUILDS TABLE ===== */
+    .builds-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .builds-table th { text-align: left; padding: 8px 12px; font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.07em; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .builds-table td { padding: 12px 12px; border-bottom: 1px solid var(--border); color: var(--text); font-weight: 500; vertical-align: top; }
+    .builds-table tr:last-child td { border-bottom: none; }
+    .builds-table tr:hover td { background: var(--surface); }
+    .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+    .progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width 0.6s ease; }
+
+    /* ===== FEEDBACK ===== */
+    .fb-star { font-size: 28px; cursor: pointer; opacity: 0.3; transition: opacity 0.15s; }
+    .fb-star.active { opacity: 1; color: #F59E0B; }
+
+    /* ===== VIDEO POPOVER ===== */
+    #friday-video-popover {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 10000; background: rgba(15,23,42,0.7); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    #friday-daily-container iframe {
+      border-radius: 0; position: absolute !important;
+      top: 8px !important; left: 0 !important;
+      width: 100% !important; height: 520px !important;
+    }
+
+    /* ===== SPINNER ===== */
+    .spinner-ring { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    .search-spinner { display: none; align-items: center; gap: 8px; padding: 14px; font-size: 12px; font-weight: 600; color: var(--text-mid); }
+    .search-spinner.show { display: flex; }
+
+    /* ===== SUCCESS SCREEN ===== */
+    .success-screen { display: none; text-align: center; padding: 60px 40px; }
+    .success-screen.visible { display: block; }
+    .success-icon { width: 72px; height: 72px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 24px; }
+    .success-screen h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+    .ticket-id { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--accent); margin: 16px 0 28px; }
+    .next-steps { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: left; max-width: 480px; margin: 0 auto; }
+    .next-steps h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+    .next-step-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .next-step-item:last-child { border-bottom: none; }
+    .next-step-item p { font-size: 13px; line-height: 1.5; }
+    .next-step-item strong { font-weight: 600; display: block; margin-bottom: 2px; }
+    .next-step-item span { color: var(--text-dim); }
+    .step-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15,23,42,0.75); backdrop-filter: blur(6px);
+      overflow-y: auto; padding: 40px 20px; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: #fff; border-radius: 20px; max-width: 620px; width: 100%; padding: 32px; box-shadow: 0 24px 80px rgba(0,0,0,0.4); animation: fadeIn 0.2s ease; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-title { font-size: 18px; font-weight: 800; color: var(--text); }
+    .modal-close { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes pulseDot { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.4);opacity:1} }
+    @keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes rbBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    @keyframes popIn { from{opacity:0;transform:scale(0.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+    /* ===== FOOTER ===== */
+    .footer { border-top: 1px solid var(--border); padding-top: 20px; margin-top: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .footer-brand .m { font-size: 12px; font-weight: 700; color: var(--text); }
+    .footer-brand .ai { font-size: 12px; font-weight: 700; color: var(--accent); }
+    .footer-meta { font-size: 11px; font-weight: 500; color: var(--text-dim); }
+
+    @media (max-width: 900px) {
+      .dash-grid { grid-template-columns: repeat(2, 1fr); }
+      .rb-layout { flex-direction: column; }
+      .rb-left, .rb-right { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand"><span class="m">MANAGE</span><span class="ai">AI</span></div>
+      <div class="tag">F.R.I.D.A.Y. Build OS</div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Sign in to access the Build OS</div>
+    <div class="login-error" id="login-error">Invalid email or password.</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="you@manageai.io" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Sign In to F.R.I.D.A.Y.</button>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const SB_URL = 'YOUR_SUPABASE_URL'; // e.g. https://xyz.supabase.co
+const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SB_SERVICE_KEY = 'YOUR_SUPABASE_SERVICE_KEY';
+const FRIDAY_WEBHOOK = 'YOUR_N8N_FRIDAY_WEBHOOK_URL';
+const INTAKE_WEBHOOK = 'https://hook.us2.make.com/d796hs5qqk9qgs6ij8y6izs3pg3352w4'; // from your intake form
+
+// ===== LOGIN =====
+async function doLogin() {
+  const em = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-password').value;
+  const err = document.getElementById('login-error');
+  const btn = document.getElementById('btn-login');
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','apikey':SB_KEY},
+      body: JSON.stringify({email:em, password:pw})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error_description || 'Invalid credentials');
+    window._authToken = d.access_token;
+    window._currentUser = {email: d.user.email, name: d.user.email.split('@')[0]};
+    sessionStorage.setItem('friday_token', d.access_token);
+    sessionStorage.setItem('friday_user', JSON.stringify(window._currentUser));
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-wrapper').style.display = 'block';
+    document.getElementById('user-badge').textContent = window._currentUser.name;
+    initDashboard();
+    setMode('friday');
+  } catch(e) {
+    err.textContent = e.message; err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Sign In to F.R.I.D.A.Y.';
+  }
+}
+</script>
+
+<!-- ===== APP ===== -->
+<div id="app-wrapper" style="display:none;">
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="wordmark"><span class="m">MANAGE</span><span class="ai">AI</span></div>
+    <div class="h-div"></div>
+    <div class="h-meta">
+      <div class="h-title">F.R.I.D.A.Y. Build OS v1.0</div>
+      <div class="h-sub">manageai.io · delivery intelligence</div>
+    </div>
+    <div class="h-status"><div class="h-dot"></div><span id="system-status">Build System Online</span></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
+      <div style="background:var(--accent-light);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--accent);" id="user-badge">—</div>
+      <button onclick="logout()" style="background:none;border:1.5px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--text-mid);cursor:pointer;font-family:inherit;">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Mode Tabs -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="setMode('friday')" id="tab-friday">🤖 F.R.I.D.A.Y.</button>
+    <button class="mode-tab" onclick="setMode('dashboard')" id="tab-dashboard">Dashboard</button>
+    <button class="mode-tab" onclick="setMode('intake')" id="tab-intake">New Build</button>
+    <button class="mode-tab" onclick="setMode('clients')" id="tab-clients">Clients</button>
+    <button class="mode-tab" onclick="setMode('builds')" id="tab-builds">Builds</button>
+    <button class="mode-tab" onclick="setMode('feedback')" id="tab-feedback">Feedback</button>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- TAB 1: F.R.I.D.A.Y. AGENT                             -->
+  <!-- ====================================================== -->
+  <div id="mode-friday" class="mode-content">
+
+    <!-- Action bar -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px;">
+      <button onclick="startFridayVideo()" style="background:linear-gradient(135deg,#1a5fb4,#4a90d9);color:white;border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(74,144,217,0.35);font-family:inherit;">
+        📹 Video Call with F.R.I.D.A.Y.
+      </button>
+      <button onclick="setMode('intake')" style="background:var(--nav);color:white;border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">
+        ➕ New Build Request
+      </button>
+      <button onclick="loadFridayBriefing()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+        📋 Daily Briefing
+      </button>
+    </div>
+
+    <div class="rb-layout">
+      <!-- LEFT: Profile -->
+      <div class="rb-left">
+        <div class="rb-card">
+          <div style="width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;margin:0 auto;border:3px solid #1E3348;box-shadow:0 6px 24px rgba(0,0,0,0.18);">
+            <span style="font-size:60px;">🤖</span>
+          </div>
+          <div class="rb-name">F.R.I.D.A.Y.</div>
+          <div class="rb-title">Build Delivery Intelligence</div>
+          <div class="rb-reports">ManageAI Internal Build OS</div>
+          <div class="rb-divider"></div>
+          <div class="rb-status"><span class="rb-status-dot"></span> Online and Ready</div>
+          <div class="rb-divider"></div>
+          <div class="rb-stats-row">
+            <div class="rb-pill" id="fri-stat-builds"><div class="rb-pill-label">Active Builds</div><div class="rb-pill-value">—</div></div>
+            <div class="rb-pill" id="fri-stat-clients"><div class="rb-pill-label">Clients</div><div class="rb-pill-value">—</div></div>
+            <div class="rb-pill" id="fri-stat-tickets"><div class="rb-pill-label">Open Tickets</div><div class="rb-pill-value">—</div></div>
+          </div>
+          <div class="rb-divider"></div>
+          <div class="rb-section-head">What I Handle</div>
+          <ul class="rb-list">
+            <li>Daily build pipeline briefing</li>
+            <li>Client project status across all accounts</li>
+            <li>Ticket intake and routing to Claude Code</li>
+            <li>Build progress tracking and delivery</li>
+            <li>Flag blocked or overdue builds</li>
+            <li>Assessment of what's built vs. gaps</li>
+            <li>Draft client-facing delivery notes</li>
+            <li>Orchestrate n8n + Make.com pipelines</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- RIGHT: Chat -->
+      <div class="rb-right">
+        <div class="rb-card" style="padding:0;display:flex;flex-direction:column;flex:1;">
+          <div class="rb-chat-header">
+            <div class="rb-chat-header-left">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+              <div>
+                <div class="rb-chat-name">F.R.I.D.A.Y. <span class="rb-dot-sm"></span></div>
+                <div class="rb-chat-sub">Connected to build pipeline, tickets, clients, and delivery data</div>
+              </div>
+            </div>
+            <button class="rb-clear-btn" onclick="clearFridayChat()">Clear</button>
+          </div>
+          <div id="friday-messages"></div>
+          <div id="friday-suggestions">
+            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">What builds are active right now?</button>
+            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">Give me a full pipeline briefing</button>
+            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">Which builds are blocked or overdue?</button>
+            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">What did we deliver this week?</button>
+            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">What tickets are waiting to be built?</button>
+            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">Run a build assessment for Sunstate</button>
+          </div>
+          <div class="rb-input-area">
+            <textarea id="friday-input" placeholder="Ask F.R.I.D.A.Y. anything about builds, clients, or delivery..." rows="1"></textarea>
+            <button id="friday-send" onclick="sendFridayMessage()">&#9654;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- TAB 2: DASHBOARD                                       -->
+  <!-- ====================================================== -->
+  <div id="mode-dashboard" class="mode-content hidden">
+
+    <div class="dash-grid" id="dash-kpi-row">
+      <div class="dash-kpi dash-kpi-accent">
+        <div class="dash-kpi-label">Active Builds</div>
+        <div class="dash-kpi-value" id="d-active-builds">—</div>
+        <div class="dash-kpi-sub">In pipeline now</div>
+      </div>
+      <div class="dash-kpi dash-kpi-green">
+        <div class="dash-kpi-label">Delivered This Month</div>
+        <div class="dash-kpi-value" id="d-delivered">—</div>
+        <div class="dash-kpi-sub">Completed builds</div>
+      </div>
+      <div class="dash-kpi dash-kpi-amber">
+        <div class="dash-kpi-label">Open Tickets</div>
+        <div class="dash-kpi-value" id="d-open-tickets">—</div>
+        <div class="dash-kpi-sub">Awaiting build</div>
+      </div>
+      <div class="dash-kpi dash-kpi-purple">
+        <div class="dash-kpi-label">Active Clients</div>
+        <div class="dash-kpi-value" id="d-active-clients">—</div>
+        <div class="dash-kpi-sub">In current sprint</div>
+      </div>
+    </div>
+
+    <div class="dash-grid-2">
+      <div class="card" style="margin-bottom:0;padding:22px;">
+        <div class="dash-section-title">Active Build Queue</div>
+        <div id="d-build-queue">
+          <div class="dash-loading"><div class="dash-loading-ring"></div> Loading build queue...</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0;padding:22px;">
+        <div class="dash-section-title">Recent Tickets</div>
+        <div id="d-recent-tickets">
+          <div class="dash-loading"><div class="dash-loading-ring"></div> Loading tickets...</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;" class="card" style="padding:22px;">
+      <div class="dash-section-title">Build Activity by Client</div>
+      <div id="d-client-activity">
+        <div class="dash-loading"><div class="dash-loading-ring"></div> Loading client activity...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- TAB 3: INTAKE FORM                                     -->
+  <!-- ====================================================== -->
+  <div id="mode-intake" class="mode-content hidden">
+
+    <div class="form-content" id="intakeFormContent">
+      <div style="margin-bottom:32px;">
+        <div style="font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.02em;margin-bottom:6px;">New Build Request</div>
+        <p style="font-size:14px;font-weight:400;color:var(--text-mid);line-height:1.7;max-width:580px;">Submit a ticket and F.R.I.D.A.Y. will review, ask any clarifying questions, then fire Claude Code to build it.</p>
+      </div>
+
+      <!-- Steps indicator -->
+      <div style="display:flex;gap:0;margin-bottom:32px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="flex:1;padding:14px 20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--accent);background:var(--accent-light);border-right:1px solid var(--border);">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">1</div>
+          Request
+        </div>
+        <div style="flex:1;padding:14px 20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text-dim);border-right:1px solid var(--border);">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">2</div>
+          Files
+        </div>
+        <div style="flex:1;padding:14px 20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text-dim);">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">3</div>
+          Submit
+        </div>
+      </div>
+
+      <!-- CARD: WHO + CLIENT -->
+      <div class="card">
+        <div class="card-title">Requestor & Client</div>
+        <div class="card-sub">Who is submitting this and which client is it for?</div>
+        <div class="row-2">
+          <div class="field">
+            <label>Submitted By <span style="color:var(--red)">*</span></label>
+            <select id="i-submitter">
+              <option value="">Select team member</option>
+              <option>Brian</option><option>Dave</option><option>Tony</option>
+              <option>Dan</option><option>Jacob</option><option>Chad</option><option>Brent</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Client <span style="color:var(--red)">*</span></label>
+            <select id="i-client" onchange="toggleNewClient()">
+              <option value="">Select client</option>
+              <option>Sunstate Medical Transport</option>
+              <option>Cornerstone General Contractors</option>
+              <option>Luxury Auto Club</option>
+              <option>ManageAI (Internal)</option>
+              <option value="new">+ New Client</option>
+            </select>
+          </div>
+        </div>
+        <div id="i-new-client-row" style="display:none;" class="row-2">
+          <div class="field">
+            <label>New Client Name <span style="color:var(--red)">*</span></label>
+            <input type="text" id="i-new-client-name" placeholder="e.g. Phoenix Medical Group">
+          </div>
+          <div class="field">
+            <label>Primary Contact Email</label>
+            <input type="email" id="i-new-client-email" placeholder="contact@client.com">
+          </div>
+        </div>
+        <div class="field">
+          <label>Project Name <span style="color:var(--red)">*</span></label>
+          <input type="text" id="i-project-name" placeholder="e.g. Facility Call-Ahead Monitoring, Weekly Volume Report">
+        </div>
+      </div>
+
+      <!-- CARD: WHAT TO BUILD -->
+      <div class="card">
+        <div class="card-title">What To Build</div>
+        <div class="card-sub">Plain English is fine — F.R.I.D.A.Y. will fill in the technical gaps.</div>
+
+        <div class="field">
+          <label>Platform <span style="color:var(--red)">*</span></label>
+          <div class="platform-grid" id="i-platform-grid">
+            <div class="platform-chip" onclick="selectIntakePlatform(this,'Make.com')">⚙️ Make.com</div>
+            <div class="platform-chip" onclick="selectIntakePlatform(this,'n8n')">⚡ n8n</div>
+            <div class="platform-chip" onclick="selectIntakePlatform(this,'Zapier')">⚡ Zapier</div>
+            <div class="platform-chip" onclick="selectIntakePlatform(this,'Custom Code')">💻 Custom Code</div>
+            <div class="platform-chip" onclick="selectIntakePlatform(this,'Multi-platform')">🔄 Multi-platform</div>
+          </div>
+          <input type="hidden" id="i-platform">
+        </div>
+
+        <div class="field">
+          <label>What should this do? <span style="color:var(--red)">*</span></label>
+          <textarea id="i-description" placeholder="Describe the outcome you want, the problem it solves, and any key triggers or conditions.&#10;&#10;Example: When a transport is scheduled, call the receiving facility 2 hours before pickup to confirm they're ready. If no answer, retry in 30 min and alert dispatcher." style="min-height:140px;"></textarea>
+          <div class="hint">Don't worry about technical details. Just describe what you need.</div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Deadline</label>
+            <input type="date" id="i-deadline">
+          </div>
+          <div class="field">
+            <label>Complexity Estimate</label>
+            <select id="i-complexity">
+              <option value="">Not sure</option>
+              <option>Simple — 1-2 scenarios</option>
+              <option>Medium — 3-5 scenarios</option>
+              <option>Complex — 6+ scenarios</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD: FILES -->
+      <div class="card">
+        <div class="card-title">File Locations</div>
+        <div class="card-sub">OneDrive paths, Google Sheet IDs, SharePoint URLs — anything Claude Code needs access to.</div>
+        <div class="file-paths" id="i-file-paths">
+          <div class="file-path-row">
+            <input type="text" placeholder="e.g. /ManageAI/Clients/Sunstate/ or Sheet ID: 1BACvVH9B_...">
+            <button class="btn-icon" onclick="removeIntakeFilePath(this)">×</button>
+          </div>
+        </div>
+        <button class="add-path-btn" onclick="addIntakeFilePath()">+ Add another file location</button>
+      </div>
+
+      <!-- CARD: PRIORITY -->
+      <div class="card">
+        <div class="card-title">Priority & Context</div>
+        <div class="field">
+          <label>Priority <span style="color:var(--red)">*</span></label>
+          <div class="priority-grid">
+            <div class="priority-opt high" onclick="selectIntakePriority(this,'high')">
+              <div class="priority-dot dot-high"></div>
+              <div><div class="priority-label">High</div><div class="priority-desc">Blocking client delivery</div></div>
+            </div>
+            <div class="priority-opt medium selected" onclick="selectIntakePriority(this,'medium')">
+              <div class="priority-dot dot-medium"></div>
+              <div><div class="priority-label">Medium</div><div class="priority-desc">Scheduled deliverable</div></div>
+            </div>
+            <div class="priority-opt low" onclick="selectIntakePriority(this,'low')">
+              <div class="priority-dot dot-low"></div>
+              <div><div class="priority-label">Low</div><div class="priority-desc">Nice to have / backlog</div></div>
+            </div>
+          </div>
+          <input type="hidden" id="i-priority" value="medium">
+        </div>
+        <div class="field">
+          <label>Existing Systems / Credentials</label>
+          <textarea id="i-existing" placeholder="Make.com Team ID, existing scenario IDs, API connections, Google Sheet IDs, n8n workflows to build on..." style="min-height:80px;"></textarea>
+        </div>
+        <div class="field">
+          <label>Anything else F.R.I.D.A.Y. should know?</label>
+          <textarea id="i-context" placeholder="Previous attempts, constraints, things to avoid, client preferences..." style="min-height:80px;"></textarea>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <button class="btn-secondary" onclick="clearIntakeForm()">Clear Form</button>
+          <button class="btn-primary" onclick="submitIntakeTicket()">Submit to F.R.I.D.A.Y. →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="intakeSuccess">
+      <div class="success-icon">✅</div>
+      <h2>Ticket Submitted</h2>
+      <p>F.R.I.D.A.Y. has received your build request and is reviewing it now.</p>
+      <p>If clarification is needed, you'll hear back at <strong id="intake-success-email">brian@manageai.io</strong> shortly.</p>
+      <div class="ticket-id" id="intake-ticket-id">MAI-0000</div>
+      <div class="next-steps">
+        <h3>What Happens Next</h3>
+        <div class="next-step-item">
+          <div class="step-icon" style="background:var(--accent-light)">🧠</div>
+          <p><strong>F.R.I.D.A.Y. reviews your ticket</strong><span>Pulls client history, past builds, and relevant context</span></p>
+        </div>
+        <div class="next-step-item">
+          <div class="step-icon" style="background:var(--amber-light)">📧</div>
+          <p><strong>Clarification email (if needed)</strong><span>Reply directly — F.R.I.D.A.Y. reads your reply</span></p>
+        </div>
+        <div class="next-step-item">
+          <div class="step-icon" style="background:var(--green-light)">🤖</div>
+          <p><strong>Claude Code fires the build</strong><span>4-agent swarm builds in parallel</span></p>
+        </div>
+        <div class="next-step-item">
+          <div class="step-icon" style="background:var(--purple-light)">📦</div>
+          <p><strong>Delivered to OneDrive + Teams</strong><span>Teams notification when files are ready</span></p>
+        </div>
+      </div>
+      <br>
+      <button class="btn-primary" onclick="resetIntakeForm()" style="margin:0 auto;">Submit Another Request</button>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- TAB 4: CLIENTS                                         -->
+  <!-- ====================================================== -->
+  <div id="mode-clients" class="mode-content hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;">Clients & Projects</div>
+        <div style="font-size:13px;color:var(--text-mid);">Customer cards with nested project build assessments.</div>
+      </div>
+      <button class="btn-primary" onclick="openNewClientModal()">+ Add Client</button>
+    </div>
+    <div id="clients-list">
+      <div class="dash-loading"><div class="dash-loading-ring"></div> Loading clients...</div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- TAB 5: BUILDS                                          -->
+  <!-- ====================================================== -->
+  <div id="mode-builds" class="mode-content hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;">Build Pipeline</div>
+        <div style="font-size:13px;color:var(--text-mid);">All active and completed builds across all clients.</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <select id="builds-filter" onchange="filterBuilds()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font);background:var(--bg);outline:none;">
+          <option value="all">All Builds</option>
+          <option value="active">Active</option>
+          <option value="building">Building</option>
+          <option value="done">Completed</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="builds-table-wrap">
+        <div class="dash-loading" style="padding:20px;"><div class="dash-loading-ring"></div> Loading builds...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- TAB 6: FEEDBACK                                        -->
+  <!-- ====================================================== -->
+  <div id="mode-feedback" class="mode-content hidden">
+    <div class="card" style="max-width:680px;">
+      <div class="card-title">System Feedback</div>
+      <div class="card-sub">Help us improve the Build OS. Feedback goes directly to the ManageAI team.</div>
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="fb-name" placeholder="Brian">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="fb-category">
+          <option value="">Select a category…</option>
+          <option value="build_quality">Build Quality — output issues</option>
+          <option value="agent">F.R.I.D.A.Y. Agent — responses off</option>
+          <option value="intake">Intake Form — missing fields</option>
+          <option value="speed">Speed — pipeline too slow</option>
+          <option value="feature">Missing Feature</option>
+          <option value="bug">Bug — something broke</option>
+          <option value="general">General</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Rating</label>
+        <div style="display:flex;gap:8px;margin-top:6px;" id="fb-stars">
+          <span class="fb-star" data-val="1" onclick="setFbRating(1)">★</span>
+          <span class="fb-star" data-val="2" onclick="setFbRating(2)">★</span>
+          <span class="fb-star" data-val="3" onclick="setFbRating(3)">★</span>
+          <span class="fb-star" data-val="4" onclick="setFbRating(4)">★</span>
+          <span class="fb-star" data-val="5" onclick="setFbRating(5)">★</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>What happened?</label>
+        <textarea id="fb-message" rows="5" placeholder="Be specific — the more detail the better." style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;resize:vertical;line-height:1.6;"></textarea>
+      </div>
+      <div class="field">
+        <label>Reference (optional)</label>
+        <input type="text" id="fb-ref" placeholder="e.g. Ticket MAI-1234, Sunstate build from March 10">
+      </div>
+      <div id="fb-success" style="display:none;background:var(--green-light);color:var(--green);padding:14px;border-radius:9px;font-size:13px;font-weight:600;margin-bottom:16px;">✓ Feedback sent — thank you!</div>
+      <button class="btn-primary" onclick="submitFeedback()">Send Feedback</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div class="footer-brand"><span class="m">MANAGE</span><span class="ai">AI</span></div>
+      <span class="footer-meta"> · F.R.I.D.A.Y. Build OS v1.0 · 2026</span>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--text-dim);font-family:var(--mono);">CONFIDENTIAL — INTERNAL USE ONLY</div>
+  </div>
+</div>
+</div>
+
+<!-- ===== VIDEO POPOVER ===== -->
+<div id="friday-video-popover" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(135deg,#1a5fb4,#2563eb);border-radius:24px;padding:4px;box-shadow:0 24px 80px rgba(0,0,0,0.5);max-width:720px;width:94vw;display:flex;flex-direction:column;animation:popIn 0.25s ease-out;">
+    <div style="background:white;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--nav);">F.R.I.D.A.Y.</div>
+            <div id="friday-popover-status" style="font-size:12px;color:var(--accent);font-weight:500;">Connecting...</div>
+          </div>
+        </div>
+        <button onclick="endFridayVideo()" style="background:var(--red-light);color:var(--red);border:none;border-radius:10px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">End Call</button>
+      </div>
+      <div id="friday-daily-container" style="width:100%;height:420px;background:#0f172a;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:50px;background:linear-gradient(#0f172a 10%,transparent);pointer-events:none;z-index:20;"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:24px;padding:18px 20px;background:var(--surface);border-top:1px solid var(--border);">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <button id="friday-ptt-btn"
+            style="width:72px;height:72px;border-radius:50%;background:var(--nav);border:3px solid var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;box-shadow:0 4px 20px rgba(74,144,217,0.3);"
+            onmousedown="startFridayPTT()" onmouseup="stopFridayPTT()"
+            ontouchstart="event.preventDefault();startFridayPTT()" ontouchend="event.preventDefault();stopFridayPTT()">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h-3v2h8v-2h-3v-2.06A9 9 0 0 0 21 12v-2h-2z"/></svg>
+          </button>
+          <div id="friday-ptt-status" style="font-size:11px;color:var(--text-dim);letter-spacing:0.04em;text-transform:uppercase;">Hold to talk</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NEW CLIENT MODAL ===== -->
+<div class="modal-overlay" id="newClientModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Add New Client</div>
+      <button class="modal-close" onclick="closeNewClientModal()">✕ Close</button>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Client Name <span style="color:var(--red)">*</span></label>
+        <input type="text" id="nc-name" placeholder="e.g. Phoenix Medical Group">
+      </div>
+      <div class="field">
+        <label>Industry</label>
+        <select id="nc-industry">
+          <option value="">Select...</option>
+          <option>Medical Transport</option>
+          <option>Construction</option>
+          <option>Healthcare</option>
+          <option>Home Services</option>
+          <option>Behavioral Health</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Primary Contact Email</label>
+      <input type="email" id="nc-email" placeholder="contact@client.com">
+    </div>
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="nc-notes" placeholder="Any notes about this client..." style="min-height:80px;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-secondary" onclick="closeNewClientModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveNewClient()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD PROJECT MODAL ===== -->
+<div class="modal-overlay" id="newProjectModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Add Project to <span id="modal-client-name">Client</span></div>
+      <button class="modal-close" onclick="closeNewProjectModal()">✕ Close</button>
+    </div>
+    <input type="hidden" id="modal-client-id">
+    <div class="field">
+      <label>Project Name <span style="color:var(--red)">*</span></label>
+      <input type="text" id="np-name" placeholder="e.g. Facility Call-Ahead Automation">
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Platform</label>
+        <select id="np-platform">
+          <option>Make.com</option><option>n8n</option><option>Zapier</option>
+          <option>Custom Code</option><option>Multi-platform</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="np-status">
+          <option value="pending">Pending</option>
+          <option value="active">Active</option>
+          <option value="building">Building</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Build Assessment (what's done, what's left)</label>
+      <textarea id="np-assessment" placeholder="Current state: Make.com scenario WF-01 complete, WF-02 in progress. Outstanding: Retell AI integration, final testing." style="min-height:100px;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-secondary" onclick="closeNewProjectModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveNewProject()">Add Project</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== AUTH =====
+function logout() {
+  sessionStorage.removeItem('friday_token');
+  sessionStorage.removeItem('friday_user');
+  window._currentUser = null;
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app-wrapper').style.display = 'none';
+}
+
+// ===== SUPABASE HELPERS =====
+async function sbFetch(path, method='GET', body=null) {
+  try {
+    const resp = await fetch(SB_URL + '/rest/v1/' + path, {
+      method,
+      headers: {
+        'apikey': SB_SERVICE_KEY,
+        'Authorization': 'Bearer ' + SB_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : ''
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch { return null; }
+}
+
+// ===== MODE SWITCHING =====
+let currentMode = 'friday';
+
+function setMode(mode) {
+  currentMode = mode;
+  ['friday','dashboard','intake','clients','builds','feedback'].forEach(m => {
+    const el = document.getElementById('mode-' + m);
+    if (el) el.classList.toggle('hidden', m !== mode);
+    const tab = document.getElementById('tab-' + m);
+    if (tab) tab.classList.toggle('active', m === mode);
+  });
+  if (mode === 'dashboard') loadDashboardData();
+  if (mode === 'clients') loadClientsData();
+  if (mode === 'builds') loadBuildsData();
+}
+
+// ===== DASHBOARD =====
+async function initDashboard() {
+  await loadFridayStats();
+}
+
+async function loadFridayStats() {
+  const builds = await sbFetch('friday_builds?select=id,status') || [];
+  const tickets = await sbFetch('friday_tickets?select=id,status') || [];
+  const clients = await sbFetch('friday_customers?select=id') || [];
+
+  const active = builds.filter(b => b.status === 'active' || b.status === 'building').length;
+  const openTickets = tickets.filter(t => t.status === 'pending' || t.status === 'reviewing').length;
+
+  const pillB = document.querySelector('#fri-stat-builds .rb-pill-value');
+  const pillC = document.querySelector('#fri-stat-clients .rb-pill-value');
+  const pillT = document.querySelector('#fri-stat-tickets .rb-pill-value');
+  if (pillB) pillB.textContent = active || 0;
+  if (pillC) pillC.textContent = clients.length || 0;
+  if (pillT) pillT.textContent = openTickets || 0;
+}
+
+async function loadDashboardData() {
+  // KPIs
+  const builds = await sbFetch('friday_builds?select=*&order=created_at.desc') || [];
+  const tickets = await sbFetch('friday_tickets?select=*&order=created_at.desc&limit=10') || [];
+  const clients = await sbFetch('friday_customers?select=*') || [];
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const active = builds.filter(b => ['active','building'].includes(b.status)).length;
+  const delivered = builds.filter(b => b.status === 'done' && b.created_at > monthStart).length;
+  const openT = tickets.filter(t => ['pending','reviewing'].includes(t.status)).length;
+  const activeClients = [...new Set(builds.filter(b => b.status !== 'done').map(b => b.client_id))].length;
+
+  document.getElementById('d-active-builds').textContent = active;
+  document.getElementById('d-delivered').textContent = delivered;
+  document.getElementById('d-open-tickets').textContent = openT;
+  document.getElementById('d-active-clients').textContent = activeClients || clients.length;
+
+  // Build queue
+  const qEl = document.getElementById('d-build-queue');
+  const activeBuilds = builds.filter(b => ['active','building','pending'].includes(b.status)).slice(0,6);
+  if (!activeBuilds.length) {
+    qEl.innerHTML = '<div class="dash-empty">No active builds</div>';
+  } else {
+    qEl.innerHTML = activeBuilds.map(b => {
+      const pct = b.progress_pct || 0;
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);">${esc(b.project_name || b.title || 'Build')}</div>
+          <span class="status-chip ${b.status}">${b.status}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">${esc(b.client_name || '')} · ${esc(b.platform || '')}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px;font-family:var(--mono);">${pct}%</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Recent tickets
+  const tEl = document.getElementById('d-recent-tickets');
+  if (!tickets.length) {
+    tEl.innerHTML = '<div class="dash-empty">No tickets yet</div>';
+  } else {
+    tEl.innerHTML = tickets.slice(0,6).map(t => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);">${esc(t.project_name || 'Ticket')}</div>
+          <div style="font-size:11px;color:var(--text-dim);">${esc(t.client || '')} · ${esc(t.submitter || '')}</div>
+        </div>
+        <span class="badge ${t.priority === 'high' ? 'badge-red' : t.priority === 'low' ? 'badge-green' : 'badge-amber'}">${t.priority || 'medium'}</span>
+      </div>
+    `).join('');
+  }
+
+  // Client activity
+  const caEl = document.getElementById('d-client-activity');
+  if (!clients.length) {
+    caEl.innerHTML = '<div class="dash-empty">No clients yet</div>';
+  } else {
+    caEl.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;">` +
+      clients.slice(0,6).map(c => {
+        const cBuilds = builds.filter(b => b.client_id === c.id || b.client_name === c.name).length;
+        const cActive = builds.filter(b => (b.client_id === c.id || b.client_name === c.name) && ['active','building'].includes(b.status)).length;
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--nav);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${(c.name||'?').charAt(0)}</div>
+          <div style="flex:1;font-size:13px;font-weight:600;color:var(--text);">${esc(c.name||'')}</div>
+          <div style="font-size:11px;color:var(--text-dim);">${cBuilds} builds total</div>
+          ${cActive > 0 ? `<span class="status-chip active"><div class="status-chip-dot"></div>${cActive} active</span>` : ''}
+        </div>`;
+      }).join('') + '</div>';
+  }
+}
+
+// ===== CLIENTS =====
+async function loadClientsData() {
+  const clients = await sbFetch('friday_customers?select=*&order=name.asc') || [];
+  const projects = await sbFetch('friday_projects?select=*&order=created_at.desc') || [];
+
+  const el = document.getElementById('clients-list');
+  if (!clients.length) {
+    el.innerHTML = `<div class="card" style="text-align:center;padding:48px;color:var(--text-dim);">
+      <div style="font-size:40px;margin-bottom:16px;">🏢</div>
+      <div style="font-size:14px;font-weight:600;">No clients yet</div>
+      <div style="font-size:12px;margin-top:8px;">Add your first client to get started.</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = clients.map(c => {
+    const cProjects = projects.filter(p => p.customer_id === c.id || p.client_name === c.name);
+    const activeCount = cProjects.filter(p => ['active','building'].includes(p.status)).length;
+    return `
+    <div class="client-card">
+      <div class="client-header" onclick="toggleClientCard('client-${c.id}')">
+        <div class="client-avatar">${(c.name||'?').charAt(0)}</div>
+        <div style="flex:1;">
+          <div class="client-name">${esc(c.name||'')}</div>
+          <div class="client-meta">${esc(c.industry||'')}${c.contact_email ? ' · ' + esc(c.contact_email) : ''} · ${cProjects.length} project${cProjects.length !== 1 ? 's' : ''}</div>
+        </div>
+        ${activeCount > 0 ? `<span class="status-chip active" style="margin-right:8px;"><div class="status-chip-dot"></div>${activeCount} active</span>` : ''}
+        <div class="client-chevron" id="chevron-client-${c.id}">▶</div>
+      </div>
+      <div class="client-projects" id="client-${c.id}">
+        ${cProjects.length === 0 ? '<div style="font-size:13px;color:var(--text-dim);padding:8px 0;">No projects yet.</div>' : ''}
+        ${cProjects.map(p => `
+          <div class="project-card">
+            <div class="project-icon">${p.platform === 'n8n' ? '⚡' : p.platform === 'Make.com' ? '⚙️' : p.platform === 'Custom Code' ? '💻' : '🔄'}</div>
+            <div style="flex:1;">
+              <div class="project-name">${esc(p.name||p.project_name||'Project')}</div>
+              <div class="project-platform">${esc(p.platform||'')} · Ticket: ${esc(p.ticket_id||'—')}</div>
+              <div class="project-meta-row">
+                <span class="status-chip ${p.status||'pending'}"><div class="status-chip-dot"></div>${p.status||'pending'}</span>
+                ${p.deadline ? `<span class="badge badge-gray">Due ${new Date(p.deadline).toLocaleDateString()}</span>` : ''}
+                ${p.progress_pct ? `<span class="badge badge-blue">${p.progress_pct}% done</span>` : ''}
+              </div>
+              ${p.assessment ? `<div style="font-size:12px;color:var(--text-mid);margin-top:8px;line-height:1.6;background:var(--surface);border-radius:8px;padding:10px 12px;">${esc(p.assessment)}</div>` : ''}
+            </div>
+            <div class="project-actions">
+              <button class="btn-sm" onclick="openEditProject('${p.id}')">Edit</button>
+            </div>
+          </div>
+        `).join('')}
+        <button class="add-project-btn" onclick="openNewProjectModal('${c.id}','${esc(c.name||'')}')">+ Add Project</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleClientCard(id) {
+  const panel = document.getElementById(id);
+  const chevron = document.getElementById('chevron-' + id);
+  if (!panel) return;
+  panel.classList.toggle('open');
+  if (chevron) chevron.classList.toggle('open');
+}
+
+// ===== BUILDS =====
+let allBuilds = [];
+
+async function loadBuildsData() {
+  const builds = await sbFetch('friday_builds?select=*&order=created_at.desc') || [];
+  allBuilds = builds;
+  renderBuildsTable(builds);
+}
+
+function filterBuilds() {
+  const filter = document.getElementById('builds-filter').value;
+  const filtered = filter === 'all' ? allBuilds : allBuilds.filter(b => b.status === filter);
+  renderBuildsTable(filtered);
+}
+
+function renderBuildsTable(builds) {
+  const el = document.getElementById('builds-table-wrap');
+  if (!builds.length) {
+    el.innerHTML = '<div class="dash-empty" style="padding:40px;">No builds found.</div>';
+    return;
+  }
+  el.innerHTML = `<table class="builds-table">
+    <thead><tr>
+      <th>Project</th><th>Client</th><th>Platform</th><th>Status</th><th>Progress</th><th>Ticket</th><th>Updated</th>
+    </tr></thead>
+    <tbody>
+      ${builds.map(b => {
+        const pct = b.progress_pct || 0;
+        const dateStr = b.updated_at ? new Date(b.updated_at).toLocaleDateString() : '—';
+        return `<tr>
+          <td style="font-weight:700;">${esc(b.project_name||b.title||'Build')}</td>
+          <td>${esc(b.client_name||'—')}</td>
+          <td><span class="badge badge-gray" style="font-family:var(--mono);">${esc(b.platform||'—')}</span></td>
+          <td><span class="status-chip ${b.status||'pending'}"><div class="status-chip-dot"></div>${b.status||'pending'}</span></td>
+          <td style="width:120px;">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;font-family:var(--mono);">${pct}%</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          </td>
+          <td style="font-family:var(--mono);font-size:11px;color:var(--accent);">${esc(b.ticket_id||'—')}</td>
+          <td style="font-size:11px;color:var(--text-dim);">${dateStr}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ===== INTAKE FORM =====
+let intakePlatform = '';
+let intakePriority = 'medium';
+const SUBMITTER_EMAILS = {Brian:'brian@manageai.io',Dave:'dave@manageai.io',Tony:'tony@manageai.io',Dan:'dan@manageai.io',Jacob:'jacob@manageai.io',Chad:'chad@manageai.io',Brent:'brent@manageai.io'};
+
+function toggleNewClient() {
+  const v = document.getElementById('i-client').value;
+  document.getElementById('i-new-client-row').style.display = v === 'new' ? 'grid' : 'none';
+}
+
+function selectIntakePlatform(el, val) {
+  document.querySelectorAll('#i-platform-grid .platform-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  intakePlatform = val;
+  document.getElementById('i-platform').value = val;
+}
+
+function selectIntakePriority(el, val) {
+  document.querySelectorAll('#mode-intake .priority-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  intakePriority = val;
+  document.getElementById('i-priority').value = val;
+}
+
+function addIntakeFilePath() {
+  const c = document.getElementById('i-file-paths');
+  const row = document.createElement('div');
+  row.className = 'file-path-row';
+  row.innerHTML = '<input type="text" placeholder="File path or URL"><button class="btn-icon" onclick="removeIntakeFilePath(this)">×</button>';
+  c.appendChild(row);
+}
+
+function removeIntakeFilePath(btn) {
+  const rows = document.querySelectorAll('#i-file-paths .file-path-row');
+  if (rows.length > 1) btn.closest('.file-path-row').remove();
+}
+
+function getIntakeFilePaths() {
+  return Array.from(document.querySelectorAll('#i-file-paths input')).map(i => i.value.trim()).filter(Boolean);
+}
+
+function clearIntakeForm() {
+  ['i-submitter','i-client','i-project-name','i-deadline','i-complexity','i-existing','i-context'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('i-new-client-row').style.display = 'none';
+  document.querySelectorAll('#i-platform-grid .platform-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#mode-intake .priority-opt').forEach(o => o.classList.remove('selected'));
+  document.querySelector('#mode-intake .priority-opt.medium').classList.add('selected');
+  intakePlatform = ''; intakePriority = 'medium';
+  document.getElementById('i-file-paths').innerHTML = '<div class="file-path-row"><input type="text" placeholder="e.g. /ManageAI/Clients/Sunstate/"><button class="btn-icon" onclick="removeIntakeFilePath(this)">×</button></div>';
+}
+
+async function submitIntakeTicket() {
+  const sub = document.getElementById('i-submitter').value;
+  const client = document.getElementById('i-client').value === 'new' ? document.getElementById('i-new-client-name').value : document.getElementById('i-client').value;
+  const project = document.getElementById('i-project-name').value.trim();
+  const desc = document.getElementById('i-description').value.trim();
+
+  if (!sub || !client || !project || !intakePlatform || !desc) {
+    alert('Please fill in: Submitted By, Client, Project Name, Platform, and Description.');
+    return;
+  }
+
+  const ticketId = 'MAI-' + (Math.floor(Math.random()*9000)+1000);
+  const payload = {
+    ticket_id: ticketId,
+    submitted_at: new Date().toISOString(),
+    submitter: sub,
+    submitter_email: SUBMITTER_EMAILS[sub] || 'brian@manageai.io',
+    client: client,
+    project_name: project,
+    platform: intakePlatform,
+    request_description: desc,
+    deadline: document.getElementById('i-deadline').value,
+    complexity: document.getElementById('i-complexity').value,
+    priority: intakePriority,
+    file_locations: getIntakeFilePaths(),
+    existing_systems: document.getElementById('i-existing').value.trim(),
+    additional_context: document.getElementById('i-context').value.trim()
+  };
+
+  // Save to Supabase
+  await sbFetch('friday_tickets', 'POST', payload);
+
+  // Fire webhook
+  try {
+    await fetch(INTAKE_WEBHOOK, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+      mode: 'no-cors'
+    });
+  } catch(e) {}
+
+  document.getElementById('intakeFormContent').style.display = 'none';
+  document.getElementById('intake-ticket-id').textContent = ticketId;
+  document.getElementById('intake-success-email').textContent = SUBMITTER_EMAILS[sub] || 'brian@manageai.io';
+  document.getElementById('intakeSuccess').classList.add('visible');
+}
+
+function resetIntakeForm() {
+  clearIntakeForm();
+  document.getElementById('intakeFormContent').style.display = 'block';
+  document.getElementById('intakeSuccess').classList.remove('visible');
+}
+
+// ===== CLIENT / PROJECT MODALS =====
+function openNewClientModal() { document.getElementById('newClientModal').classList.add('open'); }
+function closeNewClientModal() { document.getElementById('newClientModal').classList.remove('open'); }
+function openNewProjectModal(clientId, clientName) {
+  document.getElementById('modal-client-id').value = clientId;
+  document.getElementById('modal-client-name').textContent = clientName;
+  document.getElementById('newProjectModal').classList.add('open');
+}
+function closeNewProjectModal() { document.getElementById('newProjectModal').classList.remove('open'); }
+
+async function saveNewClient() {
+  const name = document.getElementById('nc-name').value.trim();
+  if (!name) { alert('Client name required'); return; }
+  const data = {
+    name, industry: document.getElementById('nc-industry').value,
+    contact_email: document.getElementById('nc-email').value,
+    notes: document.getElementById('nc-notes').value,
+    created_at: new Date().toISOString()
+  };
+  await sbFetch('friday_customers', 'POST', data);
+  closeNewClientModal();
+  loadClientsData();
+}
+
+async function saveNewProject() {
+  const name = document.getElementById('np-name').value.trim();
+  if (!name) { alert('Project name required'); return; }
+  const data = {
+    customer_id: document.getElementById('modal-client-id').value,
+    name, platform: document.getElementById('np-platform').value,
+    status: document.getElementById('np-status').value,
+    assessment: document.getElementById('np-assessment').value,
+    created_at: new Date().toISOString()
+  };
+  await sbFetch('friday_projects', 'POST', data);
+  closeNewProjectModal();
+  loadClientsData();
+}
+
+function openEditProject(id) {
+  alert('Edit project ' + id + ' — wire to your edit modal');
+}
+
+// ===== F.R.I.D.A.Y. AGENT CHAT =====
+const FRIDAY_PHOTO = ''; // your agent photo URL
+let fridayConversation = [];
+let fridayStats = {};
+
+function fridayTimeNow() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+
+async function loadFridayBriefing() {
+  renderFridayWelcome(null);
+  try {
+    const builds = await sbFetch('friday_builds?select=*&order=created_at.desc&limit=50') || [];
+    const tickets = await sbFetch('friday_tickets?select=*&order=created_at.desc&limit=20') || [];
+    const clients = await sbFetch('friday_customers?select=*') || [];
+
+    const active = builds.filter(b => ['active','building'].includes(b.status));
+    const pending = tickets.filter(t => t.status === 'pending');
+    const done = builds.filter(b => b.status === 'done');
+
+    fridayStats = { builds, tickets, clients, active, pending, done };
+
+    const el = document.getElementById('friday-briefing');
+    let briefing = `Here's the current state, Boss. You have <b>${active.length}</b> active build${active.length !== 1 ? 's' : ''} in the pipeline across <b>${clients.length}</b> clients. <b>${pending.length}</b> ticket${pending.length !== 1 ? 's are' : ' is'} waiting to be built, and <b>${done.length}</b> build${done.length !== 1 ? 's have' : ' has'} been delivered.`;
+    if (active.length > 0) briefing += ` Active now: ${active.slice(0,3).map(b => '<b>' + esc(b.project_name || 'Build') + '</b>').join(', ')}.`;
+    briefing += '<br><br>What do you want to tackle first?';
+
+    if (el) el.innerHTML = briefing;
+
+    const pillB = document.querySelector('#fri-stat-builds .rb-pill-value');
+    const pillC = document.querySelector('#fri-stat-clients .rb-pill-value');
+    const pillT = document.querySelector('#fri-stat-tickets .rb-pill-value');
+    if (pillB) pillB.textContent = active.length;
+    if (pillC) pillC.textContent = clients.length;
+    if (pillT) pillT.textContent = pending.length;
+  } catch(e) {
+    const el = document.getElementById('friday-briefing');
+    if (el) el.textContent = 'Could not load live data — check your Supabase config.';
+  }
+}
+
+function renderFridayWelcome(briefing) {
+  const msgs = document.getElementById('friday-messages');
+  if (!msgs) return;
+  const text = briefing || '[Loading your briefing…]';
+  msgs.innerHTML = `<div class="rb-msg-row">
+    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🤖</div>
+    <div>
+      <div class="rb-msg-meta">F.R.I.D.A.Y. · Just now</div>
+      <div class="rb-msg-bubble assistant" id="friday-welcome-bubble">
+        Morning, Boss. Let me pull up the build pipeline and see what we're working with today.<br><br>
+        <span id="friday-briefing">${text}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function fridayAppendMessage(role, text) {
+  const msgs = document.getElementById('friday-messages');
+  if (!msgs) return;
+  const time = fridayTimeNow();
+  const row = document.createElement('div');
+  if (role === 'user') {
+    row.className = 'rb-msg-row user';
+    row.innerHTML = `<div class="rb-msg-bubble user">${text}</div>`;
+  } else {
+    row.className = 'rb-msg-row';
+    row.innerHTML = `
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🤖</div>
+      <div>
+        <div class="rb-msg-meta">F.R.I.D.A.Y. · ${time}</div>
+        <div class="rb-msg-bubble assistant">${text}</div>
+      </div>`;
+  }
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function fridayShowTyping() {
+  const msgs = document.getElementById('friday-messages');
+  if (!msgs) return;
+  let t = document.getElementById('friday-typing');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'friday-typing';
+    t.className = 'rb-typing visible';
+    t.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🤖</div><div class="rb-typing-dots"><span></span><span></span><span></span></div>`;
+    msgs.appendChild(t);
+  } else {
+    t.classList.add('visible');
+    t.style.display = 'flex';
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function fridayHideTyping() {
+  const t = document.getElementById('friday-typing');
+  if (t) { t.classList.remove('visible'); t.style.display = 'none'; }
+}
+
+async function sendFridayMessage() {
+  const input = document.getElementById('friday-input');
+  const userMsg = input.value.trim();
+  if (!userMsg) return;
+  input.value = '';
+  input.style.height = '44px';
+
+  document.getElementById('friday-suggestions').style.display = 'none';
+  fridayAppendMessage('user', userMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+  fridayShowTyping();
+
+  const systemContext = `You are F.R.I.D.A.Y., an AI build delivery intelligence for ManageAI. You help the team track builds, manage client projects, route build tickets, and understand pipeline status.
+
+Current pipeline data:
+- Active builds: ${(fridayStats.active||[]).length}
+- Active build names: ${(fridayStats.active||[]).map(b => b.project_name||'Build').join(', ') || 'none'}
+- Pending tickets: ${(fridayStats.pending||[]).length}
+- Total clients: ${(fridayStats.clients||[]).length}
+- Delivered builds: ${(fridayStats.done||[]).length}
+- Recent tickets: ${JSON.stringify((fridayStats.tickets||[]).slice(0,5).map(t => ({name:t.project_name,client:t.client,priority:t.priority,status:t.status})))}
+
+You speak like a direct, sharp operations manager. No fluff. Give specific, useful information. When asked about builds, give concrete answers. When asked to fire a build, acknowledge clearly.
+
+User (${(window._currentUser||{}).name||'Boss'}): ${userMsg}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [
+          ...fridayConversation,
+          { role: 'user', content: systemContext }
+        ]
+      })
+    });
+    const data = await resp.json();
+    fridayHideTyping();
+
+    const reply = data?.content?.[0]?.text || 'Something went wrong on my end, Boss. Try again.';
+    const displayReply = reply.replace(/\n/g, '<br>');
+    fridayAppendMessage('assistant', displayReply);
+    fridayConversation.push({ role: 'user', content: userMsg });
+    fridayConversation.push({ role: 'assistant', content: reply });
+    const msgs = document.getElementById('friday-messages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  } catch(e) {
+    fridayHideTyping();
+    fridayAppendMessage('assistant', 'Connection trouble, Boss. Try again in a moment.');
+  }
+}
+
+function clearFridayChat() {
+  fridayConversation = [];
+  const brief = document.getElementById('friday-briefing');
+  const savedBrief = brief ? brief.innerHTML : '';
+  renderFridayWelcome(savedBrief);
+  document.getElementById('friday-suggestions').style.display = 'flex';
+}
+
+function fridayUseSuggestion(el) {
+  const input = document.getElementById('friday-input');
+  if (input) input.value = el.textContent;
+  sendFridayMessage();
+}
+
+// ===== TAVUS VIDEO =====
+let fridayConversationId = null;
+let fridayCallObject = null;
+let fridaySessionActive = false;
+let fridayPttActive = false;
+
+async function startFridayVideo() {
+  const popover = document.getElementById('friday-video-popover');
+  popover.style.display = 'flex';
+  document.getElementById('friday-popover-status').textContent = 'Connecting…';
+
+  try {
+    const resp = await fetch('/api/tavus-session', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'create', user_name: (window._currentUser||{}).name || 'Boss', persona: 'friday' })
+    });
+    const data = await resp.json();
+    if (!data.conversation_url) throw new Error('No conversation URL returned');
+
+    fridayConversationId = data.conversation_id;
+    fridaySessionActive = true;
+
+    const container = document.getElementById('friday-daily-container');
+    if (typeof window.Daily !== 'undefined') {
+      fridayCallObject = window.Daily.createFrame(container, {
+        iframeStyle: { position:'absolute', top:'8px', left:'0', width:'100%', height:'520px', border:'none', borderRadius:'0' },
+        showLeaveButton: false, showFullscreenButton: false
+      });
+      await fridayCallObject.join({ url: data.conversation_url, startAudioOff: true, startVideoOff: false });
+    }
+
+    document.getElementById('friday-popover-status').textContent = 'Live';
+  } catch(e) {
+    popover.style.display = 'none';
+    alert('Could not start video session: ' + e.message);
+  }
+}
+
+async function endFridayVideo() {
+  if (fridayCallObject) {
+    try { await fridayCallObject.leave(); fridayCallObject.destroy(); } catch(e) {}
+    fridayCallObject = null;
+  }
+  if (fridayConversationId) {
+    try {
+      await fetch('/api/tavus-session', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ action: 'end', conversation_id: fridayConversationId })
+      });
+    } catch(e) {}
+  }
+  fridayConversationId = null;
+  fridaySessionActive = false;
+  document.getElementById('friday-video-popover').style.display = 'none';
+  const container = document.getElementById('friday-daily-container');
+  if (container) container.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:50px;background:linear-gradient(#0f172a 10%,transparent);pointer-events:none;z-index:20;"></div>';
+}
+
+function startFridayPTT() {
+  if (!fridaySessionActive || !fridayCallObject) return;
+  fridayPttActive = true;
+  const btn = document.getElementById('friday-ptt-btn');
+  const status = document.getElementById('friday-ptt-status');
+  btn.style.background = '#dc2626';
+  btn.style.borderColor = '#dc2626';
+  btn.style.boxShadow = '0 4px 24px rgba(220,38,38,0.5)';
+  if (status) { status.textContent = 'Listening…'; status.style.color = '#dc2626'; }
+  try { fridayCallObject.setLocalAudio(true); } catch(e) {}
+}
+
+function stopFridayPTT() {
+  if (!fridayPttActive) return;
+  fridayPttActive = false;
+  const btn = document.getElementById('friday-ptt-btn');
+  const status = document.getElementById('friday-ptt-status');
+  btn.style.background = 'var(--nav)';
+  btn.style.borderColor = 'var(--accent)';
+  btn.style.boxShadow = '0 4px 20px rgba(74,144,217,0.3)';
+  if (status) { status.textContent = 'Hold to talk'; status.style.color = 'var(--text-dim)'; }
+  try { if (fridayCallObject) fridayCallObject.setLocalAudio(false); } catch(e) {}
+}
+
+// ===== FEEDBACK =====
+let fbRating = 0;
+function setFbRating(val) {
+  fbRating = val;
+  document.querySelectorAll('.fb-star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+  });
+}
+
+async function submitFeedback() {
+  const msg = document.getElementById('fb-message').value.trim();
+  if (!msg) { alert('Please describe your feedback.'); return; }
+  try {
+    await fetch('https://manageai2026.app.n8n.cloud/webhook/lb-feedback', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name: document.getElementById('fb-name').value,
+        category: document.getElementById('fb-category').value,
+        rating: fbRating,
+        message: msg,
+        reference: document.getElementById('fb-ref').value,
+        system: 'FRIDAY Build OS',
+        submitted_at: new Date().toISOString()
+      })
+    });
+    document.getElementById('fb-success').style.display = 'block';
+    document.getElementById('fb-message').value = '';
+    setFbRating(0);
+  } catch(e) { alert('Failed to submit. Try again.'); }
+}
+
+// ===== UTILS =====
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ===== INPUT HANDLERS =====
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-restore session
+  const token = sessionStorage.getItem('friday_token');
+  const user = sessionStorage.getItem('friday_user');
+  if (token && user) {
+    window._authToken = token;
+    window._currentUser = JSON.parse(user);
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-wrapper').style.display = 'block';
+    document.getElementById('user-badge').textContent = window._currentUser.name;
+    initDashboard();
+    setMode('friday');
+    loadFridayBriefing();
+  }
+
+  // Friday chat input
+  const input = document.getElementById('friday-input');
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFridayMessage(); }
+    });
+    input.addEventListener('input', function() {
+      this.style.height = '44px';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+  }
+
+  // Popover close on backdrop click
+  const pop = document.getElementById('friday-video-popover');
+  if (pop) pop.addEventListener('click', e => { if (e.target === pop) endFridayVideo(); });
+
+  // Modal close on backdrop
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+  });
+});
+</script>
+</body>
+</html>
