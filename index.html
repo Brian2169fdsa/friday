@@ -394,7 +394,7 @@
       <div class="tag">F.R.I.D.A.Y. Build OS</div>
     </div>
     <div class="login-title">Welcome back</div>
-    <div class="login-sub" id="login-sub">Sign in to access the Build OS</div>
+    <div class="login-sub">Sign in to access the Build OS</div>
     <div class="login-error" id="login-error">Invalid email or password.</div>
     <div class="login-field">
       <label>Email</label>
@@ -410,33 +410,13 @@
 
 <script>
 // ===== CONFIG =====
-const SB_URL = 'YOUR_SUPABASE_URL'; // e.g. https://xyz.supabase.co
-const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
-const SB_SERVICE_KEY = 'YOUR_SUPABASE_SERVICE_KEY';
+const SB_URL = 'https://fmemdogudiolevqsfuvd.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtZW1kb2d1ZGlvbGV2cXNmdXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDU0NjIsImV4cCI6MjA4OTI4MTQ2Mn0.jXXu-JE_w3ZeFXOXFyDRzhFe3ztDEv8ozWBywR-TOQA';
+const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtZW1kb2d1ZGlvbGV2cXNmdXZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzcwNTQ2MiwiZXhwIjoyMDg5MjgxNDYyfQ.PXBm_m4Qcf2izPmh2d_loiFGfUKlqKqm4QhyY2x89BA';
 const FRIDAY_WEBHOOK = 'YOUR_N8N_FRIDAY_WEBHOOK_URL';
 const INTAKE_WEBHOOK = 'https://hook.us2.make.com/d796hs5qqk9qgs6ij8y6izs3pg3352w4'; // from your intake form
 
-// Show demo hint if Supabase not configured
-if (SB_URL === 'YOUR_SUPABASE_URL' || !SB_URL.startsWith('http')) {
-  document.addEventListener('DOMContentLoaded', function() {
-    const sub = document.getElementById('login-sub');
-    if (sub) sub.textContent = 'Demo mode — enter any email to continue';
-  });
-}
-
 // ===== LOGIN =====
-function enterApp(email, token) {
-  window._authToken = token;
-  window._currentUser = {email: email, name: email.split('@')[0]};
-  sessionStorage.setItem('friday_token', token);
-  sessionStorage.setItem('friday_user', JSON.stringify(window._currentUser));
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app-wrapper').style.display = 'block';
-  document.getElementById('user-badge').textContent = window._currentUser.name;
-  initDashboard();
-  setMode('friday');
-}
-
 async function doLogin() {
   const em = document.getElementById('login-email').value.trim();
   const pw = document.getElementById('login-password').value;
@@ -444,18 +424,6 @@ async function doLogin() {
   const btn = document.getElementById('btn-login');
   err.style.display = 'none';
   btn.disabled = true; btn.textContent = 'Signing in…';
-
-  // Demo mode: if Supabase is not configured, allow demo access
-  if (SB_URL === 'YOUR_SUPABASE_URL' || !SB_URL.startsWith('http')) {
-    if (!em) {
-      err.textContent = 'Please enter an email address.'; err.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Sign In to F.R.I.D.A.Y.';
-      return;
-    }
-    enterApp(em, 'demo_token');
-    return;
-  }
-
   try {
     const r = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
       method: 'POST',
@@ -464,7 +432,26 @@ async function doLogin() {
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error_description || 'Invalid credentials');
-    enterApp(d.user.email, d.access_token);
+    window._authToken = d.access_token;
+    window._currentUser = {email: d.user.email, name: d.user.email.split('@')[0], role: 'team'};
+    // Pull real display name + role from friday_users
+    try {
+      const uResp = await fetch(SB_URL + '/rest/v1/friday_users?email=eq.' + encodeURIComponent(d.user.email) + '&select=name,role', {
+        headers: {'apikey': SB_SERVICE_KEY, 'Authorization': 'Bearer ' + SB_SERVICE_KEY}
+      });
+      const uData = await uResp.json();
+      if (uData && uData[0]) {
+        window._currentUser.name = uData[0].name;
+        window._currentUser.role = uData[0].role;
+      }
+    } catch(e) { /* non-fatal — fallback to email prefix */ }
+    sessionStorage.setItem('friday_token', d.access_token);
+    sessionStorage.setItem('friday_user', JSON.stringify(window._currentUser));
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-wrapper').style.display = 'block';
+    document.getElementById('user-badge').textContent = window._currentUser.name;
+    initDashboard();
+    setMode('friday');
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
     btn.disabled = false; btn.textContent = 'Sign In to F.R.I.D.A.Y.';
@@ -1557,23 +1544,30 @@ You speak like a direct, sharp operations manager. No fluff. Give specific, usef
 
 User (${(window._currentUser||{}).name||'Boss'}): ${userMsg}`;
 
+  // Route through n8n webhook (Anthropic API cannot be called directly from browsers due to CORS)
+  if (FRIDAY_WEBHOOK === 'YOUR_N8N_FRIDAY_WEBHOOK_URL' || !FRIDAY_WEBHOOK.startsWith('http')) {
+    fridayHideTyping();
+    fridayAppendMessage('assistant', 'Chat backend not configured yet, Boss. Set the <code>FRIDAY_WEBHOOK</code> to your n8n webhook URL to enable live AI responses.<br><br>In the meantime, the rest of the Build OS is fully functional — dashboard, intake, clients, and builds all pull live data from Supabase.');
+    return;
+  }
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(FRIDAY_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [
-          ...fridayConversation,
-          { role: 'user', content: systemContext }
-        ]
+        user_message: userMsg,
+        system_context: systemContext,
+        conversation_history: fridayConversation,
+        user: (window._currentUser || {}).name || 'Boss'
       })
     });
     const data = await resp.json();
     fridayHideTyping();
 
-    const reply = data?.content?.[0]?.text || 'Something went wrong on my end, Boss. Try again.';
+    // Support both direct text responses and Anthropic-formatted responses
+    const reply = typeof data === 'string' ? data
+      : data?.reply || data?.response || data?.content?.[0]?.text
+      || 'Something went wrong on my end, Boss. Try again.';
     const displayReply = reply.replace(/\n/g, '<br>');
     fridayAppendMessage('assistant', displayReply);
     fridayConversation.push({ role: 'user', content: userMsg });
