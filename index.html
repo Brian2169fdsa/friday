@@ -510,9 +510,7 @@ async function doLogin() {
       <!-- LEFT: Profile -->
       <div class="rb-left">
         <div class="rb-card">
-          <div style="width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;margin:0 auto;border:3px solid #1E3348;box-shadow:0 6px 24px rgba(0,0,0,0.18);">
-            <span style="font-size:60px;">🤖</span>
-          </div>
+          <img src="https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp" alt="F.R.I.D.A.Y." class="rb-photo">
           <div class="rb-name">F.R.I.D.A.Y.</div>
           <div class="rb-title">Build Delivery Intelligence</div>
           <div class="rb-reports">ManageAI Internal Build OS</div>
@@ -544,7 +542,7 @@ async function doLogin() {
         <div class="rb-card" style="padding:0;display:flex;flex-direction:column;flex:1;">
           <div class="rb-chat-header">
             <div class="rb-chat-header-left">
-              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+              <img src="https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp" alt="F.R.I.D.A.Y." style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
               <div>
                 <div class="rb-chat-name">F.R.I.D.A.Y. <span class="rb-dot-sm"></span></div>
                 <div class="rb-chat-sub">Connected to build pipeline, tickets, clients, and delivery data</div>
@@ -916,7 +914,7 @@ async function doLogin() {
     <div style="background:white;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);">
         <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+          <img src="https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp" alt="F.R.I.D.A.Y." style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
           <div>
             <div style="font-size:15px;font-weight:700;color:var(--nav);">F.R.I.D.A.Y.</div>
             <div id="friday-popover-status" style="font-size:12px;color:var(--accent);font-weight:500;">Connecting...</div>
@@ -1422,7 +1420,7 @@ function openEditProject(id) {
 }
 
 // ===== F.R.I.D.A.Y. AGENT CHAT =====
-const FRIDAY_PHOTO = ''; // your agent photo URL
+const FRIDAY_PHOTO = 'https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp';
 let fridayConversation = [];
 let fridayStats = {};
 
@@ -1465,7 +1463,7 @@ function renderFridayWelcome(briefing) {
   if (!msgs) return;
   const text = briefing || '[Loading your briefing…]';
   msgs.innerHTML = `<div class="rb-msg-row">
-    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🤖</div>
+    <img src="${FRIDAY_PHOTO}" alt="F.R.I.D.A.Y." style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
     <div>
       <div class="rb-msg-meta">F.R.I.D.A.Y. · Just now</div>
       <div class="rb-msg-bubble assistant" id="friday-welcome-bubble">
@@ -1487,7 +1485,7 @@ function fridayAppendMessage(role, text) {
   } else {
     row.className = 'rb-msg-row';
     row.innerHTML = `
-      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🤖</div>
+      <img src="${FRIDAY_PHOTO}" alt="F.R.I.D.A.Y." style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
       <div>
         <div class="rb-msg-meta">F.R.I.D.A.Y. · ${time}</div>
         <div class="rb-msg-bubble assistant">${text}</div>
@@ -1505,7 +1503,7 @@ function fridayShowTyping() {
     t = document.createElement('div');
     t.id = 'friday-typing';
     t.className = 'rb-typing visible';
-    t.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1E3348,#4A8FD6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🤖</div><div class="rb-typing-dots"><span></span><span></span><span></span></div>`;
+    t.innerHTML = `<img src="${FRIDAY_PHOTO}" alt="F.R.I.D.A.Y." style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;"><div class="rb-typing-dots"><span></span><span></span><span></span></div>`;
     msgs.appendChild(t);
   } else {
     t.classList.add('visible');
