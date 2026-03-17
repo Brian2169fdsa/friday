@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>F.R.I.D.A.Y. — ManageAI Build OS</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+  <script defer crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -394,7 +394,7 @@
       <div class="tag">F.R.I.D.A.Y. Build OS</div>
     </div>
     <div class="login-title">Welcome back</div>
-    <div class="login-sub">Sign in to access the Build OS</div>
+    <div class="login-sub" id="login-sub">Sign in to access the Build OS</div>
     <div class="login-error" id="login-error">Invalid email or password.</div>
     <div class="login-field">
       <label>Email</label>
@@ -416,7 +416,27 @@ const SB_SERVICE_KEY = 'YOUR_SUPABASE_SERVICE_KEY';
 const FRIDAY_WEBHOOK = 'YOUR_N8N_FRIDAY_WEBHOOK_URL';
 const INTAKE_WEBHOOK = 'https://hook.us2.make.com/d796hs5qqk9qgs6ij8y6izs3pg3352w4'; // from your intake form
 
+// Show demo hint if Supabase not configured
+if (SB_URL === 'YOUR_SUPABASE_URL' || !SB_URL.startsWith('http')) {
+  document.addEventListener('DOMContentLoaded', function() {
+    const sub = document.getElementById('login-sub');
+    if (sub) sub.textContent = 'Demo mode — enter any email to continue';
+  });
+}
+
 // ===== LOGIN =====
+function enterApp(email, token) {
+  window._authToken = token;
+  window._currentUser = {email: email, name: email.split('@')[0]};
+  sessionStorage.setItem('friday_token', token);
+  sessionStorage.setItem('friday_user', JSON.stringify(window._currentUser));
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-wrapper').style.display = 'block';
+  document.getElementById('user-badge').textContent = window._currentUser.name;
+  initDashboard();
+  setMode('friday');
+}
+
 async function doLogin() {
   const em = document.getElementById('login-email').value.trim();
   const pw = document.getElementById('login-password').value;
@@ -424,6 +444,18 @@ async function doLogin() {
   const btn = document.getElementById('btn-login');
   err.style.display = 'none';
   btn.disabled = true; btn.textContent = 'Signing in…';
+
+  // Demo mode: if Supabase is not configured, allow demo access
+  if (SB_URL === 'YOUR_SUPABASE_URL' || !SB_URL.startsWith('http')) {
+    if (!em) {
+      err.textContent = 'Please enter an email address.'; err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Sign In to F.R.I.D.A.Y.';
+      return;
+    }
+    enterApp(em, 'demo_token');
+    return;
+  }
+
   try {
     const r = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
       method: 'POST',
@@ -432,15 +464,7 @@ async function doLogin() {
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error_description || 'Invalid credentials');
-    window._authToken = d.access_token;
-    window._currentUser = {email: d.user.email, name: d.user.email.split('@')[0]};
-    sessionStorage.setItem('friday_token', d.access_token);
-    sessionStorage.setItem('friday_user', JSON.stringify(window._currentUser));
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('app-wrapper').style.display = 'block';
-    document.getElementById('user-badge').textContent = window._currentUser.name;
-    initDashboard();
-    setMode('friday');
+    enterApp(d.user.email, d.access_token);
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
     btn.disabled = false; btn.textContent = 'Sign In to F.R.I.D.A.Y.';
