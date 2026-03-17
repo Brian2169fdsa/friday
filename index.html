@@ -1482,23 +1482,40 @@ async function loadClientDetail(clientName) {
   document.getElementById('cd-build-count').textContent = bl.length;
   document.getElementById('cd-ticket-count').textContent = tl.filter(function(t){ return !['done','cancelled'].includes(t.status); }).length;
   const bEl = document.getElementById('cd-builds-table');
-  if (!bl.length) { bEl.innerHTML = '<div class="dash-empty" style="padding:32px;">No builds yet for this client.</div>'; }
-  else {
-    bEl.innerHTML = '<table class="builds-table"><thead><tr><th>Project</th><th>Platform</th><th>Status</th><th>Score</th><th>Delivered</th><th>Files</th><th></th></tr></thead><tbody>'
+  if (!bl.length) {
+    bEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-dim);"><div style="font-size:32px;margin-bottom:12px;">🏗️</div><div style="font-size:14px;font-weight:600;">No builds yet</div></div>';
+  } else {
+    bEl.innerHTML = '<div style="display:flex;flex-direction:column;gap:12px;padding:16px;">'
       + bl.map(function(b) {
-        const si = scoreInfo(b.progress_pct);
-        let links = []; try { links = JSON.parse(b.output_links||'[]'); } catch(e){}
-        const delivered = b.status === 'done' ? relTime(b.updated_at) : '—';
-        return '<tr>'
-          + '<td style="font-weight:700;">' + esc(b.project_name||'Build') + '<br><span style="font-size:10px;color:var(--text-dim);font-family:var(--mono);">' + esc(b.ticket_id||'') + '</span></td>'
-          + '<td>' + platformBadge(b.platform) + '</td>'
-          + '<td><span class="status-chip ' + (b.status||'pending') + '"><div class="status-chip-dot"></div>' + (b.status||'pending') + '</span></td>'
-          + '<td>' + (si.num !== '—' ? '<span class="score-pill ' + si.cls + '">' + si.num + ' ' + si.label + '</span>' : '—') + '</td>'
-          + '<td style="font-size:11px;color:var(--text-dim);">' + delivered + '</td>'
-          + '<td style="font-size:12px;font-weight:700;">' + (links.length ? links.length + ' files' : '—') + '</td>'
-          + '<td><button class="btn-sm" onclick="openProjectDetail(\'' + b.id + '\',\'' + (clientName||'').replace(/'/g,"\\'") + '\')">Open</button></td>'
-          + '</tr>';
-      }).join('') + '</tbody></table>';
+          var si = scoreInfo(b.progress_pct);
+          var links = []; try { links = JSON.parse(b.output_links||'[]'); } catch(e){}
+          if (!Array.isArray(links)) links = [];
+          var pct = b.progress_pct || 0;
+          var scoreColor = si.cls==='score-elite'?'#16A34A':si.cls==='score-strong'?'#4A8FD6':si.cls==='score-qualified'?'#D97706':'#DC2626';
+          var folderTypes = [...new Set(links.map(function(l){return l.type||'other';}))];
+          var platformIcons = {'Make.com':'⚙️','n8n':'⚡','Zapier':'🔌','Custom Code':'💻','Multi-platform':'🔄'};
+          var icon = platformIcons[b.platform] || '🤖';
+          var delivered = b.status==='done' ? relTime(b.updated_at) : null;
+          return '<div onclick="openProjectDetail(\''+b.id+'\',\''+(_currentClientName||'').replace(/\'/g,"\\'")+'\''+')" style="background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:20px 22px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor=\'var(--accent)\';this.style.boxShadow=\'0 4px 20px rgba(74,143,214,0.12)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'">'
+            + '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;">'
+            + '<div style="width:40px;height:40px;border-radius:10px;background:var(--nav);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+icon+'</div>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px;">'+esc(b.project_name||'Build')+'</div>'
+            + '<div style="font-size:10px;font-family:var(--mono);color:var(--accent);">'+esc(b.ticket_id||'')+'</div>'
+            + '</div>'
+            + '<span class="status-chip '+(b.status||'pending')+'" style="flex-shrink:0;"><div class="status-chip-dot"></div>'+(b.status||'pending')+'</span>'
+            + '</div>'
+            + (b.build_log ? '<div style="font-size:12px;color:var(--text-mid);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(b.build_log.slice(0,200))+'</div>' : '')
+            + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">'
+            + '<span style="background:var(--nav);color:#fff;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;font-family:var(--mono);">'+esc(b.platform||'—')+'</span>'
+            + (links.length ? '<span style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600;color:var(--text-dim);">📁 '+links.length+' files</span>' : '')
+            + (delivered ? '<span style="background:var(--green-light);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600;color:var(--green);">✓ Delivered '+delivered+'</span>' : '')
+            + '</div>'
+            + (pct > 0 ? '<div style="margin-bottom:8px;"><div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;border-radius:3px;width:'+pct+'%;background:'+scoreColor+';"></div></div><div style="display:flex;justify-content:space-between;margin-top:3px;"><span style="font-size:10px;font-family:var(--mono);color:var(--text-dim);">'+pct+'/100</span><span style="font-size:10px;font-weight:700;color:'+scoreColor+';">'+si.label+'</span></div></div>' : '')
+            + (folderTypes.length ? '<div style="display:flex;flex-wrap:wrap;gap:5px;padding-top:8px;border-top:1px solid var(--border);">'+folderTypes.map(function(t){return '<span style="background:var(--accent-light);color:var(--accent);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;">'+fileIcon(t)+' '+fileTypeLabel(t)+'</span>';}).join('')+'</div>' : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
   }
   const tEl = document.getElementById('cd-tickets-table');
   const openT = tl.filter(function(t){ return !['done','cancelled'].includes(t.status); });
@@ -2068,10 +2085,15 @@ async function startFridayVideo() {
     fridaySessionActive = true;
 
     // Use iframe embed — most reliable Tavus approach
+    // Start muted so user must use PTT to speak
     const container = document.getElementById('friday-daily-container');
     container.innerHTML = '';
     const iframe = document.createElement('iframe');
-    iframe.src = data.conversation_url;
+    var joinUrl = data.conversation_url;
+    // Append Daily prebuilt param to start with mic off
+    joinUrl += (joinUrl.indexOf('?') === -1 ? '?' : '&') + 'startAudioOff=true';
+    iframe.src = joinUrl;
+    iframe.id = 'friday-tavus-iframe';
     iframe.allow = 'camera; microphone; autoplay; display-capture; fullscreen';
     iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:0;';
     container.appendChild(iframe);
@@ -2111,6 +2133,27 @@ async function endFridayVideo() {
   if (container) container.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:50px;background:linear-gradient(#0f172a 10%,transparent);pointer-events:none;z-index:20;"></div>';
 }
 
+function setIframeMic(on) {
+  // Send mute/unmute command to Daily iframe via postMessage
+  try {
+    if (fridayCallObject && fridayCallObject.tagName === 'IFRAME' && fridayCallObject.contentWindow) {
+      fridayCallObject.contentWindow.postMessage({
+        action: on ? 'daily-unmute-audio' : 'daily-mute-audio'
+      }, '*');
+      // Also try the setLocalAudio approach in case Daily exposes it
+      fridayCallObject.contentWindow.postMessage({
+        type: 'daily-method',
+        method: 'setLocalAudio',
+        args: [on]
+      }, '*');
+    }
+    // If it's a Daily.js call object (not iframe), use direct API
+    if (fridayCallObject && typeof fridayCallObject.setLocalAudio === 'function') {
+      fridayCallObject.setLocalAudio(on);
+    }
+  } catch(e) { console.warn('[PTT] mic toggle error:', e); }
+}
+
 function startFridayPTT() {
   if (!fridaySessionActive || !fridayCallObject) return;
   fridayPttActive = true;
@@ -2120,7 +2163,7 @@ function startFridayPTT() {
   btn.style.borderColor = '#dc2626';
   btn.style.boxShadow = '0 4px 24px rgba(220,38,38,0.5)';
   if (status) { status.textContent = 'Listening…'; status.style.color = '#dc2626'; }
-  try { if (fridayCallObject && fridayCallObject.setLocalAudio) fridayCallObject.setLocalAudio(true); } catch(e) {}
+  setIframeMic(true);
 }
 
 function stopFridayPTT() {
@@ -2132,7 +2175,7 @@ function stopFridayPTT() {
   btn.style.borderColor = 'var(--accent)';
   btn.style.boxShadow = '0 4px 20px rgba(74,144,217,0.3)';
   if (status) { status.textContent = 'Hold to talk'; status.style.color = 'var(--text-dim)'; }
-  try { if (fridayCallObject && fridayCallObject.setLocalAudio) fridayCallObject.setLocalAudio(false); } catch(e) {}
+  setIframeMic(false);
 }
 
 // ===== FEEDBACK =====
