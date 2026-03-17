@@ -584,6 +584,7 @@ async function doLogin() {
     document.getElementById('app-wrapper').style.display = 'block';
     document.getElementById('user-badge').textContent = window._currentUser.name;
     initDashboard();
+    loadIntakeClients();
     setMode('friday');
   } catch(e) {
     err.textContent = e.message; err.style.display = 'block';
@@ -795,11 +796,7 @@ async function doLogin() {
           <div class="field">
             <label>Client <span style="color:var(--red)">*</span></label>
             <select id="i-client" onchange="toggleNewClient()">
-              <option value="">Select client</option>
-              <option>Sunstate Medical Transport</option>
-              <option>Cornerstone General Contractors</option>
-              <option>Luxury Auto Club</option>
-              <option>ManageAI (Internal)</option>
+              <option value="">Loading clients…</option>
               <option value="new">+ New Client</option>
             </select>
           </div>
@@ -1577,21 +1574,23 @@ function projectIcon(platform) {
 
 var FOLDER_LABELS = {
   all: '📁 All Files',
-  blueprint: '🗺️ Blueprints',
-  doc: '📄 Documents',
-  video: '🎥 Videos',
-  image: '🖼️ Images',
-  sheet: '📊 Sheets',
+  solution_demo: '🎯 Solution Demo',
+  skillset_manual: '📗 Skillset Manual',
+  requirements_doc: '📋 Requirements Doc',
+  architecture_doc: '🏗️ Architecture',
+  wave_manual: '🌊 Wave Manual',
+  blueprint: '⚙️ Blueprints',
   other: '📎 Other'
 };
 function fileFolderType(f) {
   var t = (f.type||'').toLowerCase();
   var n = (f.name||'').toLowerCase();
+  if (t === 'solution_demo' || n.includes('solution demo')) return 'solution_demo';
+  if (t === 'skillset_manual' || n.includes('skillset manual') || n.includes('build manual')) return 'skillset_manual';
+  if (t === 'requirements_doc' || n.includes('requirements')) return 'requirements_doc';
+  if (t === 'architecture_doc' || n.includes('architecture')) return 'architecture_doc';
+  if (t === 'wave_manual' || n.includes('wave manual') || n.includes('implementation wave')) return 'wave_manual';
   if (t === 'blueprint' || n.endsWith('.json')) return 'blueprint';
-  if (t === 'doc' || t === 'document' || n.endsWith('.pdf') || n.endsWith('.docx') || n.endsWith('.txt')) return 'doc';
-  if (t === 'video' || n.endsWith('.mp4') || n.endsWith('.mov') || n.endsWith('.webm') || n.endsWith('.loom')) return 'video';
-  if (t === 'image' || n.endsWith('.png') || n.endsWith('.jpg') || n.endsWith('.jpeg') || n.endsWith('.webp') || n.endsWith('.svg')) return 'image';
-  if (t === 'sheet' || n.endsWith('.csv') || n.endsWith('.xlsx')) return 'sheet';
   return 'other';
 }
 function renderFolderFiles(links, folder) {
@@ -1739,6 +1738,17 @@ function renderBuildsTable(builds) {
 let intakePlatform = '';
 let intakePriority = 'medium';
 const SUBMITTER_EMAILS = {Brian:'brian@manageai.io',Dave:'dave@manageai.io',Tony:'tony@manageai.io',Dan:'dan@manageai.io',Jacob:'jacob@manageai.io',Chad:'chad@manageai.io',Brent:'brent@manageai.io'};
+
+async function loadIntakeClients() {
+  const clients = await sbFetch('friday_customers?select=name&order=name.asc') || [];
+  const sel = document.getElementById('i-client');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Select client</option>' +
+    clients.map(function(c){ return '<option value="'+esc(c.name)+'">'+esc(c.name)+'</option>'; }).join('') +
+    '<option value="new">+ New Client</option>';
+  if (current) sel.value = current;
+}
 
 function toggleNewClient() {
   const v = document.getElementById('i-client').value;
@@ -2225,6 +2235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('app-wrapper').style.display = 'block';
     document.getElementById('user-badge').textContent = window._currentUser.name;
     initDashboard();
+    loadIntakeClients();
     setMode('friday');
     loadFridayBriefing();
   }
