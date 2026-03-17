@@ -377,6 +377,95 @@
     .footer-brand .ai { font-size: 12px; font-weight: 700; color: var(--accent); }
     .footer-meta { font-size: 11px; font-weight: 500; color: var(--text-dim); }
 
+    /* ===== CLIENT CARD GRID ===== */
+    .client-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+    @media(max-width:1100px){ .client-grid { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:640px){ .client-grid { grid-template-columns: 1fr; } }
+    .client-grid-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .client-grid-card:hover { box-shadow: 0 6px 24px rgba(74,143,214,0.13); border-color: var(--accent); transform: translateY(-2px); }
+    .cgc-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+    .cgc-avatar {
+      width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
+      background: var(--nav); color: #fff; font-size: 20px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cgc-name { font-size: 16px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 3px; }
+    .cgc-industry { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+    .cgc-email { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .cgc-stats { display: flex; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border); margin-top: auto; }
+    .cgc-stat { flex: 1; text-align: center; }
+    .cgc-stat-val { font-size: 22px; font-weight: 800; font-family: var(--mono); color: var(--text); }
+    .cgc-stat-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-top: 1px; }
+    .cgc-active-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 700; margin-top: 4px; }
+    .cgc-active-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulseDot 1.2s infinite; }
+    /* ===== CLIENT DETAIL VIEW ===== */
+    .cdetail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 20px; font-family: var(--font); }
+    .cdetail-back:hover { color: var(--accent-mid); }
+    .cdetail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+    .cdetail-avatar { width: 60px; height: 60px; border-radius: 14px; background: var(--nav); color: #fff; font-size: 24px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cdetail-name { font-size: 26px; font-weight: 800; color: var(--text); }
+    .cdetail-sub { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+    /* ===== BUILDS TABLE ENHANCED ===== */
+    .bt-platform { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+    .bt-platform.make { background:#FFF3E0; color:#E65100; }
+    .bt-platform.n8n { background:#FDECEA; color:#C62828; }
+    .bt-platform.zapier { background:#FFF3E0; color:#BF360C; }
+    .bt-platform.custom { background:var(--surface); color:var(--text-dim); }
+    .score-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .score-elite { background:#E8F8EE; color:#16A34A; }
+    .score-strong { background:var(--accent-light); color:var(--accent); }
+    .score-qualified { background:var(--amber-light); color:var(--amber); }
+    .score-review { background:var(--red-light); color:var(--red); }
+    /* ===== PROJECT DETAIL VIEW ===== */
+    .pdetail-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+    @media(max-width:900px){ .pdetail-layout { grid-template-columns: 1fr; } }
+    .pdetail-meta { display: flex; flex-direction: column; gap: 10px; }
+    .pdetail-row { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .pdetail-row:last-child { border-bottom: none; }
+    .pdetail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
+    .pdetail-value { font-size: 13px; font-weight: 600; color: var(--text); }
+    .score-block { text-align: center; padding: 24px; border-radius: 14px; margin: 16px 0; }
+    .score-block-num { font-size: 56px; font-weight: 800; font-family: var(--mono); line-height: 1; }
+    .score-block-label { font-size: 14px; font-weight: 700; margin-top: 4px; }
+    .score-block-rationale { font-size: 12px; color: var(--text-mid); margin-top: 10px; line-height: 1.6; text-align: left; }
+    /* ===== BUILD TIMELINE ===== */
+    .build-timeline { display: flex; flex-direction: column; gap: 0; }
+    .bt-stage { display: flex; gap: 12px; align-items: flex-start; }
+    .bt-stage-left { display: flex; flex-direction: column; align-items: center; }
+    .bt-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); flex-shrink: 0; margin-top: 3px; }
+    .bt-dot.done { background: var(--green); border-color: var(--green); }
+    .bt-dot.current { background: var(--accent); border-color: var(--accent); animation: pulseDot 1.2s infinite; }
+    .bt-line { width: 2px; flex: 1; min-height: 20px; background: var(--border); margin: 3px 5px; }
+    .bt-line.done { background: var(--green); }
+    .bt-stage-content { padding-bottom: 18px; flex: 1; }
+    .bt-stage-name { font-size: 12px; font-weight: 700; color: var(--text-dim); }
+    .bt-stage-name.done { color: var(--text); }
+    .bt-stage-name.current { color: var(--accent); }
+    .bt-stage-time { font-size: 10px; color: var(--text-dim); font-family: var(--mono); margin-top: 1px; }
+    /* ===== FILE CARDS ===== */
+    .file-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; transition: box-shadow 0.2s; }
+    .file-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .file-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent-light); font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .file-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .file-type-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-top: 2px; }
+    .file-actions { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
+    /* ===== FILE PREVIEW PANEL ===== */
+    .preview-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(720px, 100vw); background: #fff; box-shadow: -4px 0 32px rgba(0,0,0,0.15); z-index: 8000; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease; }
+    .preview-panel.open { transform: translateX(0); }
+    .preview-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .preview-title { font-size: 14px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .preview-close { background: var(--surface); border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--font); }
+    .preview-body { flex: 1; overflow: hidden; }
+    .preview-body iframe { width: 100%; height: 100%; border: none; }
+    .preview-body pre { padding: 20px; overflow: auto; height: 100%; font-size: 12px; font-family: var(--mono); background: #1e293b; color: #e2e8f0; margin: 0; white-space: pre-wrap; word-break: break-all; }
+    /* ===== HIDDEN VIEWS ===== */
+    .view-hidden { display: none !important; }
+
     @media (max-width: 900px) {
       .dash-grid { grid-template-columns: repeat(2, 1fr); }
       .rb-layout { flex-direction: column; }
@@ -413,8 +502,8 @@
 const SB_URL = 'https://fmemdogudiolevqsfuvd.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtZW1kb2d1ZGlvbGV2cXNmdXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDU0NjIsImV4cCI6MjA4OTI4MTQ2Mn0.jXXu-JE_w3ZeFXOXFyDRzhFe3ztDEv8ozWBywR-TOQA';
 const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtZW1kb2d1ZGlvbGV2cXNmdXZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzcwNTQ2MiwiZXhwIjoyMDg5MjgxNDYyfQ.PXBm_m4Qcf2izPmh2d_loiFGfUKlqKqm4QhyY2x89BA';
-const FRIDAY_WEBHOOK = 'YOUR_N8N_FRIDAY_WEBHOOK_URL';
-const INTAKE_WEBHOOK = 'https://hook.us2.make.com/d796hs5qqk9qgs6ij8y6izs3pg3352w4'; // from your intake form
+const FRIDAY_WEBHOOK = 'https://manageai2026.app.n8n.cloud/webhook/wf-01-intake';
+const INTAKE_WEBHOOK = 'https://manageai2026.app.n8n.cloud/webhook/wf-01-intake';
 
 // ===== LOGIN =====
 async function doLogin() {
@@ -812,16 +901,92 @@ async function doLogin() {
   <!-- TAB 4: CLIENTS                                         -->
   <!-- ====================================================== -->
   <div id="mode-clients" class="mode-content hidden">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-      <div>
-        <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;">Clients & Projects</div>
-        <div style="font-size:13px;color:var(--text-mid);">Customer cards with nested project build assessments.</div>
+    <!-- VIEW 1: CLIENT GRID -->
+    <div id="view-client-grid">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div>
+          <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;">Clients</div>
+          <div style="font-size:13px;color:var(--text-mid);">Select a client to see their projects, builds, and delivered files.</div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-secondary" onclick="openNewClientModal()">+ Add Client</button>
+          <button class="btn-primary" onclick="setMode('intake')">+ New Build</button>
+        </div>
       </div>
-      <button class="btn-primary" onclick="openNewClientModal()">+ Add Client</button>
+      <div id="clients-grid" class="client-grid">
+        <div class="dash-loading" style="grid-column:1/-1;"><div class="dash-loading-ring"></div> Loading clients...</div>
+      </div>
     </div>
-    <div id="clients-list">
-      <div class="dash-loading"><div class="dash-loading-ring"></div> Loading clients...</div>
+    <!-- VIEW 2: CLIENT DETAIL -->
+    <div id="view-client-detail" class="view-hidden">
+      <button class="cdetail-back" onclick="showClientGrid()">← Back to Clients</button>
+      <div class="cdetail-header">
+        <div class="cdetail-avatar" id="cd-avatar">?</div>
+        <div>
+          <div class="cdetail-name" id="cd-name">Client</div>
+          <div class="cdetail-sub" id="cd-sub">—</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:10px;">
+          <button class="btn-primary" onclick="openNewBuildForClient()">+ New Build</button>
+        </div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        Active & Recent Builds
+        <span style="font-size:11px;font-weight:500;color:var(--text-dim);background:var(--surface);padding:2px 8px;border-radius:10px;" id="cd-build-count">—</span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px;">
+        <div id="cd-builds-table">
+          <div class="dash-loading" style="padding:20px;"><div class="dash-loading-ring"></div> Loading builds...</div>
+        </div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        Open Tickets
+        <span style="font-size:11px;font-weight:500;color:var(--text-dim);background:var(--surface);padding:2px 8px;border-radius:10px;" id="cd-ticket-count">—</span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="cd-tickets-table">
+          <div class="dash-loading" style="padding:20px;"><div class="dash-loading-ring"></div> Loading tickets...</div>
+        </div>
+      </div>
     </div>
+    <!-- VIEW 3: PROJECT DETAIL -->
+    <div id="view-project-detail" class="view-hidden">
+      <button class="cdetail-back" id="pd-back-btn" onclick="showClientDetail()">← Back to Client</button>
+      <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;" id="pd-title">Project</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;" id="pd-subtitle">—</div>
+      <div class="pdetail-layout">
+        <div>
+          <div class="card" style="padding:22px;margin-bottom:14px;">
+            <div class="pdetail-meta" id="pd-meta">
+              <div class="dash-loading"><div class="dash-loading-ring"></div> Loading...</div>
+            </div>
+          </div>
+          <div class="card" style="padding:22px;margin-bottom:14px;" id="pd-score-wrap"></div>
+          <div class="card" style="padding:22px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:14px;">Build Timeline</div>
+            <div class="build-timeline" id="pd-timeline"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);">Delivered Files</div>
+            <button id="pd-folder-btn" class="btn-secondary" style="display:none;" onclick="openOneDriveFolder()">Open OneDrive Folder</button>
+          </div>
+          <div id="pd-files">
+            <div class="dash-loading"><div class="dash-loading-ring"></div> Loading files...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- FILE PREVIEW PANEL -->
+  <div class="preview-panel" id="preview-panel">
+    <div class="preview-header">
+      <div class="preview-title" id="preview-title">Preview</div>
+      <a id="preview-external-link" href="#" target="_blank" class="btn-sm" style="margin-right:4px;">Open</a>
+      <button class="preview-close" onclick="closePreview()">Close</button>
+    </div>
+    <div class="preview-body" id="preview-body"></div>
   </div>
 
   <!-- ====================================================== -->
@@ -1159,68 +1324,225 @@ async function loadDashboardData() {
   }
 }
 
-// ===== CLIENTS =====
+// ===== CLIENTS — 3-VIEW SYSTEM =====
+let _currentClientName = '';
+let _currentBuildId = '';
+let _currentOneDriveFolder = '';
+function relTime(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts), now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  if (diff < 86400*30) return Math.floor(diff/86400) + 'd ago';
+  return d.toLocaleDateString();
+}
+function scoreInfo(pct) {
+  if (!pct && pct !== 0) return { label: '—', cls: '', num: '—' };
+  if (pct >= 90) return { label: 'Elite', cls: 'score-elite', num: pct };
+  if (pct >= 75) return { label: 'Strong', cls: 'score-strong', num: pct };
+  if (pct >= 60) return { label: 'Qualified', cls: 'score-qualified', num: pct };
+  return { label: 'Review', cls: 'score-review', num: pct };
+}
+function platformBadge(p) {
+  const map = { 'Make.com':'make', 'n8n':'n8n', 'Zapier':'zapier' };
+  const cls = map[p] || 'custom';
+  return '<span class="bt-platform ' + cls + '">' + esc(p||'—') + '</span>';
+}
+function fileIcon(type) {
+  const m = { solution_demo:'🎯', skillset_manual:'📗', email_template:'📧', requirements_doc:'📋', architecture_doc:'🏗️', wave_manual:'🌊', blueprint:'⚙️' };
+  return m[type] || '📄';
+}
+function fileTypeLabel(type) {
+  return (type||'file').replace(/_/g,' ').replace(/[a-z]/g, function(l,i,s){ return i===0||s[i-1]===' '?l.toUpperCase():l; });
+}
+function showClientGrid() {
+  document.getElementById('view-client-grid').classList.remove('view-hidden');
+  document.getElementById('view-client-detail').classList.add('view-hidden');
+  document.getElementById('view-project-detail').classList.add('view-hidden');
+}
+function showClientDetail() {
+  document.getElementById('view-client-grid').classList.add('view-hidden');
+  document.getElementById('view-client-detail').classList.remove('view-hidden');
+  document.getElementById('view-project-detail').classList.add('view-hidden');
+  loadClientDetail(_currentClientName);
+}
+function showProjectDetail() {
+  document.getElementById('view-client-grid').classList.add('view-hidden');
+  document.getElementById('view-client-detail').classList.add('view-hidden');
+  document.getElementById('view-project-detail').classList.remove('view-hidden');
+}
+function openNewBuildForClient() {
+  const sel = document.getElementById('i-client');
+  if (sel) { for (let o of sel.options) { if (o.text === _currentClientName) { o.selected = true; break; } } }
+  setMode('intake');
+}
 async function loadClientsData() {
-  const clients = await sbFetch('friday_customers?select=*&order=name.asc') || [];
-  const projects = await sbFetch('friday_projects?select=*&order=created_at.desc') || [];
-
-  const el = document.getElementById('clients-list');
-  if (!clients.length) {
-    el.innerHTML = `<div class="card" style="text-align:center;padding:48px;color:var(--text-dim);">
-      <div style="font-size:40px;margin-bottom:16px;">🏢</div>
-      <div style="font-size:14px;font-weight:600;">No clients yet</div>
-      <div style="font-size:12px;margin-top:8px;">Add your first client to get started.</div>
-    </div>`;
-    return;
-  }
-
-  el.innerHTML = clients.map(c => {
-    const cProjects = projects.filter(p => p.customer_id === c.id || p.client_name === c.name);
-    const activeCount = cProjects.filter(p => ['active','building'].includes(p.status)).length;
-    return `
-    <div class="client-card">
-      <div class="client-header" onclick="toggleClientCard('client-${c.id}')">
-        <div class="client-avatar">${(c.name||'?').charAt(0)}</div>
-        <div style="flex:1;">
-          <div class="client-name">${esc(c.name||'')}</div>
-          <div class="client-meta">${esc(c.industry||'')}${c.contact_email ? ' · ' + esc(c.contact_email) : ''} · ${cProjects.length} project${cProjects.length !== 1 ? 's' : ''}</div>
-        </div>
-        ${activeCount > 0 ? `<span class="status-chip active" style="margin-right:8px;"><div class="status-chip-dot"></div>${activeCount} active</span>` : ''}
-        <div class="client-chevron" id="chevron-client-${c.id}">▶</div>
-      </div>
-      <div class="client-projects" id="client-${c.id}">
-        ${cProjects.length === 0 ? '<div style="font-size:13px;color:var(--text-dim);padding:8px 0;">No projects yet.</div>' : ''}
-        ${cProjects.map(p => `
-          <div class="project-card">
-            <div class="project-icon">${p.platform === 'n8n' ? '⚡' : p.platform === 'Make.com' ? '⚙️' : p.platform === 'Custom Code' ? '💻' : '🔄'}</div>
-            <div style="flex:1;">
-              <div class="project-name">${esc(p.name||p.project_name||'Project')}</div>
-              <div class="project-platform">${esc(p.platform||'')} · Ticket: ${esc(p.ticket_id||'—')}</div>
-              <div class="project-meta-row">
-                <span class="status-chip ${p.status||'pending'}"><div class="status-chip-dot"></div>${p.status||'pending'}</span>
-                ${p.deadline ? `<span class="badge badge-gray">Due ${new Date(p.deadline).toLocaleDateString()}</span>` : ''}
-                ${p.progress_pct ? `<span class="badge badge-blue">${p.progress_pct}% done</span>` : ''}
-              </div>
-              ${p.assessment ? `<div style="font-size:12px;color:var(--text-mid);margin-top:8px;line-height:1.6;background:var(--surface);border-radius:8px;padding:10px 12px;">${esc(p.assessment)}</div>` : ''}
-            </div>
-            <div class="project-actions">
-              <button class="btn-sm" onclick="openEditProject('${p.id}')">Edit</button>
-            </div>
-          </div>
-        `).join('')}
-        <button class="add-project-btn" onclick="openNewProjectModal('${c.id}','${esc(c.name||'')}')">+ Add Project</button>
-      </div>
-    </div>`;
+  const [clients, builds] = await Promise.all([
+    sbFetch('friday_customers?select=*&order=name.asc'),
+    sbFetch('friday_builds?select=client_name,status,created_at,updated_at&order=created_at.desc&limit=200')
+  ]);
+  const cl = clients || [], bl = builds || [];
+  const STARTER = [
+    { id:'s1', name:'Sunstate Medical Transport', industry:'Medical Transport', contact_email:'', created_at:null },
+    { id:'s2', name:'Cornerstone General Contractors', industry:'Construction', contact_email:'', created_at:null },
+    { id:'s3', name:'Luxury Auto Club', industry:'Automotive', contact_email:'', created_at:null },
+    { id:'s4', name:'ManageAI (Internal)', industry:'Technology', contact_email:'brian@manageai.io', created_at:null },
+    { id:'s5', name:'Tollwave', industry:'Toll & Fleet Management', contact_email:'', created_at:null }
+  ];
+  const displayList = cl.length ? cl : STARTER;
+  const grid = document.getElementById('clients-grid');
+  if (!grid) return;
+  grid.innerHTML = displayList.map(function(c) {
+    const cBuilds = bl.filter(function(b){ return (b.client_name||'').toLowerCase() === (c.name||'').toLowerCase(); });
+    const active = cBuilds.filter(function(b){ return ['active','building','queued'].includes(b.status); }).length;
+    const total = cBuilds.length;
+    const last = cBuilds[0] ? (cBuilds[0].updated_at || cBuilds[0].created_at) : null;
+    return '<div class="client-grid-card" onclick="openClientDetail(\'' + (c.name||'').replace(/'/g,"\\'") + '\')">'
+      + '<div class="cgc-top">'
+      + '<div class="cgc-avatar">' + (c.name||'?').charAt(0) + '</div>'
+      + '<div>'
+      + '<div class="cgc-name">' + esc(c.name||'') + '</div>'
+      + '<div class="cgc-industry">' + esc(c.industry||'') + '</div>'
+      + (c.contact_email ? '<div class="cgc-email">' + esc(c.contact_email) + '</div>' : '')
+      + (active > 0 ? '<div class="cgc-active-badge"><div class="cgc-active-dot"></div>' + active + ' active</div>' : '')
+      + '</div></div>'
+      + '<div class="cgc-stats">'
+      + '<div class="cgc-stat"><div class="cgc-stat-val">' + total + '</div><div class="cgc-stat-lbl">Builds</div></div>'
+      + '<div class="cgc-stat"><div class="cgc-stat-val">' + active + '</div><div class="cgc-stat-lbl">Active</div></div>'
+      + '<div class="cgc-stat"><div class="cgc-stat-val" style="font-size:12px;">' + (last ? relTime(last) : '—') + '</div><div class="cgc-stat-lbl">Last Build</div></div>'
+      + '</div></div>';
   }).join('');
 }
-
-function toggleClientCard(id) {
-  const panel = document.getElementById(id);
-  const chevron = document.getElementById('chevron-' + id);
-  if (!panel) return;
-  panel.classList.toggle('open');
-  if (chevron) chevron.classList.toggle('open');
+async function openClientDetail(clientName) {
+  _currentClientName = clientName;
+  document.getElementById('view-client-grid').classList.add('view-hidden');
+  document.getElementById('view-client-detail').classList.remove('view-hidden');
+  document.getElementById('view-project-detail').classList.add('view-hidden');
+  document.getElementById('cd-avatar').textContent = clientName.charAt(0);
+  document.getElementById('cd-name').textContent = clientName;
+  const meta = await sbFetch('friday_customers?name=ilike.*' + encodeURIComponent(clientName.split(' ').slice(0,2).join(' ')) + '*&select=industry,contact_email&limit=1');
+  if (meta && meta[0]) document.getElementById('cd-sub').textContent = [meta[0].industry, meta[0].contact_email].filter(Boolean).join(' · ');
+  loadClientDetail(clientName);
 }
+async function loadClientDetail(clientName) {
+  document.getElementById('cd-builds-table').innerHTML = '<div class="dash-loading" style="padding:20px;"><div class="dash-loading-ring"></div> Loading builds...</div>';
+  document.getElementById('cd-tickets-table').innerHTML = '<div class="dash-loading" style="padding:20px;"><div class="dash-loading-ring"></div> Loading tickets...</div>';
+  const enc = encodeURIComponent(clientName.split(' ').slice(0,2).join(' '));
+  const [builds, tickets] = await Promise.all([
+    sbFetch('friday_builds?client_name=ilike.*' + enc + '*&select=*&order=created_at.desc'),
+    sbFetch('friday_tickets?client=ilike.*' + enc + '*&select=*&order=submitted_at.desc')
+  ]);
+  const bl = builds || [], tl = tickets || [];
+  document.getElementById('cd-build-count').textContent = bl.length;
+  document.getElementById('cd-ticket-count').textContent = tl.filter(function(t){ return !['done','cancelled'].includes(t.status); }).length;
+  const bEl = document.getElementById('cd-builds-table');
+  if (!bl.length) { bEl.innerHTML = '<div class="dash-empty" style="padding:32px;">No builds yet for this client.</div>'; }
+  else {
+    bEl.innerHTML = '<table class="builds-table"><thead><tr><th>Project</th><th>Platform</th><th>Status</th><th>Score</th><th>Delivered</th><th>Files</th><th></th></tr></thead><tbody>'
+      + bl.map(function(b) {
+        const si = scoreInfo(b.progress_pct);
+        let links = []; try { links = JSON.parse(b.output_links||'[]'); } catch(e){}
+        const delivered = b.status === 'done' ? relTime(b.updated_at) : '—';
+        return '<tr>'
+          + '<td style="font-weight:700;">' + esc(b.project_name||'Build') + '<br><span style="font-size:10px;color:var(--text-dim);font-family:var(--mono);">' + esc(b.ticket_id||'') + '</span></td>'
+          + '<td>' + platformBadge(b.platform) + '</td>'
+          + '<td><span class="status-chip ' + (b.status||'pending') + '"><div class="status-chip-dot"></div>' + (b.status||'pending') + '</span></td>'
+          + '<td>' + (si.num !== '—' ? '<span class="score-pill ' + si.cls + '">' + si.num + ' ' + si.label + '</span>' : '—') + '</td>'
+          + '<td style="font-size:11px;color:var(--text-dim);">' + delivered + '</td>'
+          + '<td style="font-size:12px;font-weight:700;">' + (links.length ? links.length + ' files' : '—') + '</td>'
+          + '<td><button class="btn-sm" onclick="openProjectDetail(\'' + b.id + '\',\'' + (clientName||'').replace(/'/g,"\\'") + '\')">Open</button></td>'
+          + '</tr>';
+      }).join('') + '</tbody></table>';
+  }
+  const tEl = document.getElementById('cd-tickets-table');
+  const openT = tl.filter(function(t){ return !['done','cancelled'].includes(t.status); });
+  if (!openT.length) { tEl.innerHTML = '<div class="dash-empty" style="padding:24px;">No open tickets.</div>'; }
+  else {
+    const priDot = function(p){ return p==='high'?'#DC2626':p==='low'?'#16A34A':'#D97706'; };
+    tEl.innerHTML = '<table class="builds-table"><thead><tr><th>Ticket</th><th>Project</th><th>Status</th><th>Priority</th><th>Submitted</th></tr></thead><tbody>'
+      + openT.map(function(t){ return '<tr>'
+        + '<td style="font-family:var(--mono);font-size:11px;color:var(--accent);">' + esc(t.ticket_id||'—') + '</td>'
+        + '<td>' + esc(t.project_name||'—') + '</td>'
+        + '<td><span class="status-chip ' + (t.status||'pending') + '"><div class="status-chip-dot"></div>' + (t.status||'pending') + '</span></td>'
+        + '<td><span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;"><span style="width:7px;height:7px;border-radius:50%;background:' + priDot(t.priority) + ';display:inline-block;"></span>' + (t.priority||'medium') + '</span></td>'
+        + '<td style="font-size:11px;color:var(--text-dim);">' + relTime(t.submitted_at) + '</td>'
+        + '</tr>'; }).join('')
+      + '</tbody></table>';
+  }
+}
+async function openProjectDetail(buildId, clientName) {
+  _currentBuildId = buildId;
+  if (clientName) _currentClientName = clientName;
+  showProjectDetail();
+  document.getElementById('pd-back-btn').onclick = function(){ showClientDetail(); };
+  document.getElementById('pd-title').textContent = 'Loading…';
+  document.getElementById('pd-subtitle').textContent = '—';
+  document.getElementById('pd-meta').innerHTML = '<div class="dash-loading"><div class="dash-loading-ring"></div></div>';
+  document.getElementById('pd-files').innerHTML = '<div class="dash-loading"><div class="dash-loading-ring"></div> Loading files...</div>';
+  document.getElementById('pd-score-wrap').innerHTML = '';
+  document.getElementById('pd-timeline').innerHTML = '';
+  const builds = await sbFetch('friday_builds?id=eq.' + buildId + '&select=*&limit=1');
+  const b = (builds||[])[0];
+  if (!b) { document.getElementById('pd-title').textContent = 'Build not found'; return; }
+  let ticket = null;
+  if (b.ticket_id) {
+    const tl = await sbFetch('friday_tickets?ticket_id=eq.' + b.ticket_id + '&select=*&limit=1');
+    ticket = (tl||[])[0] || null;
+  }
+  document.getElementById('pd-title').textContent = b.project_name || 'Build';
+  document.getElementById('pd-subtitle').textContent = [b.client_name, b.platform, b.ticket_id].filter(Boolean).join(' · ');
+  document.getElementById('pd-meta').innerHTML = [
+    ['Ticket ID', b.ticket_id||'—'], ['Client', b.client_name||'—'], ['Platform', b.platform||'—'],
+    ['Status', b.status||'—'], ['Submitter', ticket ? (ticket.submitter + (ticket.submitter_email ? ' · '+ticket.submitter_email : '')) : '—'],
+    ['Submitted', ticket ? relTime(ticket.submitted_at) : '—'],
+    ['Delivered', b.status==='done' ? relTime(b.updated_at) : '—'],
+  ].map(function(row){ return '<div class="pdetail-row"><div class="pdetail-label">'+row[0]+'</div><div class="pdetail-value">'+esc(String(row[1]))+'</div></div>'; }).join('');
+  const si = scoreInfo(b.progress_pct);
+  const scoreColors = { 'score-elite':'#E8F8EE:#16A34A','score-strong':'#EBF3FC:#4A8FD6','score-qualified':'#FEF8E8:#D97706','score-review':'#FEF2F2:#DC2626' };
+  const bgfg = (scoreColors[si.cls]||'#F5F6F8:#475569').split(':');
+  if (si.num !== '—') {
+    document.getElementById('pd-score-wrap').innerHTML = '<div class="score-block" style="background:'+bgfg[0]+';"><div class="score-block-num" style="color:'+bgfg[1]+';">'+si.num+'</div><div class="score-block-label" style="color:'+bgfg[1]+';">'+si.label+'</div>'+(b.build_log?'<div class="score-block-rationale">'+esc(b.build_log.slice(0,400))+(b.build_log.length>400?'…':'')+'</div>':'')+'</div>';
+  }
+  const STAGES = ['queued','planning','building','scoring','packaging','delivering','done'];
+  const curIdx = STAGES.indexOf(b.status);
+  document.getElementById('pd-timeline').innerHTML = STAGES.map(function(s,i){
+    const isDone = i < curIdx || b.status==='done';
+    const isCurr = s===b.status && b.status!=='done';
+    return '<div class="bt-stage"><div class="bt-stage-left"><div class="bt-dot '+(isDone?'done':isCurr?'current':'')+'"></div>'+(i<STAGES.length-1?'<div class="bt-line '+(isDone?'done':'')+'"></div>':'')+'</div><div class="bt-stage-content"><div class="bt-stage-name '+(isDone?'done':isCurr?'current':'')+'">'+s.charAt(0).toUpperCase()+s.slice(1)+'</div>'+(isDone&&s==='done'?'<div class="bt-stage-time">'+relTime(b.updated_at)+'</div>':'')+'</div></div>';
+  }).join('');
+  _currentOneDriveFolder = b.onedrive_folder_url || '';
+  const folderBtn = document.getElementById('pd-folder-btn');
+  if (folderBtn) folderBtn.style.display = _currentOneDriveFolder ? 'inline-flex' : 'none';
+  let links = []; try { links = JSON.parse(b.output_links||'[]'); } catch(e){}
+  const fEl = document.getElementById('pd-files');
+  if (!links.length) {
+    fEl.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--text-dim);"><div style="font-size:32px;margin-bottom:12px;">📁</div><div style="font-size:13px;font-weight:600;">'+(b.status==='done'?'No files in this build.':'Files appear after build completes.')+'</div></div>';
+  } else {
+    fEl.innerHTML = links.map(function(f,i){
+      return '<div class="file-card"><div class="file-icon">'+fileIcon(f.type)+'</div><div style="flex:1;min-width:0;"><div class="file-name">'+esc(f.name||'File '+i)+'</div><div class="file-type-label">'+fileTypeLabel(f.type)+'</div></div><div class="file-actions"><button class="btn-sm" onclick="previewFile(\''+esc(f.url||'')+'\',\''+esc(f.name||'')+'\',\''+esc(f.type||'')+'\')">Preview</button>'+(f.url?'<a href="'+esc(f.url)+'" target="_blank" class="btn-sm" style="text-decoration:none;">Open</a>':'')+'</div></div>';
+    }).join('');
+  }
+}
+function openOneDriveFolder() { if (_currentOneDriveFolder) window.open(_currentOneDriveFolder,'_blank'); }
+function previewFile(url, name, type) {
+  const panel = document.getElementById('preview-panel');
+  const body = document.getElementById('preview-body');
+  document.getElementById('preview-title').textContent = name;
+  const extLink = document.getElementById('preview-external-link');
+  if (extLink) extLink.href = url;
+  if (!url) { body.innerHTML = '<div style="padding:32px;color:#888;">No URL available.</div>'; }
+  else if (type === 'blueprint' || name.endsWith('.json')) {
+    fetch(url).then(function(r){return r.text();}).then(function(t){ body.innerHTML = '<pre>'+t.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'; }).catch(function(){ body.innerHTML = '<iframe src="'+url+'"></iframe>'; });
+  } else { body.innerHTML = '<iframe src="'+url+'" sandbox="allow-scripts allow-same-origin"></iframe>'; }
+  panel.classList.add('open');
+}
+function closePreview() {
+  document.getElementById('preview-panel').classList.remove('open');
+  document.getElementById('preview-body').innerHTML = '';
+}
+function openEditProject(id) { openProjectDetail(id, _currentClientName); }
 
 // ===== BUILDS =====
 let allBuilds = [];
