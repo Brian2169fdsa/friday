@@ -466,6 +466,50 @@
     /* ===== HIDDEN VIEWS ===== */
     .view-hidden { display: none !important; }
 
+    /* ===== PROJECT BUILD CARDS ===== */
+    .project-build-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px 22px; margin-bottom: 10px; cursor: pointer;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .project-build-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(74,143,214,0.08); }
+    .pbc-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 10px; }
+    .pbc-icon { font-size: 26px; flex-shrink: 0; width: 38px; text-align: center; }
+    .pbc-name { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .pbc-ticket { font-size: 11px; font-family: var(--mono); color: var(--accent); margin-top: 2px; }
+    .pbc-desc { font-size: 12px; color: var(--text-mid); margin-bottom: 10px; line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .pbc-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .pbc-platform-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 5px; font-family: var(--mono);
+      background: var(--accent-light); color: var(--accent);
+    }
+    .pbc-meta-item { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+    .pbc-progress { margin-bottom: 8px; }
+    .pbc-progress-bar { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .pbc-progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+    .pbc-progress-label { font-size: 10px; color: var(--text-dim); font-family: var(--mono); margin-top: 3px; text-align: right; }
+    .pbc-folders { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+    .pbc-folder-chip {
+      font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 5px;
+      background: var(--surface); color: var(--text-mid); border: 1px solid var(--border);
+    }
+    .pbc-open-hint { font-size: 10px; color: var(--text-dim); text-align: right; font-style: italic; }
+
+    /* ===== FOLDER TABS ===== */
+    .pd-folder-tabs {
+      display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px;
+    }
+    .pd-folder-tab {
+      padding: 7px 14px; border-radius: 7px; border: none; background: transparent;
+      font-size: 11px; font-weight: 700; color: var(--text-dim); cursor: pointer;
+      transition: all 0.18s; font-family: var(--font);
+    }
+    .pd-folder-tab.active { background: var(--nav); color: #fff; }
+    .pd-folder-tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
+
     @media (max-width: 900px) {
       .dash-grid { grid-template-columns: repeat(2, 1fr); }
       .rb-layout { flex-direction: column; }
@@ -1472,6 +1516,75 @@ async function loadClientDetail(clientName) {
       + '</tbody></table>';
   }
 }
+// ===== BUILD CARD HELPERS =====
+function detectPlatforms(b) {
+  var platforms = [];
+  var haystack = ((b.build_log||'') + ' ' + (b.platform||'')).toLowerCase();
+  var map = {
+    'make.com':'Make.com','make':'Make.com','n8n':'n8n','supabase':'Supabase',
+    'hubspot':'HubSpot','salesforce':'Salesforce','zapier':'Zapier',
+    'airtable':'Airtable','notion':'Notion','slack':'Slack','twilio':'Twilio',
+    'retell':'Retell','openai':'OpenAI','claude':'Claude','gpt':'GPT',
+    'google sheets':'Google Sheets','google drive':'Google Drive',
+    'stripe':'Stripe','shopify':'Shopify','webflow':'Webflow',
+    'wordpress':'WordPress','react':'React','next.js':'Next.js',
+    'vercel':'Vercel','netlify':'Netlify','firebase':'Firebase',
+    'aws':'AWS','azure':'Azure','gcp':'GCP'
+  };
+  Object.keys(map).forEach(function(k){
+    if (haystack.indexOf(k) !== -1 && platforms.indexOf(map[k]) === -1) platforms.push(map[k]);
+  });
+  if (!platforms.length && b.platform) platforms.push(b.platform);
+  return platforms;
+}
+function estimateModules(b) {
+  var log = b.build_log || '';
+  var m = log.match(/(\d+)\s*(?:module|scenario|automation|workflow|step)/i);
+  return m ? parseInt(m[1]) : null;
+}
+function projectIcon(platform) {
+  var p = (platform||'').toLowerCase();
+  if (p.indexOf('make') !== -1) return '⚙️';
+  if (p.indexOf('n8n') !== -1) return '🔗';
+  if (p.indexOf('supabase') !== -1) return '🗄️';
+  if (p.indexOf('hubspot') !== -1) return '🟠';
+  if (p.indexOf('salesforce') !== -1) return '☁️';
+  if (p.indexOf('react') !== -1 || p.indexOf('next') !== -1) return '⚛️';
+  if (p.indexOf('slack') !== -1) return '💬';
+  if (p.indexOf('retell') !== -1 || p.indexOf('twilio') !== -1) return '📞';
+  if (p.indexOf('stripe') !== -1) return '💳';
+  if (p.indexOf('google') !== -1) return '📊';
+  if (p.indexOf('openai') !== -1 || p.indexOf('claude') !== -1 || p.indexOf('gpt') !== -1) return '🤖';
+  return '📦';
+}
+
+var FOLDER_LABELS = {
+  all: '📁 All Files',
+  blueprint: '🗺️ Blueprints',
+  doc: '📄 Documents',
+  video: '🎥 Videos',
+  image: '🖼️ Images',
+  sheet: '📊 Sheets',
+  other: '📎 Other'
+};
+function fileFolderType(f) {
+  var t = (f.type||'').toLowerCase();
+  var n = (f.name||'').toLowerCase();
+  if (t === 'blueprint' || n.endsWith('.json')) return 'blueprint';
+  if (t === 'doc' || t === 'document' || n.endsWith('.pdf') || n.endsWith('.docx') || n.endsWith('.txt')) return 'doc';
+  if (t === 'video' || n.endsWith('.mp4') || n.endsWith('.mov') || n.endsWith('.webm') || n.endsWith('.loom')) return 'video';
+  if (t === 'image' || n.endsWith('.png') || n.endsWith('.jpg') || n.endsWith('.jpeg') || n.endsWith('.webp') || n.endsWith('.svg')) return 'image';
+  if (t === 'sheet' || n.endsWith('.csv') || n.endsWith('.xlsx')) return 'sheet';
+  return 'other';
+}
+function renderFolderFiles(links, folder) {
+  var filtered = folder === 'all' ? links : links.filter(function(f){ return fileFolderType(f) === folder; });
+  if (!filtered.length) return '<div style="text-align:center;padding:28px;color:var(--text-dim);font-size:12px;">No files in this folder.</div>';
+  return filtered.map(function(f,i){
+    return '<div class="file-card"><div class="file-icon">'+fileIcon(f.type)+'</div><div style="flex:1;min-width:0;"><div class="file-name">'+esc(f.name||'File '+i)+'</div><div class="file-type-label">'+fileTypeLabel(f.type)+'</div></div><div class="file-actions"><button class="btn-sm" onclick="previewFile(\''+esc(f.url||'')+'\',\''+esc(f.name||'')+'\',\''+esc(f.type||'')+'\')">Preview</button>'+(f.url?'<a href="'+esc(f.url)+'" target="_blank" class="btn-sm" style="text-decoration:none;">Open</a>':'')+'</div></div>';
+  }).join('');
+}
+
 async function openProjectDetail(buildId, clientName) {
   _currentBuildId = buildId;
   if (clientName) _currentClientName = clientName;
@@ -1520,9 +1633,19 @@ async function openProjectDetail(buildId, clientName) {
   if (!links.length) {
     fEl.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--text-dim);"><div style="font-size:32px;margin-bottom:12px;">📁</div><div style="font-size:13px;font-weight:600;">'+(b.status==='done'?'No files in this build.':'Files appear after build completes.')+'</div></div>';
   } else {
-    fEl.innerHTML = links.map(function(f,i){
-      return '<div class="file-card"><div class="file-icon">'+fileIcon(f.type)+'</div><div style="flex:1;min-width:0;"><div class="file-name">'+esc(f.name||'File '+i)+'</div><div class="file-type-label">'+fileTypeLabel(f.type)+'</div></div><div class="file-actions"><button class="btn-sm" onclick="previewFile(\''+esc(f.url||'')+'\',\''+esc(f.name||'')+'\',\''+esc(f.type||'')+'\')">Preview</button>'+(f.url?'<a href="'+esc(f.url)+'" target="_blank" class="btn-sm" style="text-decoration:none;">Open</a>':'')+'</div></div>';
-    }).join('');
+    // Detect which folders have files
+    var folderCounts = {};
+    links.forEach(function(f){ var ft = fileFolderType(f); folderCounts[ft] = (folderCounts[ft]||0) + 1; });
+    var tabsHtml = '<div class="pd-folder-tabs" id="pd-folder-tabs">';
+    tabsHtml += '<button class="pd-folder-tab active" data-folder="all" onclick="switchFileFolder(\'all\',this)">'+FOLDER_LABELS.all+' ('+links.length+')</button>';
+    Object.keys(FOLDER_LABELS).forEach(function(k){
+      if (k !== 'all' && folderCounts[k]) {
+        tabsHtml += '<button class="pd-folder-tab" data-folder="'+k+'" onclick="switchFileFolder(\''+k+'\',this)">'+FOLDER_LABELS[k]+' ('+folderCounts[k]+')</button>';
+      }
+    });
+    tabsHtml += '</div>';
+    fEl.innerHTML = tabsHtml + '<div id="pd-folder-files">' + renderFolderFiles(links, 'all') + '</div>';
+    window._pdLinks = links;
   }
 }
 function openOneDriveFolder() { if (_currentOneDriveFolder) window.open(_currentOneDriveFolder,'_blank'); }
@@ -1541,6 +1664,11 @@ function previewFile(url, name, type) {
 function closePreview() {
   document.getElementById('preview-panel').classList.remove('open');
   document.getElementById('preview-body').innerHTML = '';
+}
+function switchFileFolder(folder, btn) {
+  document.querySelectorAll('.pd-folder-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('pd-folder-files').innerHTML = renderFolderFiles(window._pdLinks || [], folder);
 }
 function openEditProject(id) { openProjectDetail(id, _currentClientName); }
 
