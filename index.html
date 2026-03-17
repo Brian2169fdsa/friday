@@ -2068,10 +2068,15 @@ async function startFridayVideo() {
     fridaySessionActive = true;
 
     // Use iframe embed — most reliable Tavus approach
+    // Start muted so user must use PTT to speak
     const container = document.getElementById('friday-daily-container');
     container.innerHTML = '';
     const iframe = document.createElement('iframe');
-    iframe.src = data.conversation_url;
+    var joinUrl = data.conversation_url;
+    // Append Daily prebuilt param to start with mic off
+    joinUrl += (joinUrl.indexOf('?') === -1 ? '?' : '&') + 'startAudioOff=true';
+    iframe.src = joinUrl;
+    iframe.id = 'friday-tavus-iframe';
     iframe.allow = 'camera; microphone; autoplay; display-capture; fullscreen';
     iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:0;';
     container.appendChild(iframe);
@@ -2111,6 +2116,27 @@ async function endFridayVideo() {
   if (container) container.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:50px;background:linear-gradient(#0f172a 10%,transparent);pointer-events:none;z-index:20;"></div>';
 }
 
+function setIframeMic(on) {
+  // Send mute/unmute command to Daily iframe via postMessage
+  try {
+    if (fridayCallObject && fridayCallObject.tagName === 'IFRAME' && fridayCallObject.contentWindow) {
+      fridayCallObject.contentWindow.postMessage({
+        action: on ? 'daily-unmute-audio' : 'daily-mute-audio'
+      }, '*');
+      // Also try the setLocalAudio approach in case Daily exposes it
+      fridayCallObject.contentWindow.postMessage({
+        type: 'daily-method',
+        method: 'setLocalAudio',
+        args: [on]
+      }, '*');
+    }
+    // If it's a Daily.js call object (not iframe), use direct API
+    if (fridayCallObject && typeof fridayCallObject.setLocalAudio === 'function') {
+      fridayCallObject.setLocalAudio(on);
+    }
+  } catch(e) { console.warn('[PTT] mic toggle error:', e); }
+}
+
 function startFridayPTT() {
   if (!fridaySessionActive || !fridayCallObject) return;
   fridayPttActive = true;
@@ -2120,7 +2146,7 @@ function startFridayPTT() {
   btn.style.borderColor = '#dc2626';
   btn.style.boxShadow = '0 4px 24px rgba(220,38,38,0.5)';
   if (status) { status.textContent = 'Listening…'; status.style.color = '#dc2626'; }
-  try { if (fridayCallObject && fridayCallObject.setLocalAudio) fridayCallObject.setLocalAudio(true); } catch(e) {}
+  setIframeMic(true);
 }
 
 function stopFridayPTT() {
@@ -2132,7 +2158,7 @@ function stopFridayPTT() {
   btn.style.borderColor = 'var(--accent)';
   btn.style.boxShadow = '0 4px 20px rgba(74,144,217,0.3)';
   if (status) { status.textContent = 'Hold to talk'; status.style.color = 'var(--text-dim)'; }
-  try { if (fridayCallObject && fridayCallObject.setLocalAudio) fridayCallObject.setLocalAudio(false); } catch(e) {}
+  setIframeMic(false);
 }
 
 // ===== FEEDBACK =====
