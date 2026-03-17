@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   if (action === 'create') {
     try {
-      const resp = await fetch('https://tavusapi.com/v2/conversations', {
+      const resp = await fetch('https://api.tavus.io/v2/conversations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 
   if (action === 'end' && conversation_id) {
     try {
-      await fetch(`https://tavusapi.com/v2/conversations/${conversation_id}/end`, {
+      await fetch(`https://api.tavus.io/v2/conversations/${conversation_id}/end`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

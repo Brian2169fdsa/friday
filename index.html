@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>F.R.I.D.A.Y. — ManageAI Build OS</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script defer crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+  <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -1596,6 +1596,12 @@ async function startFridayVideo() {
   popover.style.display = 'flex';
   document.getElementById('friday-popover-status').textContent = 'Connecting…';
 
+  if (typeof window.Daily === 'undefined') {
+    popover.style.display = 'none';
+    alert('Video SDK still loading — please wait a moment and try again.');
+    return;
+  }
+
   try {
     const resp = await fetch('/api/tavus-session', {
       method: 'POST',
@@ -1603,19 +1609,18 @@ async function startFridayVideo() {
       body: JSON.stringify({ action: 'create', user_name: (window._currentUser||{}).name || 'Boss', user_email: (window._currentUser||{}).email || '', persona: 'friday' })
     });
     const data = await resp.json();
+    if (data.error) throw new Error(data.error);
     if (!data.conversation_url) throw new Error('No conversation URL returned');
 
     fridayConversationId = data.conversation_id;
     fridaySessionActive = true;
 
     const container = document.getElementById('friday-daily-container');
-    if (typeof window.Daily !== 'undefined') {
-      fridayCallObject = window.Daily.createFrame(container, {
-        iframeStyle: { position:'absolute', top:'8px', left:'0', width:'100%', height:'520px', border:'none', borderRadius:'0' },
-        showLeaveButton: false, showFullscreenButton: false
-      });
-      await fridayCallObject.join({ url: data.conversation_url, startAudioOff: true, startVideoOff: false });
-    }
+    fridayCallObject = window.Daily.createFrame(container, {
+      iframeStyle: { position:'absolute', top:'8px', left:'0', width:'100%', height:'520px', border:'none', borderRadius:'0' },
+      showLeaveButton: false, showFullscreenButton: false
+    });
+    await fridayCallObject.join({ url: data.conversation_url, startAudioOff: false, startVideoOff: false });
 
     document.getElementById('friday-popover-status').textContent = 'Live';
   } catch(e) {
