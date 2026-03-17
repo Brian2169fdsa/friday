@@ -1542,30 +1542,23 @@ You speak like a direct, sharp operations manager. No fluff. Give specific, usef
 
 User (${(window._currentUser||{}).name||'Boss'}): ${userMsg}`;
 
-  // Route through n8n webhook (Anthropic API cannot be called directly from browsers due to CORS)
-  if (FRIDAY_WEBHOOK === 'YOUR_N8N_FRIDAY_WEBHOOK_URL' || !FRIDAY_WEBHOOK.startsWith('http')) {
-    fridayHideTyping();
-    fridayAppendMessage('assistant', 'Chat backend not configured yet, Boss. Set the <code>FRIDAY_WEBHOOK</code> to your n8n webhook URL to enable live AI responses.<br><br>In the meantime, the rest of the Build OS is fully functional — dashboard, intake, clients, and builds all pull live data from Supabase.');
-    return;
-  }
   try {
-    const resp = await fetch(FRIDAY_WEBHOOK, {
+    const resp = await fetch('/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_message: userMsg,
-        system_context: systemContext,
-        conversation_history: fridayConversation,
-        user: (window._currentUser || {}).name || 'Boss'
+        messages: [
+          ...fridayConversation,
+          { role: 'user', content: userMsg }
+        ],
+        system: systemContext,
+        max_tokens: 1000
       })
     });
     const data = await resp.json();
     fridayHideTyping();
 
-    // Support both direct text responses and Anthropic-formatted responses
-    const reply = typeof data === 'string' ? data
-      : data?.reply || data?.response || data?.content?.[0]?.text
-      || 'Something went wrong on my end, Boss. Try again.';
+    const reply = data?.reply || 'Something went wrong on my end, Boss. Try again.';
     const displayReply = reply.replace(/\n/g, '<br>');
     fridayAppendMessage('assistant', displayReply);
     fridayConversation.push({ role: 'user', content: userMsg });
@@ -1607,7 +1600,7 @@ async function startFridayVideo() {
     const resp = await fetch('/api/tavus-session', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action: 'create', user_name: (window._currentUser||{}).name || 'Boss', persona: 'friday' })
+      body: JSON.stringify({ action: 'create', user_name: (window._currentUser||{}).name || 'Boss', user_email: (window._currentUser||{}).email || '', persona: 'friday' })
     });
     const data = await resp.json();
     if (!data.conversation_url) throw new Error('No conversation URL returned');
