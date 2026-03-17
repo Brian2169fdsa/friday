@@ -855,6 +855,22 @@ async function doLogin() {
             </select>
           </div>
         </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Version (if update)</label>
+            <input type="text" id="i-version" placeholder="e.g. v1.1 — leave blank for new builds">
+          </div>
+          <div class="field">
+            <label>Update Type</label>
+            <select id="i-update-type">
+              <option value="">New Build</option>
+              <option value="bug_fix">🐛 Bug Fix</option>
+              <option value="patch">🔧 Patch</option>
+              <option value="feature">✨ New Feature</option>
+              <option value="hotfix">🚨 Hotfix</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!-- CARD: FILES -->
@@ -1008,13 +1024,21 @@ async function doLogin() {
             <div class="build-timeline" id="pd-timeline"></div>
           </div>
         </div>
-        <div>
+        <div id="pd-right-col">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <div style="font-size:13px;font-weight:700;color:var(--text);">Delivered Files</div>
+            <div style="display:flex;gap:0;" id="pd-right-tabs">
+              <button class="pd-folder-tab active" onclick="switchRightTab('files',this)">Delivered Files</button>
+              <button class="pd-folder-tab" onclick="switchRightTab('changelog',this)">Change Log</button>
+            </div>
             <button id="pd-folder-btn" class="btn-secondary" style="display:none;" onclick="openOneDriveFolder()">Open OneDrive Folder</button>
           </div>
-          <div id="pd-files">
-            <div class="dash-loading"><div class="dash-loading-ring"></div> Loading files...</div>
+          <div id="pd-tab-files">
+            <div id="pd-files">
+              <div class="dash-loading"><div class="dash-loading-ring"></div> Loading files...</div>
+            </div>
+          </div>
+          <div id="pd-tab-changelog" style="display:none;">
+            <div id="pd-changelog-content"></div>
           </div>
         </div>
       </div>
@@ -1663,6 +1687,14 @@ async function openProjectDetail(buildId, clientName) {
     fEl.innerHTML = tabsHtml + '<div id="pd-folder-files">' + renderFolderFiles(links, 'all') + '</div>';
     window._pdLinks = links;
   }
+  loadVersionHistory(buildId);
+  loadChangeLog(buildId);
+}
+function switchRightTab(tab, btn) {
+  document.querySelectorAll('#pd-right-tabs .pd-folder-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('pd-tab-files').style.display = tab==='files' ? '' : 'none';
+  document.getElementById('pd-tab-changelog').style.display = tab==='changelog' ? '' : 'none';
 }
 function openOneDriveFolder() { if (_currentOneDriveFolder) window.open(_currentOneDriveFolder,'_blank'); }
 function previewFile(url, name, type) {
@@ -1687,6 +1719,109 @@ function switchFileFolder(folder, btn) {
   document.getElementById('pd-folder-files').innerHTML = renderFolderFiles(window._pdLinks || [], folder);
 }
 function openEditProject(id) { openProjectDetail(id, _currentClientName); }
+
+// ===== VERSION HISTORY =====
+async function loadVersionHistory(buildId) {
+  const versions = await sbFetch(
+    'build_versions?build_id=eq.' + buildId + '&order=version_number.desc&select=*'
+  ) || [];
+  const container = document.getElementById('pd-right-col');
+  if (!container) return;
+  var existing = document.getElementById('version-history-section');
+  if (existing) existing.remove();
+  var section = document.createElement('div');
+  section.id = 'version-history-section';
+  section.style.cssText = 'margin-top:20px;';
+  var typeColor = {'major':'var(--red)','minor':'var(--accent)','patch':'var(--text-dim)'};
+  section.innerHTML = '<div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">Version History<button onclick="captureNewVersion(\''+buildId+'\')" style="background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;">+ Capture Version</button></div>'
+    + '<div id="version-history-list" style="display:flex;flex-direction:column;gap:8px;">'
+    + (!versions.length ? '<div style="font-size:12px;color:var(--text-dim);padding:8px 0;">No versions captured yet. Will auto-populate on next build.</div>'
+      : versions.map(function(v) {
+          var c = typeColor[v.version_type]||'var(--text-dim)';
+          return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;">'
+            + '<div style="background:'+c+';color:#fff;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;font-family:var(--mono);flex-shrink:0;">'+(v.version_label||'v'+v.version_number)+'</div>'
+            + '<div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text);">'+esc(v.change_summary||'Version captured')+'</div>'
+            + '<div style="font-size:10px;color:var(--text-dim);margin-top:2px;">'+esc(v.changed_by||'—')+' · '+relTime(v.created_at)+'</div></div>'
+            + (v.is_current ? '<span style="background:var(--green-light);color:var(--green);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">CURRENT</span>' : '')
+            + '</div>';
+        }).join(''))
+    + '</div>';
+  container.appendChild(section);
+}
+async function captureNewVersion(buildId) {
+  const summary = prompt('What changed in this version?');
+  if (!summary) return;
+  const label = prompt('Version label (e.g. v1.1):') || ('v'+Date.now());
+  await sbFetch('build_versions?build_id=eq.'+buildId, 'PATCH', {is_current:false});
+  const builds = await sbFetch('friday_builds?id=eq.'+buildId+'&select=*&limit=1') || [];
+  const b = builds[0];
+  if (!b) return;
+  const vNum = (b.version_count||1)+1;
+  await sbFetch('build_versions','POST',{
+    build_id:buildId,client_name:b.client_name,project_name:b.project_name,
+    version_number:vNum,version_label:label,version_type:'patch',
+    change_summary:summary,changed_by:(window._currentUser||{}).name||'Team',
+    output_links:b.output_links,onedrive_folder_url:b.onedrive_folder_url,
+    score:b.progress_pct,is_current:true,is_deployed:b.status==='done',
+    created_by:(window._currentUser||{}).name||'Team'
+  });
+  await sbFetch('friday_builds?id=eq.'+buildId,'PATCH',{
+    version_count:vNum,current_version:vNum,
+    last_versioned_at:new Date().toISOString()
+  });
+  loadVersionHistory(buildId);
+}
+
+// ===== CHANGE LOG =====
+async function loadChangeLog(buildId) {
+  const changes = await sbFetch(
+    'workflow_changes?build_id=eq.'+buildId+'&order=created_at.desc&select=*'
+  ) || [];
+  const el = document.getElementById('pd-changelog-content');
+  if (!el) return;
+  const typeColors = {bug_fix:'#DC2626',patch:'#D97706',feature:'#16A34A',hotfix:'#7C3AED',refactor:'#4A8FD6',initial:'#6B7280'};
+  const typeIcons = {bug_fix:'🐛',patch:'🔧',feature:'✨',hotfix:'🚨',refactor:'♻️',initial:'🚀'};
+  el.innerHTML = '<div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button onclick="openLogChangeModal(\''+buildId+'\')" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">+ Log Change</button></div>'
+    + (!changes.length ? '<div style="font-size:12px;color:var(--text-dim);padding:16px 0;">No changes logged yet. First entry auto-created on build delivery.</div>'
+      : changes.map(function(c) {
+          var color = typeColors[c.change_type]||'#6B7280';
+          var icon = typeIcons[c.change_type]||'📝';
+          return '<div style="border-left:3px solid '+color+';padding:12px 14px;background:var(--surface);border-radius:0 8px 8px 0;margin-bottom:8px;">'
+            + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'
+            + '<span style="background:'+color+';color:#fff;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;">'+icon+' '+esc(c.change_type.replace('_',' ').toUpperCase())+'</span>'
+            + (c.version_to ? '<span style="font-size:10px;color:var(--text-dim);font-family:var(--mono);">'+(c.version_from||'—')+' → '+esc(c.version_to)+'</span>' : '')
+            + '<span style="margin-left:auto;font-size:10px;color:var(--text-dim);">'+relTime(c.created_at)+'</span></div>'
+            + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">'+esc(c.title)+'</div>'
+            + (c.description ? '<div style="font-size:12px;color:var(--text-mid);line-height:1.5;">'+esc(c.description)+'</div>' : '')
+            + '<div style="font-size:10px;color:var(--text-dim);margin-top:6px;">By '+esc(c.submitted_by||'—')+'</div></div>';
+        }).join(''));
+}
+function openLogChangeModal(buildId) {
+  document.getElementById('lc-build-id').value = buildId;
+  document.getElementById('lc-submitted-by').value = (window._currentUser||{}).name||'';
+  document.getElementById('logChangeModal').classList.add('open');
+}
+function closeLogChangeModal() {
+  document.getElementById('logChangeModal').classList.remove('open');
+}
+async function saveChangeLog() {
+  const title = document.getElementById('lc-title').value.trim();
+  if (!title) { alert('Title required'); return; }
+  await sbFetch('workflow_changes','POST',{
+    build_id: document.getElementById('lc-build-id').value||null,
+    change_type: document.getElementById('lc-type').value,
+    version_from: document.getElementById('lc-version-from').value.trim()||null,
+    version_to: document.getElementById('lc-version-to').value.trim()||null,
+    title: title,
+    description: document.getElementById('lc-description').value.trim(),
+    submitted_by: document.getElementById('lc-submitted-by').value.trim(),
+    status: document.getElementById('lc-status').value,
+    deployed_at: document.getElementById('lc-status').value==='deployed' ? new Date().toISOString() : null,
+    created_at: new Date().toISOString()
+  });
+  closeLogChangeModal();
+  loadChangeLog(document.getElementById('lc-build-id').value);
+}
 
 // ===== BUILDS =====
 let allBuilds = [];
@@ -1825,7 +1960,10 @@ async function submitIntakeTicket() {
     priority: intakePriority,
     file_locations: getIntakeFilePaths(),
     existing_systems: document.getElementById('i-existing').value.trim(),
-    additional_context: document.getElementById('i-context').value.trim()
+    additional_context: document.getElementById('i-context').value.trim(),
+    version: document.getElementById('i-version').value.trim() || 'v1.0',
+    update_type: document.getElementById('i-update-type').value || 'initial',
+    is_update: !!document.getElementById('i-update-type').value
   };
 
   // Save to Supabase
@@ -2262,5 +2400,58 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+<div class="modal-overlay" id="logChangeModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Log a Change</div>
+      <button class="modal-close" onclick="closeLogChangeModal()">✕ Close</button>
+    </div>
+    <input type="hidden" id="lc-build-id">
+    <div class="row-2">
+      <div class="field">
+        <label>Change Type</label>
+        <select id="lc-type">
+          <option value="bug_fix">🐛 Bug Fix</option>
+          <option value="patch">🔧 Patch</option>
+          <option value="feature">✨ New Feature</option>
+          <option value="hotfix">🚨 Hotfix</option>
+          <option value="refactor">♻️ Refactor</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Version</label>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="lc-version-from" placeholder="From: v1.0" style="width:50%;">
+          <input type="text" id="lc-version-to" placeholder="To: v1.1" style="width:50%;">
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Title *</label>
+      <input type="text" id="lc-title" placeholder="e.g. Fixed duplicate email trigger">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="lc-description" style="min-height:80px;" placeholder="What changed, why, and what it fixes..."></textarea>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Submitted By</label>
+        <input type="text" id="lc-submitted-by">
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="lc-status">
+          <option value="pending">Pending</option>
+          <option value="deployed">Deployed</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-secondary" onclick="closeLogChangeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveChangeLog()">Save Change</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
