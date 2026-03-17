@@ -1737,10 +1737,6 @@ async function saveNewProject() {
   loadClientsData();
 }
 
-function openEditProject(id) {
-  alert('Edit project ' + id + ' — wire to your edit modal');
-}
-
 // ===== F.R.I.D.A.Y. AGENT CHAT =====
 const FRIDAY_PHOTO = 'https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp';
 let fridayConversation = [];
@@ -1880,7 +1876,7 @@ User (${(window._currentUser||{}).name||'Boss'}): ${userMsg}`;
     const data = await resp.json();
     fridayHideTyping();
 
-    const reply = data?.reply || 'Something went wrong on my end, Boss. Try again.';
+    const reply = data?.reply || data?.content?.[0]?.text || 'Something went wrong on my end, Boss. Try again.';
     const displayReply = reply.replace(/\n/g, '<br>');
     fridayAppendMessage('assistant', displayReply);
     fridayConversation.push({ role: 'user', content: userMsg });
@@ -1918,42 +1914,57 @@ async function startFridayVideo() {
   popover.style.display = 'flex';
   document.getElementById('friday-popover-status').textContent = 'Connecting…';
 
-  if (typeof window.Daily === 'undefined') {
-    popover.style.display = 'none';
-    alert('Video SDK still loading — please wait a moment and try again.');
-    return;
-  }
-
   try {
     const resp = await fetch('/api/tavus-session', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action: 'create', user_name: (window._currentUser||{}).name || 'Boss', user_email: (window._currentUser||{}).email || '', persona: 'friday' })
+      body: JSON.stringify({
+        action: 'create',
+        user_name: (window._currentUser||{}).name || 'Boss',
+        user_email: (window._currentUser||{}).email || '',
+        persona: 'friday'
+      })
     });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error || 'API returned ' + resp.status);
+    }
     const data = await resp.json();
-    if (data.error) throw new Error(data.error);
-    if (!data.conversation_url) throw new Error('No conversation URL returned');
+    console.log('[Tavus] Session created:', data);
+    if (!data.conversation_url) {
+      console.error('[Tavus] Full response:', data);
+      throw new Error('No conversation URL in response');
+    }
 
     fridayConversationId = data.conversation_id;
     fridaySessionActive = true;
 
+    // Use iframe embed — most reliable Tavus approach
     const container = document.getElementById('friday-daily-container');
-    fridayCallObject = window.Daily.createFrame(container, {
-      iframeStyle: { position:'absolute', top:'8px', left:'0', width:'100%', height:'520px', border:'none', borderRadius:'0' },
-      showLeaveButton: false, showFullscreenButton: false
-    });
-    await fridayCallObject.join({ url: data.conversation_url, startAudioOff: false, startVideoOff: false });
+    container.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.src = data.conversation_url;
+    iframe.allow = 'camera; microphone; autoplay; display-capture; fullscreen';
+    iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:0;';
+    container.appendChild(iframe);
+    fridayCallObject = iframe; // store ref for cleanup
 
-    document.getElementById('friday-popover-status').textContent = 'Live';
+    document.getElementById('friday-popover-status').textContent = 'Live — Avery is connecting…';
   } catch(e) {
-    popover.style.display = 'none';
-    alert('Could not start video session: ' + e.message);
+    console.error('[Tavus] Error:', e);
+    document.getElementById('friday-video-popover').style.display = 'none';
+    alert('Video call failed: ' + e.message + '\n\nCheck browser console for details.');
   }
 }
 
 async function endFridayVideo() {
   if (fridayCallObject) {
-    try { await fridayCallObject.leave(); fridayCallObject.destroy(); } catch(e) {}
+    // Handle both Daily.js object and plain iframe
+    if (typeof fridayCallObject.leave === 'function') {
+      try { await fridayCallObject.leave(); fridayCallObject.destroy(); } catch(e) {}
+    } else if (fridayCallObject.tagName === 'IFRAME') {
+      fridayCallObject.src = 'about:blank';
+    }
     fridayCallObject = null;
   }
   if (fridayConversationId) {
@@ -1981,7 +1992,7 @@ function startFridayPTT() {
   btn.style.borderColor = '#dc2626';
   btn.style.boxShadow = '0 4px 24px rgba(220,38,38,0.5)';
   if (status) { status.textContent = 'Listening…'; status.style.color = '#dc2626'; }
-  try { fridayCallObject.setLocalAudio(true); } catch(e) {}
+  try { if (fridayCallObject && fridayCallObject.setLocalAudio) fridayCallObject.setLocalAudio(true); } catch(e) {}
 }
 
 function stopFridayPTT() {
@@ -1993,7 +2004,7 @@ function stopFridayPTT() {
   btn.style.borderColor = 'var(--accent)';
   btn.style.boxShadow = '0 4px 20px rgba(74,144,217,0.3)';
   if (status) { status.textContent = 'Hold to talk'; status.style.color = 'var(--text-dim)'; }
-  try { if (fridayCallObject) fridayCallObject.setLocalAudio(false); } catch(e) {}
+  try { if (fridayCallObject && fridayCallObject.setLocalAudio) fridayCallObject.setLocalAudio(false); } catch(e) {}
 }
 
 // ===== FEEDBACK =====
