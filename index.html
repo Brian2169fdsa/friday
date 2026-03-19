@@ -368,6 +368,10 @@
     @keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
     @keyframes spin { to{transform:rotate(360deg)} }
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
     @keyframes rbBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
     @keyframes popIn { from{opacity:0;transform:scale(0.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
 
@@ -605,7 +609,7 @@ async function doLogin() {
       <div class="h-title">F.R.I.D.A.Y. Build OS v1.0</div>
       <div class="h-sub">manageai.io · delivery intelligence</div>
     </div>
-    <div class="h-status"><div class="h-dot"></div><span id="system-status">Build System Online</span></div>
+    <div class="h-status"><div class="h-dot"></div><span id="system-status">Build System Online · Live</span></div>
     <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
       <div style="background:var(--accent-light);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--accent);" id="user-badge">—</div>
       <button onclick="logout()" style="background:none;border:1.5px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--text-mid);cursor:pointer;font-family:inherit;">Sign Out</button>
@@ -1490,6 +1494,7 @@ async function loadClientsData() {
 }
 async function openClientDetail(clientName) {
   _currentClientName = clientName;
+  window._currentClientName = clientName;
   document.getElementById('view-client-grid').classList.add('view-hidden');
   document.getElementById('view-client-detail').classList.remove('view-hidden');
   document.getElementById('view-project-detail').classList.add('view-hidden');
@@ -2397,6 +2402,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadIntakeClients();
     setMode('friday');
     loadFridayBriefing();
+    initRealtimeSubscriptions();
   }
 
   // Friday chat input
@@ -2420,6 +2426,91 @@ document.addEventListener('DOMContentLoaded', function() {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
   });
 });
+
+function initRealtimeSubscriptions() {
+  let lastPollTime = new Date().toISOString();
+  let notifiedBuilds = new Set();
+  setInterval(async function() {
+    try {
+      const updated = await sbFetch(
+        'friday_builds?select=id,ticket_id,status,progress_pct,' +
+        'client_name,project_name,updated_at' +
+        '&updated_at=gt.' + lastPollTime +
+        '&order=updated_at.desc&limit=10'
+      );
+      if (!updated || updated.length === 0) return;
+      lastPollTime = updated[0].updated_at;
+      console.log('[FRIDAY] Realtime: ' + updated.length + ' build(s) updated');
+      // Refresh current view
+      const activeTab = document.querySelector('.nav-tab.active');
+      if (activeTab) {
+        const tabText = activeTab.textContent.trim();
+        if (tabText.includes('Dashboard')) loadDashboardData();
+        if (tabText.includes('Builds')) loadBuildsTable();
+        if (tabText.includes('Clients') && window._currentClientName) {
+          loadClientDetail(window._currentClientName);
+        }
+      }
+      // Refresh FRIDAY stats pills
+      if (typeof loadFridayStats === 'function') loadFridayStats();
+      // Show completion notification for newly done builds
+      updated.forEach(function(b) {
+        if (b.status === 'done' && !notifiedBuilds.has(b.id)) {
+          notifiedBuilds.add(b.id);
+          showBuildNotification(b);
+        }
+      });
+    } catch(e) {
+      console.warn('[FRIDAY] Realtime poll error:', e.message);
+    }
+  }, 30000);
+  console.log('[FRIDAY] Realtime polling active — 30s interval');
+}
+
+function showBuildNotification(build) {
+  // Remove any existing notification
+  const existing = document.getElementById('friday-build-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'friday-build-toast';
+  toast.style.cssText = [
+    'position:fixed',
+    'bottom:28px',
+    'right:28px',
+    'z-index:9999',
+    'background:#1a2332',
+    'color:#fff',
+    'border-radius:16px',
+    'padding:18px 22px',
+    'box-shadow:0 8px 40px rgba(0,0,0,0.35)',
+    'max-width:340px',
+    'display:flex',
+    'align-items:flex-start',
+    'gap:14px',
+    'border:1px solid rgba(255,255,255,0.08)',
+    'animation:slideUp 0.3s ease'
+  ].join(';');
+  toast.innerHTML =
+    '<div style="font-size:24px;flex-shrink:0;margin-top:2px;">✅</div>' +
+    '<div style="flex:1;">' +
+      '<div style="font-size:13px;font-weight:700;margin-bottom:4px;' +
+        'color:#4A8FD6;">Build Complete</div>' +
+      '<div style="font-size:12px;font-weight:600;margin-bottom:2px;">' +
+        esc(build.project_name || 'Build') + '</div>' +
+      '<div style="font-size:11px;opacity:0.6;margin-bottom:10px;">' +
+        esc(build.client_name || '') + '</div>' +
+      '<button onclick="document.getElementById(\'friday-build-toast\').remove()" ' +
+        'style="background:rgba(74,143,214,0.2);border:1px solid rgba(74,143,214,0.3);' +
+        'border-radius:8px;padding:5px 12px;font-size:11px;color:#4A8FD6;' +
+        'cursor:pointer;font-family:inherit;font-weight:600;">Dismiss</button>' +
+    '</div>';
+  document.body.appendChild(toast);
+  // Auto-dismiss after 10 seconds
+  setTimeout(function() {
+    const t = document.getElementById('friday-build-toast');
+    if (t) t.remove();
+  }, 10000);
+}
 </script>
 <div class="modal-overlay" id="logChangeModal">
   <div class="modal-box">
