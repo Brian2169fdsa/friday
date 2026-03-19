@@ -549,7 +549,7 @@
 // ===== CONFIG =====
 const SB_URL = 'https://fmemdogudiolevqsfuvd.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtZW1kb2d1ZGlvbGV2cXNmdXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDU0NjIsImV4cCI6MjA4OTI4MTQ2Mn0.jXXu-JE_w3ZeFXOXFyDRzhFe3ztDEv8ozWBywR-TOQA';
-const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtZW1kb2d1ZGlvbGV2cXNmdXZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzcwNTQ2MiwiZXhwIjoyMDg5MjgxNDYyfQ.PXBm_m4Qcf2izPmh2d_loiFGfUKlqKqm4QhyY2x89BA';
+// Service key removed — client-side code must use anon key only
 const FRIDAY_WEBHOOK = 'https://manageai2026.app.n8n.cloud/webhook/wf-01-intake';
 const INTAKE_WEBHOOK = 'https://manageai2026.app.n8n.cloud/webhook/wf-01-intake';
 
@@ -574,7 +574,7 @@ async function doLogin() {
     // Pull real display name + role from friday_users
     try {
       const uResp = await fetch(SB_URL + '/rest/v1/friday_users?email=eq.' + encodeURIComponent(d.user.email) + '&select=name,role', {
-        headers: {'apikey': SB_SERVICE_KEY, 'Authorization': 'Bearer ' + SB_SERVICE_KEY}
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
       });
       const uData = await uResp.json();
       if (uData && uData[0]) {
@@ -1279,8 +1279,8 @@ async function sbFetch(path, method='GET', body=null) {
     const resp = await fetch(SB_URL + '/rest/v1/' + path, {
       method,
       headers: {
-        'apikey': SB_SERVICE_KEY,
-        'Authorization': 'Bearer ' + SB_SERVICE_KEY,
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
         'Content-Type': 'application/json',
         'Prefer': method === 'POST' ? 'return=representation' : ''
       },
@@ -1348,12 +1348,32 @@ async function loadDashboardData() {
 
   // Build queue
   const qEl = document.getElementById('d-build-queue');
-  const activeBuilds = builds.filter(b => ['active','building','pending'].includes(b.status)).slice(0,6);
+  const activeBuilds = builds.filter(b => ['active','building','pending','needs_info'].includes(b.status)).slice(0,6);
   if (!activeBuilds.length) {
     qEl.innerHTML = '<div class="dash-empty">No active builds</div>';
   } else {
     qEl.innerHTML = activeBuilds.map(b => {
       const pct = b.progress_pct || 0;
+      let cardExtra = '';
+      if (b.status === 'needs_info') {
+        const questions = (b.build_log || '').replace('Awaiting clarification: ', '');
+        cardExtra = '<div style="margin-top:10px;padding:12px;' +
+          'background:#fff8e6;border-radius:8px;border-left:3px solid #f59e0b;">' +
+          '<div style="font-size:11px;font-weight:700;color:#d97706;margin-bottom:6px;">' +
+          '❓ FRIDAY needs clarification</div>' +
+          '<div style="font-size:12px;color:#374151;margin-bottom:8px;white-space:pre-wrap;">' +
+          esc(questions) + '</div>' +
+          '<textarea id="ans_' + esc(b.ticket_id) + '" ' +
+          'placeholder="Type your answers here..." ' +
+          'style="width:100%;min-height:70px;border-radius:6px;border:1px solid #d1d5db;' +
+          'padding:8px;font-size:12px;font-family:inherit;resize:vertical;' +
+          'box-sizing:border-box;"></textarea>' +
+          '<button onclick="submitAnswers(\'' + esc(b.ticket_id) + '\')" ' +
+          'style="margin-top:6px;background:#4A8FD6;color:#fff;border:none;' +
+          'border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;' +
+          'cursor:pointer;font-family:inherit;">Submit Answers →</button>' +
+          '</div>';
+      }
       return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
           <div style="font-size:12px;font-weight:700;color:var(--text);">${esc(b.project_name || b.title || 'Build')}</div>
@@ -1362,6 +1382,7 @@ async function loadDashboardData() {
         <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">${esc(b.client_name || '')} · ${esc(b.platform || '')}</div>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
         <div style="font-size:10px;color:var(--text-dim);margin-top:3px;font-family:var(--mono);">${pct}%</div>
+        ${cardExtra}
       </div>`;
     }).join('');
   }
@@ -1480,7 +1501,13 @@ async function loadClientsData() {
       + '<div class="cgc-top">'
       + '<div class="cgc-avatar">' + (c.name||'?').charAt(0) + '</div>'
       + '<div>'
-      + '<div class="cgc-name">' + esc(c.name||'') + '</div>'
+      + '<div class="cgc-name">' + esc(c.name||'')
+      + (c.health_score !== null && c.health_score !== undefined
+        ? '<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px;background:'
+          + (c.health_score >= 70 ? '#e8f8ee' : c.health_score >= 40 ? '#fff8e6' : '#fef2f2')
+          + ';color:' + (c.health_score >= 70 ? '#16a34a' : c.health_score >= 40 ? '#d97706' : '#dc2626')
+          + ';">● ' + c.health_score + '</span>' : '')
+      + '</div>'
       + '<div class="cgc-industry">' + esc(c.industry||'') + '</div>'
       + (c.contact_email ? '<div class="cgc-email">' + esc(c.contact_email) + '</div>' : '')
       + (active > 0 ? '<div class="cgc-active-badge"><div class="cgc-active-dot"></div>' + active + ' active</div>' : '')
@@ -1993,6 +2020,31 @@ async function submitIntakeTicket() {
   // Save to Supabase
   await sbFetch('friday_tickets', 'POST', payload);
 
+  // Fire build server
+  try {
+    const buildResp = await fetch('http://5.223.79.255:3000/api/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ticket_id: ticketId,
+        client: client,
+        project_name: project,
+        platform: intakePlatform,
+        request_description: desc,
+        priority: intakePriority || 'medium',
+        submitter_email: SUBMITTER_EMAILS[sub] || 'brian@manageai.io',
+        version: document.getElementById('i-version').value.trim() || 'v1.0',
+        update_type: document.getElementById('i-update-type').value || 'initial',
+        is_update: !!document.getElementById('i-update-type').value,
+        callback_url: 'https://manageai2026.app.n8n.cloud/webhook/wf-07-callback'
+      })
+    });
+    const buildResult = await buildResp.json();
+    console.log('[FRIDAY] Build server response:', buildResult.status);
+  } catch(e) {
+    console.warn('[FRIDAY] Build server call failed (non-fatal):', e.message);
+  }
+
   // Fire webhook
   try {
     await fetch(INTAKE_WEBHOOK, {
@@ -2442,11 +2494,11 @@ function initRealtimeSubscriptions() {
       lastPollTime = updated[0].updated_at;
       console.log('[FRIDAY] Realtime: ' + updated.length + ' build(s) updated');
       // Refresh current view
-      const activeTab = document.querySelector('.nav-tab.active');
+      const activeTab = document.querySelector('.mode-tab.active');
       if (activeTab) {
         const tabText = activeTab.textContent.trim();
         if (tabText.includes('Dashboard')) loadDashboardData();
-        if (tabText.includes('Builds')) loadBuildsTable();
+        if (tabText.includes('Builds')) loadBuildsData();
         if (tabText.includes('Clients') && window._currentClientName) {
           loadClientDetail(window._currentClientName);
         }
@@ -2465,6 +2517,44 @@ function initRealtimeSubscriptions() {
     }
   }, 30000);
   console.log('[FRIDAY] Realtime polling active — 30s interval');
+}
+
+async function submitAnswers(ticketId) {
+  const textarea = document.getElementById('ans_' + ticketId);
+  if (!textarea || !textarea.value.trim()) {
+    alert('Please enter your answers first.');
+    return;
+  }
+  const btn = textarea.nextElementSibling;
+  const answers = textarea.value.trim();
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('http://5.223.79.255:3000/api/answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticket_id: ticketId, answers, submitter: (window._currentUser||{}).name||'Brian' })
+    });
+    const result = await resp.json();
+    if (result.status === 'building') {
+      btn.textContent = '✅ Building!';
+      btn.style.background = '#10b981';
+      setTimeout(() => loadDashboardData(), 2000);
+    } else if (result.status === 'needs_info') {
+      btn.textContent = 'Submit Answers →';
+      btn.disabled = false;
+      textarea.value = '';
+      alert('FRIDAY has a follow-up question:\n\n' + result.questions);
+    } else {
+      btn.textContent = 'Submit Answers →';
+      btn.disabled = false;
+      alert('Error: ' + (result.error || 'Unknown'));
+    }
+  } catch(e) {
+    btn.textContent = 'Submit Answers →';
+    btn.disabled = false;
+    alert('Could not reach build server: ' + e.message);
+  }
 }
 
 function showBuildNotification(build) {
