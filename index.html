@@ -267,6 +267,19 @@
     .next-step-item:last-child { border-bottom: none; }
     .next-step-item p { font-size: 13px; line-height: 1.5; }
     .next-step-item strong { font-weight: 600; display: block; margin-bottom: 2px; }
+
+    /* ===== CLARIFICATION MODAL ===== */
+    .clarification-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15,23,42,0.75); backdrop-filter: blur(6px); overflow-y: auto; padding: 40px 20px; align-items: center; justify-content: center; }
+    .clarification-overlay.open { display: flex; }
+    .clarification-modal { background: #fff; border-radius: 16px; max-width: 560px; width: 100%; padding: 32px; box-shadow: 0 24px 80px rgba(0,0,0,0.4); animation: fadeIn 0.2s ease; }
+    .clarification-badge { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--accent); margin-bottom: 20px; }
+    .clarification-modal h2 { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .clarification-modal .clarification-subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+    .clarification-questions { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+    .clarification-questions .field label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: block; }
+    .clarification-questions .field textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; font-family: var(--font); resize: vertical; min-height: 72px; background: var(--surface); transition: border-color 0.2s; }
+    .clarification-questions .field textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+    .clarification-error { display: none; background: var(--red-light); color: var(--red); padding: 10px 14px; border-radius: 9px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
     .next-step-item span { color: var(--text-dim); }
     .step-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
 
@@ -684,6 +697,18 @@ async function doLogin() {
       </div>
       <br>
       <button class="btn-primary" onclick="resetIntakeForm()" style="margin:0 auto;">Submit Another Request</button>
+    </div>
+  </div>
+
+  <!-- Clarification Modal -->
+  <div class="clarification-overlay" id="clarificationOverlay">
+    <div class="clarification-modal">
+      <div class="clarification-badge" id="clarification-ticket-id">Ticket ID: MAI-0000</div>
+      <h2>F.R.I.D.A.Y. has a few questions</h2>
+      <p class="clarification-subtitle">Please answer these before the build can start</p>
+      <div class="clarification-error" id="clarification-error">Something went wrong — please try again</div>
+      <div class="clarification-questions" id="clarification-questions"></div>
+      <button class="btn-primary" id="clarification-submit-btn" onclick="submitClarificationAnswers()" style="width:100%;">Send Answers →</button>
     </div>
   </div>
 
@@ -1521,13 +1546,63 @@ async function submitIntakeTicket() {
   const ticketId='MAI-'+(Math.floor(Math.random()*9000)+1000);
   const payload={ ticket_id:ticketId, submitted_at:new Date().toISOString(), submitter:sub, submitter_email:SUBMITTER_EMAILS[sub]||'brian@manageai.io', client:client, project_name:project, platform:intakePlatform, request_description:desc, deadline:document.getElementById('i-deadline').value, complexity:document.getElementById('i-complexity').value, priority:intakePriority, file_locations:getIntakeFilePaths(), existing_systems:document.getElementById('i-existing').value.trim(), additional_context:document.getElementById('i-context').value.trim(), version:document.getElementById('i-version').value.trim()||'v1.0', update_type:document.getElementById('i-update-type').value||'initial', is_update:!!document.getElementById('i-update-type').value };
   await sbFetch('friday_tickets','POST',payload);
-  try { await fetch(INTAKE_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),mode:'no-cors'}); } catch(e){}
-  document.getElementById('intakeFormContent').style.display='none';
-  document.getElementById('intake-ticket-id').textContent=ticketId;
-  document.getElementById('intake-success-email').textContent=SUBMITTER_EMAILS[sub]||'brian@manageai.io';
-  document.getElementById('intakeSuccess').classList.add('visible');
+  let webhookResult = null;
+  try {
+    const resp = await fetch(INTAKE_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    webhookResult = await resp.json();
+  } catch(e){}
+  if (webhookResult && webhookResult.status === 'needs_clarification' && webhookResult.questions && webhookResult.questions.length) {
+    showClarificationModal(webhookResult.ticket_id || ticketId, webhookResult.questions, sub);
+  } else {
+    document.getElementById('intakeFormContent').style.display='none';
+    document.getElementById('intake-ticket-id').textContent=(webhookResult && webhookResult.ticket_id) || ticketId;
+    document.getElementById('intake-success-email').textContent=SUBMITTER_EMAILS[sub]||'brian@manageai.io';
+    document.getElementById('intakeSuccess').classList.add('visible');
+  }
 }
-function resetIntakeForm() { clearIntakeForm(); document.getElementById('intakeFormContent').style.display='block'; document.getElementById('intakeSuccess').classList.remove('visible'); }
+
+let _clarificationTicketId = '';
+let _clarificationQuestions = [];
+let _clarificationSubmitter = '';
+
+function showClarificationModal(ticketId, questions, submitter) {
+  _clarificationTicketId = ticketId;
+  _clarificationQuestions = questions;
+  _clarificationSubmitter = submitter;
+  document.getElementById('clarification-ticket-id').textContent = 'Ticket ID: ' + ticketId;
+  const container = document.getElementById('clarification-questions');
+  container.innerHTML = questions.map(function(q, i) {
+    return '<div class="field"><label>Q' + (i+1) + ': ' + esc(q) + '</label><textarea id="clarification-answer-' + i + '" placeholder="Your answer..."></textarea></div>';
+  }).join('');
+  document.getElementById('clarification-error').style.display = 'none';
+  document.getElementById('clarification-submit-btn').disabled = false;
+  document.getElementById('clarification-submit-btn').textContent = 'Send Answers →';
+  document.getElementById('clarificationOverlay').classList.add('open');
+}
+
+async function submitClarificationAnswers() {
+  var btn = document.getElementById('clarification-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  document.getElementById('clarification-error').style.display = 'none';
+  var formatted = _clarificationQuestions.map(function(q, i) {
+    var answer = document.getElementById('clarification-answer-' + i).value.trim();
+    return 'Q' + (i+1) + ': ' + q + '\nA: ' + answer;
+  }).join('\n\n');
+  try {
+    var resp = await fetch('https://5.223.79.255:3000/api/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticket_id: _clarificationTicketId, answers: formatted }) });
+    if (!resp.ok) throw new Error('Request failed');
+    document.getElementById('clarificationOverlay').classList.remove('open');
+    document.getElementById('intakeFormContent').style.display = 'none';
+    document.getElementById('intake-ticket-id').textContent = _clarificationTicketId;
+    document.getElementById('intake-success-email').textContent = SUBMITTER_EMAILS[_clarificationSubmitter] || 'brian@manageai.io';
+    document.getElementById('intakeSuccess').classList.add('visible');
+  } catch(e) {
+    document.getElementById('clarification-error').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Send Answers →';
+  }
+function resetIntakeForm() { clearIntakeForm(); document.getElementById('intakeFormContent').style.display='block'; document.getElementById('intakeSuccess').classList.remove('visible'); document.getElementById('clarificationOverlay').classList.remove('open'); }
 
 // ===== CLIENT MODALS =====
 function openNewClientModal() { document.getElementById('newClientModal').classList.add('open'); }
@@ -1811,6 +1886,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const pop=document.getElementById('friday-video-popover');
   if (pop) pop.addEventListener('click',e=>{ if(e.target===pop) endFridayVideo(); });
   document.querySelectorAll('.modal-overlay').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }); });
+  document.getElementById('clarificationOverlay').addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
 });
 </script>
 </body>
