@@ -892,6 +892,21 @@ async function doLogin() {
   </div>
 </div>
 
+<!-- ===== CLARIFICATION MODAL ===== -->
+<div class="modal-overlay" id="clarificationModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">F.R.I.D.A.Y. has a few questions</div>
+      <button class="modal-close" onclick="closeClarificationModal()">✕ Close</button>
+    </div>
+    <div id="clarification-questions"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-secondary" onclick="closeClarificationModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitClarificationAnswers()">Send Answers →</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===== WORKFLOW REGISTRY =====
 // WF-01: wf-01-intake | WF-07: QPYPMrAtjr4AqEzg | WF-09: IA99G4pCRIpCSxgU
@@ -1559,7 +1574,6 @@ async function submitIntakeTicket() {
     document.getElementById('intake-success-email').textContent=SUBMITTER_EMAILS[sub]||'brian@manageai.io';
     document.getElementById('intakeSuccess').classList.add('visible');
   }
-}
 
 let _clarificationTicketId = '';
 let _clarificationQuestions = [];
@@ -1590,7 +1604,7 @@ async function submitClarificationAnswers() {
     return 'Q' + (i+1) + ': ' + q + '\nA: ' + answer;
   }).join('\n\n');
   try {
-    var resp = await fetch('https://5.223.79.255:3000/api/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticket_id: _clarificationTicketId, answers: formatted }) });
+    var resp = await fetch('http://5.223.79.255:3000/api/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticket_id: _clarificationTicketId, answers: formatted }) });
     if (!resp.ok) throw new Error('Request failed');
     document.getElementById('clarificationOverlay').classList.remove('open');
     document.getElementById('intakeFormContent').style.display = 'none';
@@ -1602,6 +1616,7 @@ async function submitClarificationAnswers() {
     btn.disabled = false;
     btn.textContent = 'Send Answers →';
   }
+}
 function resetIntakeForm() { clearIntakeForm(); document.getElementById('intakeFormContent').style.display='block'; document.getElementById('intakeSuccess').classList.remove('visible'); document.getElementById('clarificationOverlay').classList.remove('open'); }
 
 // ===== CLIENT MODALS =====
