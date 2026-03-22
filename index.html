@@ -28,6 +28,8 @@
       --red-light: #FEF2F2;
       --purple: #7C3AED;
       --purple-light: #EDE9FE;
+      --charlie: #7C3AED;
+      --charlie-light: #F5F3FF;
       --mono: 'JetBrains Mono', monospace;
       --font: 'Montserrat', sans-serif;
     }
@@ -136,6 +138,12 @@
       transition: all 0.15s;
     }
     .btn-secondary:hover { background: var(--surface); border-color: var(--text-dim); }
+    .btn-ghost {
+      padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: #fff; color: var(--text); font-size: 12px; font-weight: 600;
+      font-family: var(--font); cursor: pointer; transition: all 0.15s;
+    }
+    .btn-ghost:hover { background: var(--surface); border-color: var(--text-dim); }
 
     /* ===== CHIPS ===== */
     .chips { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -1013,7 +1021,13 @@ async function doLogin() {
     <!-- VIEW 3: PROJECT DETAIL -->
     <div id="view-project-detail" class="view-hidden">
       <button class="cdetail-back" id="pd-back-btn" onclick="showClientDetail()">← Back to Client</button>
-      <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;" id="pd-title">Project</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:22px;font-weight:800;color:var(--text);" id="pd-title">Project</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-ghost" onclick="openBuildAgent(_currentBuildId)">🤖 Build Agent</button>
+          <button class="btn-ghost" onclick="openTeamChat(_currentBuildId)">💬 Team Chat</button>
+        </div>
+      </div>
       <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;" id="pd-subtitle">—</div>
       <div class="pdetail-layout">
         <div>
@@ -1478,7 +1492,6 @@ async function loadClientsData() {
     const last = cBuilds[0] ? (cBuilds[0].updated_at || cBuilds[0].created_at) : null;
     return '<div class="client-grid-card" onclick="openClientDetail(\'' + (c.name||'').replace(/'/g,"\\'") + '\')">'
       + '<div class="cgc-top">'
-      + '<div class="cgc-avatar">' + (c.name||'?').charAt(0) + '</div>'
       + '<div>'
       + '<div class="cgc-name">' + esc(c.name||'') + '</div>'
       + '<div class="cgc-industry">' + esc(c.industry||'') + '</div>'
@@ -1711,6 +1724,19 @@ async function openProjectDetail(buildId, clientName) {
     fEl.innerHTML = tabsHtml + '<div id="pd-folder-files">' + renderFolderFiles(links, 'all') + '</div>';
     window._pdLinks = links;
   }
+  // ===== CHANGE 2: AUTOMATION SECTION =====
+  renderAutomationSection(b, links);
+  // ===== CHANGE 3: DELIVERABLES SECTION =====
+  renderDeliverablesSection(links);
+  // ===== CHANGE 4: AI CONFIGURATION SECTION =====
+  renderAIConfigSection(b);
+  // ===== CHANGE 5: CREDENTIALS SECTION =====
+  renderCredentialsSection(b);
+
+  // Store build data for popovers
+  window._currentBuild = b;
+  window._currentBuildLinks = links;
+
   loadVersionHistory(buildId);
   loadChangeLog(buildId);
 }
@@ -2467,6 +2493,377 @@ function initRealtimeSubscriptions() {
   console.log('[FRIDAY] Realtime polling active — 30s interval');
 }
 
+// ===== CREDENTIALS STORE =====
+const credsStore = {};
+
+// ===== CHANGE 2: AUTOMATION SECTION =====
+function renderAutomationSection(b, links) {
+  var rightCol = document.getElementById('pd-right-col');
+  if (!rightCol) return;
+  var existing = document.getElementById('pd-automation-section');
+  if (existing) existing.remove();
+
+  var blueprintLinks = links.filter(function(l) {
+    var t = (l.type||'').toLowerCase();
+    var n = (l.name||'').toLowerCase();
+    return t === 'blueprint' || t === 'json' || t === 'workflow' || n.endsWith('.json');
+  });
+
+  var section = document.createElement('div');
+  section.id = 'pd-automation-section';
+  section.style.marginTop = '20px';
+
+  var headerHtml = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;" onclick="toggleAutomationSection()">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;">'
+    + '⚡ Automation'
+    + '<span style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;color:var(--text-dim);">' + blueprintLinks.length + '</span>'
+    + '</div>'
+    + '<span id="pd-auto-chevron" style="font-size:12px;color:var(--text-dim);transition:transform 0.2s;">›</span>'
+    + '</div>';
+
+  var platformName = b.platform || 'Custom Code';
+  var updatedDate = b.updated_at ? new Date(b.updated_at).toLocaleDateString() : '—';
+
+  var bodyHtml = '<div id="pd-auto-body">'
+    + '<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text);">' + esc(platformName) + '</div>'
+    + '<div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">Updated ' + updatedDate + '</div>'
+    + '</div></div>';
+
+  // Group blueprint links by scenario name prefix
+  var scenarios = {};
+  blueprintLinks.forEach(function(l) {
+    var scenarioName = (l.name||'file').replace(/\.[^.]+$/, '').replace(/[-_]\d+$/, '');
+    if (!scenarios[scenarioName]) scenarios[scenarioName] = [];
+    scenarios[scenarioName].push(l);
+  });
+
+  Object.keys(scenarios).forEach(function(name, idx) {
+    var files = scenarios[name];
+    bodyHtml += '<div style="background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;" onclick="toggleScenario(\'auto-scenario-'+idx+'\')">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--text);">' + esc(name) + '</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
+      + '<span style="font-size:10px;color:var(--text-dim);">' + files.length + ' file' + (files.length !== 1 ? 's' : '') + '</span>'
+      + '<span style="font-size:12px;color:var(--text-dim);transition:transform 0.2s;" id="auto-scenario-chevron-'+idx+'">›</span>'
+      + '</div></div>'
+      + '<div id="auto-scenario-'+idx+'" style="display:none;border-top:1px solid var(--border);padding:12px 16px;">';
+    files.forEach(function(f) {
+      var ext = (f.name||'').split('.').pop().toLowerCase();
+      var icon = ext === 'json' ? '⚙️' : ext === 'yaml' || ext === 'yml' ? '📄' : '📦';
+      bodyHtml += '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">'
+        + '<span style="font-size:18px;">' + icon + '</span>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:12px;font-weight:700;color:var(--text);">' + esc(f.name||'File') + '</div>'
+        + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-top:1px;">' + fileTypeLabel(f.type) + '</div>'
+        + '</div>'
+        + (f.url ? '<a href="' + esc(f.url) + '" target="_blank" style="font-size:11px;color:var(--accent);font-weight:600;text-decoration:none;">Download ↗</a>' : '')
+        + '</div>';
+    });
+    bodyHtml += '</div></div>';
+  });
+
+  bodyHtml += '</div>';
+  section.innerHTML = headerHtml + bodyHtml;
+  rightCol.appendChild(section);
+}
+
+function toggleAutomationSection() {
+  var body = document.getElementById('pd-auto-body');
+  var chevron = document.getElementById('pd-auto-chevron');
+  if (!body) return;
+  if (body.style.display === 'none') {
+    body.style.display = '';
+    if (chevron) chevron.style.transform = 'rotate(90deg)';
+  } else {
+    body.style.display = 'none';
+    if (chevron) chevron.style.transform = '';
+  }
+}
+
+function toggleScenario(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var chevron = document.getElementById(id.replace('auto-scenario-', 'auto-scenario-chevron-'));
+  if (el.style.display === 'none') {
+    el.style.display = '';
+    if (chevron) chevron.style.transform = 'rotate(90deg)';
+  } else {
+    el.style.display = 'none';
+    if (chevron) chevron.style.transform = '';
+  }
+}
+
+// ===== CHANGE 3: DELIVERABLES SECTION =====
+function renderDeliverablesSection(links) {
+  var rightCol = document.getElementById('pd-right-col');
+  if (!rightCol) return;
+  var existing = document.getElementById('pd-deliverables-section');
+  if (existing) existing.remove();
+
+  var deliverableTypes = ['solution_demo', 'skillset_manual', 'requirements_doc'];
+  var deliverables = links.filter(function(l) {
+    return deliverableTypes.indexOf(l.type) !== -1;
+  });
+
+  if (!deliverables.length) return;
+
+  var section = document.createElement('div');
+  section.id = 'pd-deliverables-section';
+  section.style.marginTop = '20px';
+
+  var html = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;">📦 Deliverable Documents</div>'
+    + '<div style="display:flex;flex-direction:column;gap:10px;">';
+
+  deliverables.forEach(function(d) {
+    var accentColor = d.type === 'solution_demo' ? 'var(--accent)' : d.type === 'skillset_manual' ? 'var(--charlie)' : 'var(--amber)';
+    var icon = d.type === 'solution_demo' ? '🖥️' : d.type === 'skillset_manual' ? '📖' : '📋';
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;border-top:3px solid ' + accentColor + ';padding:16px 18px;">'
+      + '<div style="display:flex;align-items:center;gap:12px;">'
+      + '<span style="font-size:22px;">' + icon + '</span>'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text);">' + esc(d.name || 'Document') + '</div>'
+      + '</div>'
+      + (d.url ? '<a href="' + esc(d.url) + '" target="_blank" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;">Open ↗</a>' : '')
+      + '</div></div>';
+  });
+
+  html += '</div>';
+  section.innerHTML = html;
+  rightCol.appendChild(section);
+}
+
+// ===== CHANGE 4: AI CONFIGURATION SECTION =====
+function renderAIConfigSection(b) {
+  var rightCol = document.getElementById('pd-right-col');
+  if (!rightCol) return;
+  var existing = document.getElementById('pd-aiconfig-section');
+  if (existing) existing.remove();
+
+  var section = document.createElement('div');
+  section.id = 'pd-aiconfig-section';
+  section.style.marginTop = '20px';
+
+  var agents = [];
+  if (b.build_log && b.build_log.indexOf('agent') !== -1) {
+    agents.push({ label: 'Build Agent', model: 'claude-sonnet-4-20250514', prompt: b.build_log.slice(0, 200) });
+  }
+  if (!agents.length) {
+    agents = [
+      { label: 'Planner', model: 'claude-sonnet-4-20250514', prompt: 'Analyze the build request and produce a structured implementation plan with phases, dependencies, and acceptance criteria.' },
+      { label: 'Build Agent', model: 'claude-sonnet-4-20250514', prompt: 'Execute the build plan step by step. Generate automation blueprints, configuration files, and documentation for the target platform.' }
+    ];
+  }
+
+  var html = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;">🤖 AI Configuration</div>'
+    + '<div style="display:flex;flex-direction:column;gap:10px;">';
+
+  agents.forEach(function(a) {
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;">'
+      + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94A3B8;font-family:var(--font);margin-bottom:6px;">' + esc(a.label) + '</div>'
+      + '<div style="font-size:12px;font-family:monospace;color:var(--text);margin-bottom:8px;">' + esc(a.model) + '</div>'
+      + '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:8px;padding:10px 12px;">'
+      + '<div style="font-size:12px;font-family:var(--mono);color:#334155;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">' + esc(a.prompt) + '</div>'
+      + '<div style="margin-top:6px;"><a href="#" onclick="event.preventDefault();alert(\'Full prompt:\\n\\n' + esc(a.prompt).replace(/'/g, "\\'") + '\')" style="font-size:11px;color:var(--accent);text-decoration:none;font-weight:600;">View full prompt</a></div>'
+      + '</div></div>';
+  });
+
+  html += '</div>';
+  section.innerHTML = html;
+  rightCol.appendChild(section);
+}
+
+// ===== CHANGE 5: CREDENTIALS SECTION =====
+function renderCredentialsSection(b) {
+  var rightCol = document.getElementById('pd-right-col');
+  if (!rightCol) return;
+  var existing = document.getElementById('pd-credentials-section');
+  if (existing) existing.remove();
+
+  var section = document.createElement('div');
+  section.id = 'pd-credentials-section';
+  section.style.marginTop = '20px';
+
+  var ticketId = b.ticket_id || b.id;
+  var creds = credsStore[ticketId] || [];
+
+  var html = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;">🔑 Credentials & API Keys</div>'
+    + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;" id="pd-creds-list">';
+
+  if (creds.length) {
+    creds.forEach(function(c, i) {
+      var typeBg, typeColor;
+      if (c.type === 'API Key') { typeBg = 'var(--amber-light)'; typeColor = 'var(--amber)'; }
+      else if (c.type === 'Login') { typeBg = 'var(--green-light)'; typeColor = 'var(--green)'; }
+      else { typeBg = 'var(--charlie-light)'; typeColor = 'var(--charlie)'; }
+      html += (i > 0 ? '<div style="height:1px;background:var(--border);margin:10px 0;"></div>' : '')
+        + '<div style="display:flex;align-items:center;gap:10px;">'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:12px;font-weight:700;color:var(--text);">' + esc(c.label) + '</div>'
+        + '<div style="font-size:12px;font-family:var(--mono);color:var(--text-dim);margin-top:2px;" id="cred-val-' + i + '">••••••••</div>'
+        + '</div>'
+        + '<span style="background:' + typeBg + ';color:' + typeColor + ';border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">' + esc(c.type) + '</span>'
+        + '<button onclick="revealCred(\'' + esc(ticketId) + '\',' + i + ')" style="background:none;border:none;color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);">Reveal</button>'
+        + '<button onclick="copyCred(\'' + esc(ticketId) + '\',' + i + ')" style="background:none;border:none;color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);">Copy</button>'
+        + '</div>';
+    });
+  } else {
+    html += '<div style="font-size:12px;color:var(--text-dim);text-align:center;padding:8px 0;">No credentials stored for this build.</div>';
+  }
+
+  html += '</div>'
+    + '<button onclick="addCredential(\'' + esc(ticketId) + '\')" style="width:100%;margin-top:10px;padding:10px;border:1px dashed var(--border);border-radius:8px;background:transparent;color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.15s;" onmouseover="this.style.background=\'var(--accent-light)\';this.style.color=\'var(--accent)\'" onmouseout="this.style.background=\'transparent\';this.style.color=\'var(--text-dim)\'">+ Add Credential</button>';
+
+  section.innerHTML = html;
+  rightCol.appendChild(section);
+}
+
+function addCredential(ticketId) {
+  var label = prompt('Credential label (e.g. Make.com API Key):');
+  if (!label) return;
+  var type = prompt('Type — API Key, Login, or Webhook:') || 'API Key';
+  var value = prompt('Value:');
+  if (!value) return;
+  if (!credsStore[ticketId]) credsStore[ticketId] = [];
+  credsStore[ticketId].push({ label: label, type: type, value: value });
+  if (window._currentBuild) renderCredentialsSection(window._currentBuild);
+}
+
+function revealCred(ticketId, idx) {
+  var creds = credsStore[ticketId] || [];
+  var el = document.getElementById('cred-val-' + idx);
+  if (!el || !creds[idx]) return;
+  if (el.textContent === '••••••••') {
+    el.textContent = creds[idx].value;
+  } else {
+    el.textContent = '••••••••';
+  }
+}
+
+function copyCred(ticketId, idx) {
+  var creds = credsStore[ticketId] || [];
+  if (!creds[idx]) return;
+  navigator.clipboard.writeText(creds[idx].value).then(function() {
+    alert('Copied to clipboard');
+  });
+}
+
+// ===== CHANGE 6: TEAM CHAT POPOVER =====
+function openTeamChat(buildId) {
+  // Close build agent if open
+  closeBuildAgent();
+  var b = window._currentBuild;
+  var projectName = b ? (b.project_name || 'Project') : 'Project';
+  var ticketId = b ? (b.ticket_id || '') : '';
+  document.getElementById('tc-title').textContent = '💬 Team Chat — ' + projectName;
+  document.getElementById('tc-subtitle').textContent = ticketId;
+  document.getElementById('team-chat-backdrop').style.display = 'block';
+  var panel = document.getElementById('team-chat-panel');
+  panel.style.display = 'flex';
+  setTimeout(function() { panel.style.transform = 'translateX(0)'; }, 10);
+}
+
+function closeTeamChat() {
+  var panel = document.getElementById('team-chat-panel');
+  panel.style.transform = 'translateX(100%)';
+  document.getElementById('team-chat-backdrop').style.display = 'none';
+  setTimeout(function() { panel.style.display = 'none'; }, 260);
+}
+
+function sendTeamChatMessage() {
+  var input = document.getElementById('tc-input');
+  var msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  var body = document.getElementById('tc-messages');
+  var userName = (window._currentUser || {}).name || 'You';
+  var time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  body.innerHTML += '<div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:700;color:var(--text-dim);margin-bottom:3px;">' + esc(userName) + ' · ' + time + '</div><div style="background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px 12px 4px 12px;font-size:13px;line-height:1.5;display:inline-block;max-width:85%;">' + esc(msg) + '</div></div>';
+  body.scrollTop = body.scrollHeight;
+}
+
+// ===== CHANGE 7: BUILD AGENT POPOVER =====
+function openBuildAgent(buildId) {
+  // Close team chat if open
+  closeTeamChat();
+  var b = window._currentBuild;
+  var links = window._currentBuildLinks || [];
+  var projectName = b ? (b.project_name || 'Project') : 'Project';
+  document.getElementById('ba-title').textContent = '🤖 Build Agent — ' + projectName;
+  document.getElementById('ba-subtitle').textContent = 'Connected to all build files';
+
+  // Render context chips
+  var chipsEl = document.getElementById('ba-context-chips');
+  chipsEl.innerHTML = links.map(function(l) {
+    return '<span style="background:var(--nav);color:#86EFAC;font-family:monospace;font-size:10px;padding:3px 8px;border-radius:4px;white-space:nowrap;">✓ ' + esc(l.name || 'file') + '</span>';
+  }).join('');
+
+  // Render greeting
+  var body = document.getElementById('ba-messages');
+  body.innerHTML = '<div style="margin-bottom:12px;display:flex;gap:10px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">🤖</div><div style="background:#fff;border:1px solid var(--border);padding:10px 14px;border-radius:4px 12px 12px 12px;font-size:13px;line-height:1.5;color:var(--text);">I\'m connected to all files for this build. Ask me anything about the automation, prompts, or how to update it.</div></div>';
+
+  document.getElementById('build-agent-backdrop').style.display = 'block';
+  var panel = document.getElementById('build-agent-panel');
+  panel.style.display = 'flex';
+  setTimeout(function() { panel.style.transform = 'translateX(0)'; }, 10);
+}
+
+function closeBuildAgent() {
+  var panel = document.getElementById('build-agent-panel');
+  panel.style.transform = 'translateX(100%)';
+  document.getElementById('build-agent-backdrop').style.display = 'none';
+  setTimeout(function() { panel.style.display = 'none'; }, 260);
+}
+
+async function sendBuildAgentMessage() {
+  var input = document.getElementById('ba-input');
+  var msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  var body = document.getElementById('ba-messages');
+  var time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // User bubble
+  body.innerHTML += '<div style="margin-bottom:12px;display:flex;justify-content:flex-end;"><div style="background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px 12px 4px 12px;font-size:13px;line-height:1.5;display:inline-block;max-width:85%;">' + esc(msg) + '</div></div>';
+  body.scrollTop = body.scrollHeight;
+
+  // Typing indicator
+  body.innerHTML += '<div id="ba-typing" style="margin-bottom:12px;display:flex;gap:10px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">🤖</div><div style="background:#fff;border:1px solid var(--border);padding:10px 14px;border-radius:4px 12px 12px 12px;font-size:13px;color:var(--text-dim);">Thinking...</div></div>';
+  body.scrollTop = body.scrollHeight;
+
+  var b = window._currentBuild || {};
+  var links = window._currentBuildLinks || [];
+  var fileNames = links.map(function(l) { return l.name || 'file'; }).join(', ');
+
+  var systemMsg = 'You are a build agent for the FRIDAY Build OS. You have context on this build: Project: ' + (b.project_name || '') + ', Client: ' + (b.client_name || '') + ', Platform: ' + (b.platform || '') + ', Files: ' + fileNames + '. Answer questions about this build specifically.';
+
+  try {
+    var resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: msg }],
+        system: systemMsg,
+        max_tokens: 1000
+      })
+    });
+    var data = await resp.json();
+    var reply = (data && data.reply) || (data && data.content && data.content[0] && data.content[0].text) || 'Something went wrong. Try again.';
+
+    var typing = document.getElementById('ba-typing');
+    if (typing) typing.remove();
+
+    body.innerHTML += '<div style="margin-bottom:12px;display:flex;gap:10px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">🤖</div><div style="background:#fff;border:1px solid var(--border);padding:10px 14px;border-radius:4px 12px 12px 12px;font-size:13px;line-height:1.5;color:var(--text);">' + reply.replace(/\n/g, '<br>') + '</div></div>';
+    body.scrollTop = body.scrollHeight;
+  } catch(e) {
+    var typing = document.getElementById('ba-typing');
+    if (typing) typing.remove();
+    body.innerHTML += '<div style="margin-bottom:12px;display:flex;gap:10px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">🤖</div><div style="background:#fff;border:1px solid var(--border);padding:10px 14px;border-radius:4px 12px 12px 12px;font-size:13px;color:var(--text-dim);">Connection error. Try again.</div></div>';
+    body.scrollTop = body.scrollHeight;
+  }
+}
+
 function showBuildNotification(build) {
   // Remove any existing notification
   const existing = document.getElementById('friday-build-toast');
@@ -2563,6 +2960,48 @@ function showBuildNotification(build) {
       <button class="btn-secondary" onclick="closeLogChangeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveChangeLog()">Save Change</button>
     </div>
+  </div>
+</div>
+<!-- ===== TEAM CHAT POPOVER ===== -->
+<div id="team-chat-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeTeamChat()"></div>
+<div id="team-chat-panel" style="display:none;position:fixed;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
+  <div style="background:var(--nav);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div id="tc-title" style="color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;">💬 Team Chat</div>
+      <div id="tc-subtitle" style="color:#64748B;font-family:var(--mono);font-size:11px;margin-top:2px;">—</div>
+    </div>
+    <button onclick="closeTeamChat()" style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+  <div style="background:#F8FAFC;border-bottom:1px solid var(--border);padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;">
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;"><span style="width:24px;height:24px;border-radius:50%;background:#4A8FD6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">B</span>Brian<span style="width:6px;height:6px;border-radius:50%;background:#22C55E;"></span></span>
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;"><span style="width:24px;height:24px;border-radius:50%;background:#16A34A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">D</span>Dan<span style="width:6px;height:6px;border-radius:50%;background:var(--amber);"></span></span>
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;"><span style="width:24px;height:24px;border-radius:50%;background:#D97706;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">C</span>Chad<span style="width:6px;height:6px;border-radius:50%;background:#22C55E;"></span></span>
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;"><span style="width:24px;height:24px;border-radius:50%;background:#7C3AED;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">D</span>Dave<span style="width:6px;height:6px;border-radius:50%;background:var(--amber);"></span></span>
+  </div>
+  <div id="tc-messages" style="flex:1;overflow-y:auto;padding:20px;">
+    <div style="text-align:center;color:var(--text-dim);font-size:12px;padding:40px 0;">No messages yet. Start the conversation.</div>
+  </div>
+  <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;">
+    <textarea id="tc-input" placeholder="Type a message..." style="flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:var(--font);resize:none;height:40px;background:#F8FAFC;outline:none;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTeamChatMessage();}"></textarea>
+    <button onclick="sendTeamChatMessage()" style="background:var(--charlie);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);flex-shrink:0;">Send</button>
+  </div>
+</div>
+
+<!-- ===== BUILD AGENT POPOVER ===== -->
+<div id="build-agent-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeBuildAgent()"></div>
+<div id="build-agent-panel" style="display:none;position:fixed;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
+  <div style="background:var(--nav);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div id="ba-title" style="color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;">🤖 Build Agent</div>
+      <div id="ba-subtitle" style="color:#64748B;font-family:var(--mono);font-size:11px;margin-top:2px;">Connected to all build files</div>
+    </div>
+    <button onclick="closeBuildAgent()" style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+  <div style="background:#F8FAFC;border-bottom:1px solid var(--border);padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px;" id="ba-context-chips"></div>
+  <div id="ba-messages" style="flex:1;overflow-y:auto;padding:20px;"></div>
+  <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;">
+    <textarea id="ba-input" placeholder="Ask the build agent..." style="flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:var(--font);resize:none;height:40px;background:#F8FAFC;outline:none;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBuildAgentMessage();}"></textarea>
+    <button onclick="sendBuildAgentMessage()" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);flex-shrink:0;">Send</button>
   </div>
 </div>
 </body>
