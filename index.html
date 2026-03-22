@@ -1746,11 +1746,12 @@ async function openProjectDetail(buildId, clientName) {
     window._pdLinks = links;
   }
   // Section order: Automation → Deliverables → AI Config → Tools → Credentials
-  renderAutomationSection(b, links);
+  // Async sections must be awaited to preserve DOM insertion order
+  await renderAutomationSection(b, links);
   renderDeliverablesSection(b, links);
   renderAIConfigSection(b);
   renderToolsSection(b, links);
-  renderCredentialsSection(b);
+  await renderCredentialsSection(b);
 
   // Store build data for popovers
   window._currentBuild = b;
@@ -2639,33 +2640,36 @@ function toggleScenarioCard(bodyId) {
   }
 }
 
+function ensureJsonOverlay() {
+  var overlay = document.getElementById('json-preview-overlay');
+  if (overlay) return overlay;
+  overlay = document.createElement('div');
+  overlay.id = 'json-preview-overlay';
+  overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:40px;';
+  overlay.innerHTML = '<div style="background:#1E293B;border-radius:16px;max-width:780px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);overflow:hidden;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #334155;">'
+    + '<span style="color:#fff;font-size:14px;font-weight:700;" id="json-preview-title">Blueprint JSON</span>'
+    + '<div style="display:flex;gap:8px;">'
+    + '<button onclick="copyJsonPreview()" style="background:rgba(74,143,214,0.2);border:1px solid rgba(74,143,214,0.3);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">Copy</button>'
+    + '<button onclick="closeJsonPreview()" style="background:#334155;border:none;border-radius:6px;padding:5px 12px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600;">Close</button>'
+    + '</div></div>'
+    + '<pre id="json-preview-content" style="padding:20px;overflow:auto;flex:1;font-size:12px;font-family:var(--mono);color:#E2E8F0;margin:0;white-space:pre-wrap;word-break:break-all;"></pre>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeJsonPreview(); });
+  return overlay;
+}
+
 function viewScenarioJSON(idx) {
   var sc = (window._buildScenarios || [])[idx];
   if (!sc) return;
   var json = sc.workflow_json;
   var formatted = '';
   try { formatted = JSON.stringify(typeof json === 'string' ? JSON.parse(json) : json, null, 2); } catch(e) { formatted = String(json || 'No JSON data available'); }
-  // Show overlay
-  var overlay = document.getElementById('json-preview-overlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'json-preview-overlay';
-    overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:40px;';
-    overlay.innerHTML = '<div style="background:#1E293B;border-radius:16px;max-width:780px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);overflow:hidden;">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #334155;">'
-      + '<span style="color:#fff;font-size:14px;font-weight:700;" id="json-preview-title">Blueprint JSON</span>'
-      + '<div style="display:flex;gap:8px;">'
-      + '<button onclick="copyJsonPreview()" style="background:rgba(74,143,214,0.2);border:1px solid rgba(74,143,214,0.3);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">Copy</button>'
-      + '<button onclick="closeJsonPreview()" style="background:#334155;border:none;border-radius:6px;padding:5px 12px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600;">Close</button>'
-      + '</div></div>'
-      + '<pre id="json-preview-content" style="padding:20px;overflow:auto;flex:1;font-size:12px;font-family:var(--mono);color:#E2E8F0;margin:0;white-space:pre-wrap;word-break:break-all;"></pre>'
-      + '</div>';
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeJsonPreview(); });
-  }
+  ensureJsonOverlay();
   document.getElementById('json-preview-title').textContent = (sc.scenario_key || 'SC') + ' — Blueprint JSON';
   document.getElementById('json-preview-content').textContent = formatted;
-  overlay.style.display = 'flex';
+  document.getElementById('json-preview-overlay').style.display = 'flex';
 }
 
 function closeJsonPreview() {
@@ -2786,12 +2790,10 @@ function viewFullPrompt(idx) {
   var agents = window._aiAgents || [];
   if (!agents[idx]) return;
   var a = agents[idx];
-  // Reuse json overlay pattern
-  var overlay = document.getElementById('json-preview-overlay');
-  if (!overlay) { viewScenarioJSON(0); closeJsonPreview(); overlay = document.getElementById('json-preview-overlay'); }
+  ensureJsonOverlay();
   document.getElementById('json-preview-title').textContent = a.label + ' — Full Prompt';
   document.getElementById('json-preview-content').textContent = a.prompt;
-  overlay.style.display = 'flex';
+  document.getElementById('json-preview-overlay').style.display = 'flex';
 }
 
 // ===== TOOLS & INTEGRATIONS SECTION =====
@@ -2938,9 +2940,12 @@ function toggleCredReveal(idx) {
   if (!el || !cred) return;
   if (el.dataset.revealed === '1') {
     el.textContent = cred.masked_value || '••••••••';
+    el.style.color = 'var(--text-dim)';
     el.dataset.revealed = '0';
   } else {
+    // Show the masked_value in full (this IS the stored value — masking happens at write time)
     el.textContent = cred.masked_value || '••••••••';
+    el.style.color = 'var(--text)';
     el.dataset.revealed = '1';
   }
 }
