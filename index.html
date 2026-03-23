@@ -892,6 +892,18 @@ async function doLogin() {
   </div>
 </div>
 
+<div id="prompt-panel-overlay" onclick="closePromptPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;"></div>
+<div id="prompt-panel" style="position:fixed;top:0;right:0;height:100vh;width:560px;background:#fff;z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.12);">
+  <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div id="prompt-panel-title" style="font-size:14px;font-weight:700;color:var(--text);"></div>
+    <button onclick="closePromptPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-dim);line-height:1;">×</button>
+  </div>
+  <div id="prompt-panel-body" style="flex:1;overflow-y:auto;padding:24px;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;"></div>
+  <div style="padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0;">
+    <button id="prompt-panel-copy" onclick="copyPromptPanel()" style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">Copy to Clipboard</button>
+  </div>
+</div>
+
 <script>
 // ===== WORKFLOW REGISTRY =====
 // WF-01: wf-01-intake | WF-07: QPYPMrAtjr4AqEzg | WF-09: IA99G4pCRIpCSxgU
@@ -1238,22 +1250,43 @@ async function submitSbCredential() {
   }
 }
 
-function renderAIConfigSidebar(b) {
-  var agents = [
-    { label:'Intake Evaluation Agent', model:'claude-haiku-4-5 · 400 max tokens', prompt:'You are evaluating a '+esc(b.platform||'automation')+' build request. Score completeness 0-100. Check for: project type, platform, description clarity, and existing system context.' },
-    { label:'Document Generation Agent', model:'claude-sonnet-4-6 · 2000 max tokens', prompt: b.build_log ? esc(b.build_log.slice(0,200))+'...' : 'You are building a '+esc(b.platform||'automation')+' system for '+esc(b.client_name||'the client')+'. Produce workflow blueprints, documentation, and a solution demo.' }
-  ];
+function renderAIConfigSidebar(b, agentConfigs) {
+  var configs = agentConfigs && agentConfigs.length ? agentConfigs : null;
+  var agents;
+  if (configs) {
+    agents = configs.map(function(ac) { return {
+      label: ac.agent_label,
+      model: ac.model + ' · ' + ac.max_tokens + ' max tokens',
+      prompt: ac.full_prompt || ''
+    }; });
+  } else {
+    agents = [
+      { label:'Intake Evaluation Agent', model:'claude-haiku-4-5 · 400 max tokens', prompt:'You are evaluating a '+esc(b.platform||'automation')+' build request. Score completeness 0-100. Check for: project type, platform, description clarity, and existing system context.' },
+      { label:'Document Generation Agent', model:'claude-sonnet-4-6 · 2000 max tokens', prompt: b.build_log ? esc(b.build_log.slice(0,200))+'...' : 'You are building a '+esc(b.platform||'automation')+' system for '+esc(b.client_name||'the client')+'. Produce workflow blueprints, documentation, and a solution demo.' }
+    ];
+  }
   window._aiAgents = agents;
   return '<div class="sk-sb-card" style="background:var(--nav);border-color:rgba(255,255,255,0.08);"><div class="sk-sb-title" style="color:#64748B;">AI Configuration</div>'
-    + agents.map((a,i) => '<div class="sk-ai-agent-card"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748B;margin-bottom:5px;">'+a.label+'</div><div style="font-size:12px;font-family:var(--mono);color:#4A8FD6;margin-bottom:8px;">'+a.model+'</div><div style="font-size:11px;font-family:var(--mono);color:#CBD5E1;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">'+a.prompt+'</div><a href="#" onclick="event.preventDefault();showFullAgentPrompt('+i+')" style="font-size:11px;font-weight:700;color:#4A8FD6;margin-top:7px;display:block;text-decoration:none;">View full prompt ↗</a></div>').join('')
+    + agents.map((a,i) => '<div class="sk-ai-agent-card"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748B;margin-bottom:5px;">'+a.label+'</div><div style="font-size:12px;font-family:var(--mono);color:#4A8FD6;margin-bottom:8px;">'+a.model+'</div><div style="font-size:11px;font-family:var(--mono);color:#CBD5E1;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">'+a.prompt+'</div><a href="#" onclick="event.preventDefault();showFullAgentPrompt(\''+esc(a.label).replace(/'/g,"\\'")+'\',window._aiAgents['+i+'].prompt)" style="font-size:11px;font-weight:700;color:#4A8FD6;margin-top:7px;display:block;text-decoration:none;">View full prompt ↗</a></div>').join('')
     + '</div>';
 }
-function showFullAgentPrompt(i) {
-  var a = (window._aiAgents||[])[i]; if (!a) return;
-  ensureJsonOverlay();
-  document.getElementById('json-preview-title').textContent = a.label+' — Full Prompt';
-  document.getElementById('json-preview-content').textContent = a.prompt;
-  document.getElementById('json-preview-overlay').style.display = 'flex';
+function showFullAgentPrompt(label, prompt) {
+  document.getElementById('prompt-panel-title').textContent = label + ' — Full Prompt';
+  document.getElementById('prompt-panel-body').textContent = prompt;
+  document.getElementById('prompt-panel-overlay').style.display = 'block';
+  document.getElementById('prompt-panel').style.transform = 'translateX(0)';
+}
+function closePromptPanel() {
+  document.getElementById('prompt-panel').style.transform = 'translateX(100%)';
+  document.getElementById('prompt-panel-overlay').style.display = 'none';
+}
+function copyPromptPanel() {
+  var text = document.getElementById('prompt-panel-body').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('prompt-panel-copy');
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+  });
 }
 
 function renderToolsSidebar(b, links) {
@@ -1298,7 +1331,8 @@ async function renderAutomationMain(b) {
         var stagesHtml = !stages.length ? '' : '<div style="margin-top:14px;border-top:1px solid var(--surface2);padding-top:14px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:8px;">Module Stages</div>'
           + stages.map(m => '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--surface2);"><span style="font-family:var(--mono);font-size:10px;background:var(--surface2);border-radius:4px;padding:2px 6px;font-weight:700;flex-shrink:0;">'+String(m.stage_num||'').padStart(2,'0')+'</span><span style="font-size:12px;font-weight:600;color:var(--text);flex:1;">'+esc(m.name||'')+'</span>'+(m.app_name?'<span style="font-size:11px;color:var(--text-dim);flex-shrink:0;">'+esc(m.app_name)+'</span>':'')+'</div>').join('')
           + '</div>';
-        return '<div class="sk-wf-card"><div class="sk-wf-hdr" onclick="toggleSKWF(\'skwf-'+idx+'\','+idx+')"><span class="sk-wf-id">'+esc(sc.scenario_key||'SC-'+(idx+1))+'</span><span style="font-size:13px;font-weight:700;color:var(--text);flex:1;">'+esc(sc.scenario_name||'Scenario')+'</span><span style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">'+stages.length+' modules</span><span style="background:'+statusBg+';color:'+statusFg+';border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">'+esc(sc.status||'draft')+'</span><span id="skwf-chev-'+idx+'" style="font-size:14px;color:var(--text-dim);transition:transform 0.2s;flex-shrink:0;">›</span></div><div class="sk-wf-body" id="skwf-'+idx+'">'+(sc.scenario_description?'<p style="font-size:13px;color:var(--text-mid);line-height:1.65;margin-bottom:14px;">'+esc(sc.scenario_description)+'</p>':'')+(fileCards?'<div class="sk-wf-files-grid">'+fileCards+'</div>':'')+stagesHtml+'</div></div>';
+        var jsonBtn = sc.onedrive_json_url ? '<button onclick="event.stopPropagation();window.open(\''+esc(sc.onedrive_json_url)+'\',\'_blank\')" style="border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);">↓ Download JSON</button>' : '';
+        return '<div class="sk-wf-card"><div class="sk-wf-hdr" onclick="toggleSKWF(\'skwf-'+idx+'\','+idx+')"><span class="sk-wf-id">'+esc(sc.scenario_key||'SC-'+(idx+1))+'</span><span style="font-size:13px;font-weight:700;color:var(--text);flex:1;">'+esc(sc.scenario_name||'Scenario')+'</span><span style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">'+stages.length+' modules</span><span style="background:'+statusBg+';color:'+statusFg+';border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">'+esc(sc.status||'draft')+'</span><span id="skwf-chev-'+idx+'" style="font-size:14px;color:var(--text-dim);transition:transform 0.2s;flex-shrink:0;">›</span></div><div class="sk-wf-body" id="skwf-'+idx+'">'+(jsonBtn?'<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">'+jsonBtn+'</div>':'')+(sc.scenario_description?'<p style="font-size:13px;color:var(--text-mid);line-height:1.65;margin-bottom:14px;">'+esc(sc.scenario_description)+'</p>':'')+(fileCards?'<div class="sk-wf-files-grid">'+fileCards+'</div>':'')+stagesHtml+'</div></div>';
       }).join('');
   return '<div><div class="sk-section-hd"><div class="sk-section-hd-left"><h2 style="font-size:15px;font-weight:800;color:var(--text);">⚡ Automation</h2><span class="sk-section-count">'+scenarios.length+' scenarios</span></div><button class="sk-btn-add">+ Add Scenario</button></div>'+suiteCard+scCards+'</div>';
 }
@@ -1407,12 +1441,16 @@ async function openProjectDetail(buildId, clientName) {
   var baBtn = document.getElementById('pd-build-agent-btn');
   if (baBtn) { var label = skillsetName.length>24 ? skillsetName.slice(0,24)+'…' : skillsetName; baBtn.textContent = '🤖 '+label+' Agent'; }
 
+  // Fetch agent configs
+  var agentConfigs = await sbFetch('build_agent_configs?build_id=eq.' + buildId + '&select=*&order=agent_id.asc') || [];
+
   // ── RENDER SIDEBAR ──
   var sEl = document.getElementById('pd-sidebar-col');
   sEl.innerHTML = '';
   sEl.insertAdjacentHTML('beforeend', renderBuildDetailsSidebar(b));
   sEl.insertAdjacentHTML('beforeend', await renderCredentialsSidebar(b));
-  sEl.insertAdjacentHTML('beforeend', renderAIConfigSidebar(b));
+  var aiHtml = renderAIConfigSidebar(b, agentConfigs);
+  sEl.insertAdjacentHTML('beforeend', aiHtml);
   sEl.insertAdjacentHTML('beforeend', renderToolsSidebar(b, links));
 
   // ── RENDER MAIN COLUMN ──
@@ -1888,6 +1926,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (pop) pop.addEventListener('click',e=>{ if(e.target===pop) endFridayVideo(); });
   document.querySelectorAll('.modal-overlay').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }); });
   document.getElementById('clarificationOverlay').addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePromptPanel(); });
 });
 </script>
 </body>
