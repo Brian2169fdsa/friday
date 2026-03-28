@@ -438,6 +438,66 @@
     .sk-tool-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--surface2); }
     .sk-tool-row:last-child { border-bottom: none; }
     .sk-qa-bar { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 12px; }
+
+    /* ===== SIDEBAR APP LAYOUT ===== */
+    #app-wrapper { display: flex !important; height: 100vh; overflow: hidden; }
+    .app-sidebar { width: 220px; min-width: 220px; background: #0F172A; display: flex; flex-direction: column; flex-shrink: 0; height: 100vh; overflow: hidden; }
+    .sb-logo { padding: 24px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sb-logo-mark { display: flex; align-items: center; }
+    .sb-logo-mark .m { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .sb-logo-mark .ai { font-size: 18px; font-weight: 800; color: var(--accent); letter-spacing: -0.03em; }
+    .sb-logo-sub { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.32); letter-spacing: 1.2px; text-transform: uppercase; font-family: var(--mono); margin-top: 5px; }
+    .sb-nav { flex: 1; overflow-y: auto; padding: 10px 0; }
+    .sb-section-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.28); text-transform: uppercase; letter-spacing: 1.2px; padding: 14px 20px 5px; }
+    .sb-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.52); cursor: pointer; transition: all 0.15s; border: none; border-right: 3px solid transparent; background: none; width: 100%; text-align: left; font-family: var(--font); }
+    .sb-nav-item:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .sb-nav-item.active { color: #fff; background: rgba(74,143,214,0.18); border-right-color: var(--accent); }
+    .sb-icon { font-size: 15px; width: 20px; flex-shrink: 0; text-align: center; }
+    .sb-user { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 10px; }
+    .sb-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sb-user-info { flex: 1; min-width: 0; }
+    .sb-user-name { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-user-role { font-size: 10px; color: rgba(255,255,255,0.32); font-family: var(--mono); }
+    .sb-logout-btn { background: none; border: none; color: rgba(255,255,255,0.32); font-size: 16px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
+    .sb-logout-btn:hover { color: rgba(255,255,255,0.8); }
+    .app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #F8FAFC; min-width: 0; }
+    .page-topbar { padding: 22px 32px; border-bottom: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .page-topbar-left h1 { font-size: 21px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 3px; }
+    .page-topbar-left p { font-size: 13px; color: var(--text-mid); }
+    .page-topbar-actions { display: flex; gap: 10px; align-items: center; }
+    .page-body { flex: 1; overflow-y: auto; padding: 28px 32px; min-height: 0; }
+    /* override old layout */
+    .page { max-width: none !important; padding: 0 !important; margin: 0 !important; flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+    .header { display: none !important; }
+    .mode-tabs { display: none !important; }
+    .footer { display: none !important; }
+    /* mode-content full flex */
+    .mode-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; animation: fadeIn 0.2s ease; }
+    .mode-content.hidden { display: none !important; }
+    #mode-friday { flex-direction: row; }
+    #mode-friday .cockpit-sidebar, #mode-friday .cockpit-pane { overflow: hidden; }
+    /* cockpit height override */
+    #mode-friday { height: auto !important; min-height: 0 !important; }
+
+    /* ===== FR FLOAT BUTTON & PANEL ===== */
+    #fr-float-btn { position: fixed; bottom: 28px; right: 28px; width: 52px; height: 52px; border-radius: 50%; background: var(--nav); border: none; color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 20px rgba(30,51,72,0.4); z-index: 800; display: none; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; font-family: var(--font); }
+    #fr-float-btn:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(30,51,72,0.5); }
+    #fr-panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 899; display: none; }
+    #fr-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 380px; background: #fff; z-index: 900; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease; box-shadow: -8px 0 40px rgba(0,0,0,0.12); }
+    #fr-panel.open { transform: translateX(0); }
+    .fr-panel-header { background: var(--nav); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .fr-panel-brand { font-size: 14px; font-weight: 800; color: #fff; }
+    .fr-panel-close { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 22px; cursor: pointer; line-height: 1; }
+    .fr-panel-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .fr-msg-user { align-self: flex-end; background: var(--nav); color: #fff; padding: 10px 14px; border-radius: 14px 14px 4px 14px; font-size: 13px; max-width: 85%; line-height: 1.5; }
+    .fr-msg-ai { align-self: flex-start; background: var(--surface); color: var(--text); padding: 10px 14px; border-radius: 14px 14px 14px 4px; font-size: 13px; max-width: 90%; line-height: 1.6; }
+    .fr-panel-input-bar { padding: 12px 16px; border-top: 1px solid var(--border); flex-shrink: 0; display: flex; gap: 8px; }
+    .fr-panel-input-bar textarea { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: var(--font); resize: none; height: 40px; outline: none; background: var(--surface); }
+    .fr-panel-input-bar button { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--font); flex-shrink: 0; }
+    /* clients search */
+    .clients-search-bar { margin-bottom: 18px; }
+    .clients-search-bar input { width: 100%; max-width: 400px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 13px; font-family: var(--font); color: var(--text); outline: none; background: #fff; transition: border-color 0.2s; }
+    .clients-search-bar input:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -497,8 +557,9 @@ async function doLogin() {
     sessionStorage.setItem('friday_token', d.access_token);
     sessionStorage.setItem('friday_user', JSON.stringify(window._currentUser));
     document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('app-wrapper').style.display = 'block';
+    document.getElementById('app-wrapper').style.display = 'flex';
     document.getElementById('user-badge').textContent = window._currentUser.name;
+    updateSidebarUser();
     initDashboard();
     loadIntakeClients();
     setMode('friday');
@@ -511,30 +572,34 @@ async function doLogin() {
 
 <!-- ===== APP ===== -->
 <div id="app-wrapper" style="display:none;">
-<div class="page">
-
-  <div class="header">
-    <div class="wordmark"><span class="m">MANAGE</span><span class="ai">AI</span></div>
-    <div class="h-div"></div>
-    <div class="h-meta">
-      <div class="h-title">F.R.I.D.A.Y. Build OS v1.0</div>
-      <div class="h-sub">manageai.io · delivery intelligence</div>
+  <nav class="app-sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark"><span class="m">MANAGE</span><span class="ai">AI</span></div>
+      <div class="sb-logo-sub">F.R.I.D.A.Y. Build OS</div>
     </div>
-    <div class="h-status"><div class="h-dot"></div><span id="system-status">Build System Online · Live</span></div>
-    <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
-      <div style="background:var(--accent-light);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--accent);" id="user-badge">—</div>
-      <button onclick="logout()" style="background:none;border:1.5px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--text-mid);cursor:pointer;font-family:inherit;">Sign Out</button>
+    <div class="sb-nav">
+      <div class="sb-section-label">Workspace</div>
+      <button class="sb-nav-item" id="tab-dashboard" onclick="setMode('dashboard')"><span class="sb-icon">📊</span>Dashboard</button>
+      <button class="sb-nav-item" id="tab-intake" onclick="setMode('intake')"><span class="sb-icon">➕</span>New Build</button>
+      <button class="sb-nav-item" id="tab-builds" onclick="setMode('builds')"><span class="sb-icon">🔧</span>Builds</button>
+      <div class="sb-section-label">Clients</div>
+      <button class="sb-nav-item" id="tab-clients" onclick="setMode('clients')"><span class="sb-icon">👥</span>All Clients</button>
+      <div class="sb-section-label">Control</div>
+      <button class="sb-nav-item active" id="tab-friday" onclick="setMode('friday')"><span class="sb-icon">🤖</span>Cockpit</button>
+      <button class="sb-nav-item" id="tab-feedback" onclick="setMode('feedback')"><span class="sb-icon">💬</span>Feedback</button>
     </div>
-  </div>
-
-  <div class="mode-tabs">
-    <button class="mode-tab active" onclick="setMode('friday')" id="tab-friday">🤖 F.R.I.D.A.Y.</button>
-    <button class="mode-tab" onclick="setMode('dashboard')" id="tab-dashboard">Dashboard</button>
-    <button class="mode-tab" onclick="setMode('intake')" id="tab-intake">New Build</button>
-    <button class="mode-tab" onclick="setMode('clients')" id="tab-clients">Clients</button>
-    <button class="mode-tab" onclick="setMode('builds')" id="tab-builds">Builds</button>
-    <button class="mode-tab" onclick="setMode('feedback')" id="tab-feedback">Feedback</button>
-  </div>
+    <div class="sb-user">
+      <div class="sb-user-avatar" id="sb-user-avatar">B</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sb-user-name">—</div>
+        <div class="sb-user-role">ManageAI Team</div>
+      </div>
+      <button class="sb-logout-btn" onclick="logout()" title="Sign out">↩</button>
+    </div>
+  </nav>
+  <div class="app-main">
+    <div class="page">
+      <div id="user-badge" style="display:none;">—</div>
 
   <!-- ====================================================== -->
   <!-- TAB 1: F.R.I.D.A.Y. COCKPIT                            -->
@@ -590,6 +655,11 @@ async function doLogin() {
   <!-- TAB 2: DASHBOARD                                       -->
   <!-- ====================================================== -->
   <div id="mode-dashboard" class="mode-content hidden">
+    <div class="page-topbar">
+      <div class="page-topbar-left"><h1>Dashboard</h1><p>Build intelligence and pipeline status</p></div>
+      <div class="page-topbar-actions"><button class="btn-primary" onclick="setMode('intake')" style="font-size:12px;padding:9px 18px;">+ New Build</button></div>
+    </div>
+    <div class="page-body">
     <div class="dash-grid" id="dash-kpi-row">
       <div class="dash-kpi dash-kpi-accent"><div class="dash-kpi-label">Active Builds</div><div class="dash-kpi-value" id="d-active-builds">—</div><div class="dash-kpi-sub">In pipeline now</div></div>
       <div class="dash-kpi dash-kpi-green"><div class="dash-kpi-label">Delivered This Month</div><div class="dash-kpi-value" id="d-delivered">—</div><div class="dash-kpi-sub">Completed builds</div></div>
@@ -601,12 +671,17 @@ async function doLogin() {
       <div class="card" style="margin-bottom:0;padding:22px;"><div class="dash-section-title">Recent Tickets</div><div id="d-recent-tickets"><div class="dash-loading"><div class="dash-loading-ring"></div> Loading tickets...</div></div></div>
     </div>
     <div style="margin-top:14px;" class="card" style="padding:22px;"><div class="dash-section-title">Build Activity by Client</div><div id="d-client-activity"><div class="dash-loading"><div class="dash-loading-ring"></div> Loading client activity...</div></div></div>
-  </div>
+    </div><!-- /page-body -->
+  </div><!-- /mode-dashboard -->
 
   <!-- ====================================================== -->
   <!-- TAB 3: INTAKE FORM                                     -->
   <!-- ====================================================== -->
   <div id="mode-intake" class="mode-content hidden">
+    <div class="page-topbar">
+      <div class="page-topbar-left"><h1>New Build</h1><p>Submit a build request for F.R.I.D.A.Y. to process</p></div>
+    </div>
+    <div class="page-body">
     <div class="form-content" id="intakeFormContent">
       <div style="margin-bottom:32px;">
         <div style="font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.02em;margin-bottom:6px;">New Build Request</div>
@@ -693,7 +768,8 @@ async function doLogin() {
       <br>
       <button class="btn-primary" onclick="resetIntakeForm()" style="margin:0 auto;">Submit Another Request</button>
     </div>
-  </div>
+    </div><!-- /page-body -->
+  </div><!-- /mode-intake -->
 
   <!-- Clarification Modal -->
   <div class="clarification-overlay" id="clarificationOverlay">
@@ -711,12 +787,17 @@ async function doLogin() {
   <!-- TAB 4: CLIENTS                                         -->
   <!-- ====================================================== -->
   <div id="mode-clients" class="mode-content hidden">
+    <div class="page-topbar">
+      <div class="page-topbar-left"><h1>Clients</h1><p>Select a client to see their projects, builds, and delivered files.</p></div>
+      <div class="page-topbar-actions">
+        <button class="btn-secondary" onclick="openNewClientModal()">+ Add Client</button>
+        <button class="btn-primary" onclick="setMode('intake')">+ New Build</button>
+      </div>
+    </div>
+    <div class="page-body">
     <!-- VIEW 1: CLIENT GRID -->
     <div id="view-client-grid">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-        <div><div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;">Clients</div><div style="font-size:13px;color:var(--text-mid);">Select a client to see their projects, builds, and delivered files.</div></div>
-        <div style="display:flex;gap:10px;"><button class="btn-secondary" onclick="openNewClientModal()">+ Add Client</button><button class="btn-primary" onclick="setMode('intake')">+ New Build</button></div>
-      </div>
+      <div class="clients-search-bar"><input type="text" id="clients-search" placeholder="Search clients…" oninput="filterClientsGrid(this.value)"></div>
       <div id="clients-grid" class="client-grid"><div class="dash-loading" style="grid-column:1/-1;"><div class="dash-loading-ring"></div> Loading clients...</div></div>
     </div>
 
@@ -752,7 +833,8 @@ async function doLogin() {
         <div id="pd-sidebar-col" class="sk-sidebar"></div>
       </div>
     </div>
-  </div>
+    </div><!-- /page-body -->
+  </div><!-- /mode-clients -->
 
   <!-- FILE PREVIEW PANEL -->
   <div class="preview-panel" id="preview-panel">
@@ -768,17 +850,25 @@ async function doLogin() {
   <!-- TAB 5: BUILDS                                          -->
   <!-- ====================================================== -->
   <div id="mode-builds" class="mode-content hidden">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-      <div><div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;">Build Pipeline</div><div style="font-size:13px;color:var(--text-mid);">All active and completed builds across all clients.</div></div>
-      <div style="display:flex;gap:8px;"><select id="builds-filter" onchange="filterBuilds()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font);background:var(--bg);outline:none;"><option value="all">All Builds</option><option value="active">Active</option><option value="building">Building</option><option value="done">Completed</option><option value="pending">Pending</option></select></div>
+    <div class="page-topbar">
+      <div class="page-topbar-left"><h1>Build Pipeline</h1><p>All active and completed builds across all clients.</p></div>
+      <div class="page-topbar-actions">
+        <select id="builds-filter" onchange="filterBuilds()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font);background:var(--bg);outline:none;"><option value="all">All Builds</option><option value="active">Active</option><option value="building">Building</option><option value="done">Completed</option><option value="pending">Pending</option></select>
+      </div>
     </div>
+    <div class="page-body">
     <div class="card" style="padding:0;overflow:hidden;"><div id="builds-table-wrap"><div class="dash-loading" style="padding:20px;"><div class="dash-loading-ring"></div> Loading builds...</div></div></div>
-  </div>
+    </div><!-- /page-body -->
+  </div><!-- /mode-builds -->
 
   <!-- ====================================================== -->
   <!-- TAB 6: FEEDBACK                                        -->
   <!-- ====================================================== -->
   <div id="mode-feedback" class="mode-content hidden">
+    <div class="page-topbar">
+      <div class="page-topbar-left"><h1>Feedback</h1><p>Help us improve the Build OS</p></div>
+    </div>
+    <div class="page-body">
     <div class="card" style="max-width:680px;">
       <div class="card-title">System Feedback</div>
       <div class="card-sub">Help us improve the Build OS. Feedback goes directly to the ManageAI team.</div>
@@ -790,17 +880,14 @@ async function doLogin() {
       <div id="fb-success" style="display:none;background:var(--green-light);color:var(--green);padding:14px;border-radius:9px;font-size:13px;font-weight:600;margin-bottom:16px;">✓ Feedback sent — thank you!</div>
       <button class="btn-primary" onclick="submitFeedback()">Send Feedback</button>
     </div>
-  </div>
-
-  <div class="footer">
-    <div style="display:flex;align-items:center;gap:6px;"><div class="footer-brand"><span class="m">MANAGE</span><span class="ai">AI</span></div><span class="footer-meta"> · F.R.I.D.A.Y. Build OS v1.0 · 2026</span></div>
-    <div style="font-size:10px;font-weight:700;color:var(--text-dim);font-family:var(--mono);">CONFIDENTIAL — INTERNAL USE ONLY</div>
-  </div>
-</div>
-</div>
+    </div><!-- /page-body -->
+  </div><!-- /mode-feedback -->
+    </div><!-- /page -->
+  </div><!-- /app-main -->
+</div><!-- /app-wrapper -->
 
 <!-- ===== VIDEO POPOVER ===== -->
-<div id="friday-video-popover" style="display:none;position:relative;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+<div id="friday-video-popover" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
   <div style="background:linear-gradient(135deg,#1a5fb4,#2563eb);border-radius:24px;padding:4px;box-shadow:0 24px 80px rgba(0,0,0,0.5);max-width:720px;width:94vw;display:flex;flex-direction:column;animation:popIn 0.25s ease-out;">
     <div style="background:white;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);">
@@ -854,8 +941,8 @@ async function doLogin() {
 </div>
 
 <!-- ===== TEAM CHAT POPOVER ===== -->
-<div id="team-chat-backdrop" style="display:none;position:relative;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeTeamChat()"></div>
-<div id="team-chat-panel" style="display:none;position:relative;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
+<div id="team-chat-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeTeamChat()"></div>
+<div id="team-chat-panel" style="display:none;position:fixed;right:0;top:0;width:460px;height:100vh;background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
   <div style="background:var(--nav);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
     <div><div id="tc-title" style="color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;">💬 Team Chat</div><div id="tc-subtitle" style="color:#64748B;font-family:var(--mono);font-size:11px;margin-top:2px;">—</div></div>
     <button onclick="closeTeamChat()" style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;">✕</button>
@@ -873,8 +960,8 @@ async function doLogin() {
 </div>
 
 <!-- ===== BUILD AGENT POPOVER ===== -->
-<div id="build-agent-backdrop" style="display:none;position:relative;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeBuildAgent()"></div>
-<div id="build-agent-panel" style="display:none;position:relative;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
+<div id="build-agent-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeBuildAgent()"></div>
+<div id="build-agent-panel" style="display:none;position:fixed;right:0;top:0;width:460px;height:100vh;background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
   <div style="background:var(--nav);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
     <div><div id="ba-title" style="color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;">🤖 Build Agent</div><div id="ba-subtitle" style="color:#64748B;font-family:var(--mono);font-size:11px;margin-top:2px;">Connected to all build files</div></div>
     <button onclick="closeBuildAgent()" style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;">✕</button>
@@ -887,8 +974,8 @@ async function doLogin() {
   </div>
 </div>
 
-<div id="prompt-panel-overlay" onclick="closePromptPanel()" style="display:none;position:relative;inset:0;background:rgba(0,0,0,0.4);z-index:1000;"></div>
-<div id="prompt-panel" style="position:relative;top:0;right:0;height:100vh;width:560px;background:#fff;z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.12);">
+<div id="prompt-panel-overlay" onclick="closePromptPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;"></div>
+<div id="prompt-panel" style="position:fixed;top:0;right:0;height:100vh;width:560px;background:#fff;z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.12);">
   <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
     <div id="prompt-panel-title" style="font-size:14px;font-weight:700;color:var(--text);"></div>
     <button onclick="closePromptPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-dim);line-height:1;">×</button>
@@ -991,6 +1078,8 @@ function setMode(mode) {
     const tab = document.getElementById('tab-' + m);
     if (tab) tab.classList.toggle('active', m === mode);
   });
+  const frBtn = document.getElementById('fr-float-btn');
+  if (frBtn) frBtn.style.display = (mode !== 'friday') ? 'flex' : 'none';
   if (mode === 'dashboard') loadDashboardData();
   if (mode === 'clients') loadClientsData();
   if (mode === 'builds') loadBuildsData();
@@ -1177,7 +1266,7 @@ function ensureJsonOverlay() {
   if (ov) return ov;
   ov = document.createElement('div');
   ov.id = 'json-preview-overlay';
-  ov.style.cssText = 'display:none;position:relative;inset:0;z-index:9000;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:40px;';
+  ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:40px;';
   ov.innerHTML = '<div style="background:#1E293B;border-radius:16px;max-width:780px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);overflow:hidden;"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #334155;"><span style="color:#fff;font-size:14px;font-weight:700;" id="json-preview-title">Preview</span><div style="display:flex;gap:8px;"><button onclick="copyJsonPreview()" style="background:rgba(74,143,214,0.2);border:1px solid rgba(74,143,214,0.3);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">Copy</button><button onclick="closeJsonPreview()" style="background:#334155;border:none;border-radius:6px;padding:5px 12px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600;">Close</button></div></div><pre id="json-preview-content" style="padding:20px;overflow:auto;flex:1;font-size:12px;font-family:var(--mono);color:#E2E8F0;margin:0;white-space:pre-wrap;word-break:break-all;"></pre></div>';
   document.body.appendChild(ov);
   ov.addEventListener('click', e => { if (e.target===ov) closeJsonPreview(); });
@@ -2092,7 +2181,7 @@ function showBuildNotification(build) {
   const existing=document.getElementById('friday-build-toast'); if(existing) existing.remove();
   const toast=document.createElement('div');
   toast.id='friday-build-toast';
-  toast.style.cssText='position:relative;bottom:28px;right:28px;z-index:9999;background:#1a2332;color:#fff;border-radius:16px;padding:18px 22px;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-width:340px;display:flex;align-items:flex-start;gap:14px;border:1px solid rgba(255,255,255,0.08);animation:slideUp 0.3s ease';
+  toast.style.cssText='position:fixed;bottom:28px;right:28px;z-index:9999;background:#1a2332;color:#fff;border-radius:16px;padding:18px 22px;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-width:340px;display:flex;align-items:flex-start;gap:14px;border:1px solid rgba(255,255,255,0.08);animation:slideUp 0.3s ease';
   toast.innerHTML='<div style="font-size:24px;flex-shrink:0;margin-top:2px;">✅</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;margin-bottom:4px;color:#4A8FD6;">Build Complete</div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">'+esc(build.project_name||'Build')+'</div><div style="font-size:11px;opacity:0.6;margin-bottom:10px;">'+esc(build.client_name||'')+'</div><button onclick="document.getElementById(\'friday-build-toast\').remove()" style="background:rgba(74,143,214,0.2);border:1px solid rgba(74,143,214,0.3);border-radius:8px;padding:5px 12px;font-size:11px;color:#4A8FD6;cursor:pointer;font-family:inherit;font-weight:600;">Dismiss</button></div>';
   document.body.appendChild(toast);
   setTimeout(()=>{ const t=document.getElementById('friday-build-toast'); if(t) t.remove(); },10000);
@@ -2121,8 +2210,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window._authToken=token;
     window._currentUser=JSON.parse(user);
     document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('app-wrapper').style.display='block';
+    document.getElementById('app-wrapper').style.display='flex';
     document.getElementById('user-badge').textContent=window._currentUser.name;
+    updateSidebarUser();
     initDashboard();
     loadIntakeClients();
     setMode('friday');
@@ -2134,6 +2224,11 @@ document.addEventListener('DOMContentLoaded', function() {
     input.addEventListener('keydown',e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();cockpitSend();} });
     input.addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
   }
+  const frInp=document.getElementById('fr-panel-input');
+  if (frInp) {
+    frInp.addEventListener('keydown',e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();frPanelSend();} if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();frPanelSend();} });
+    frInp.addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px'; });
+  }
   const pop=document.getElementById('friday-video-popover');
   if (pop) pop.addEventListener('click',e=>{ if(e.target===pop) endFridayVideo(); });
   document.querySelectorAll('.modal-overlay').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }); });
@@ -2141,5 +2236,22 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePromptPanel(); });
 });
 </script>
+<!-- ===== FR FLOAT BUTTON & PANEL ===== -->
+<button id="fr-float-btn" onclick="toggleFrPanel()">FR</button>
+<div id="fr-panel-overlay" onclick="toggleFrPanel()"></div>
+<div id="fr-panel">
+  <div class="fr-panel-header">
+    <div class="fr-panel-brand">F.R.I.D.A.Y. Cockpit</div>
+    <button class="fr-panel-close" onclick="toggleFrPanel()">&#x2715;</button>
+  </div>
+  <div class="fr-panel-messages" id="fr-panel-messages">
+    <div class="fr-msg-ai">Hi! I&#x27;m F.R.I.D.A.Y. Ask me anything about your builds, clients, or pipeline.</div>
+  </div>
+  <div class="fr-panel-input-bar">
+    <textarea id="fr-panel-input" placeholder="Message F.R.I.D.A.Y.&#x2026;" rows="1"></textarea>
+    <button onclick="frPanelSend()">Send</button>
+  </div>
+</div>
+
 </body>
 </html>
