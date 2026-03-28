@@ -1712,7 +1712,7 @@ async function submitClarificationAnswers() {
     return 'Q' + (i+1) + ': ' + q + '\nA: ' + answer;
   }).join('\n\n');
   try {
-    var resp = await fetch('http://5.223.79.255:3000/api/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticket_id: _clarificationTicketId, answers: formatted }) });
+    var resp = await fetch('/api/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticket_id: _clarificationTicketId, answers: formatted }) });
     if (!resp.ok) throw new Error('Request failed');
     document.getElementById('clarificationOverlay').classList.remove('open');
     document.getElementById('intakeFormContent').style.display = 'none';
@@ -1964,7 +1964,7 @@ async function cockpitPersistUpdate(msg, reply) {
 async function cockpitAutoTitle(chatId, messages) {
   if (!messages || messages.length < 2) return;
   try {
-    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
+    const resp = await fetch('/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
       body: JSON.stringify({
@@ -2006,7 +2006,7 @@ async function cockpitSend() {
   sendBtn.disabled = true;
   let reply = '';
   try {
-    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
+    const resp = await fetch('/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
       body: JSON.stringify({message: msg, history: window._cockpitHistory.slice(-10)})
