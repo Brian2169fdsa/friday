@@ -770,7 +770,7 @@ async function doLogin() {
 </div>
 
 <!-- ===== VIDEO POPOVER ===== -->
-<div id="friday-video-popover" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+<div id="friday-video-popover" style="display:none;position:relative;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
   <div style="background:linear-gradient(135deg,#1a5fb4,#2563eb);border-radius:24px;padding:4px;box-shadow:0 24px 80px rgba(0,0,0,0.5);max-width:720px;width:94vw;display:flex;flex-direction:column;animation:popIn 0.25s ease-out;">
     <div style="background:white;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);">
@@ -824,8 +824,8 @@ async function doLogin() {
 </div>
 
 <!-- ===== TEAM CHAT POPOVER ===== -->
-<div id="team-chat-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeTeamChat()"></div>
-<div id="team-chat-panel" style="display:none;position:fixed;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
+<div id="team-chat-backdrop" style="display:none;position:relative;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeTeamChat()"></div>
+<div id="team-chat-panel" style="display:none;position:relative;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
   <div style="background:var(--nav);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
     <div><div id="tc-title" style="color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;">💬 Team Chat</div><div id="tc-subtitle" style="color:#64748B;font-family:var(--mono);font-size:11px;margin-top:2px;">—</div></div>
     <button onclick="closeTeamChat()" style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;">✕</button>
@@ -843,8 +843,8 @@ async function doLogin() {
 </div>
 
 <!-- ===== BUILD AGENT POPOVER ===== -->
-<div id="build-agent-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeBuildAgent()"></div>
-<div id="build-agent-panel" style="display:none;position:fixed;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
+<div id="build-agent-backdrop" style="display:none;position:relative;inset:0;background:rgba(0,0,0,0.3);z-index:499;" onclick="closeBuildAgent()"></div>
+<div id="build-agent-panel" style="display:none;position:relative;right:0;top:58px;width:460px;height:calc(100vh - 58px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.1);z-index:500;transform:translateX(100%);transition:transform 0.25s ease;flex-direction:column;">
   <div style="background:var(--nav);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
     <div><div id="ba-title" style="color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;">🤖 Build Agent</div><div id="ba-subtitle" style="color:#64748B;font-family:var(--mono);font-size:11px;margin-top:2px;">Connected to all build files</div></div>
     <button onclick="closeBuildAgent()" style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;">✕</button>
@@ -857,8 +857,8 @@ async function doLogin() {
   </div>
 </div>
 
-<div id="prompt-panel-overlay" onclick="closePromptPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;"></div>
-<div id="prompt-panel" style="position:fixed;top:0;right:0;height:100vh;width:560px;background:#fff;z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.12);">
+<div id="prompt-panel-overlay" onclick="closePromptPanel()" style="display:none;position:relative;inset:0;background:rgba(0,0,0,0.4);z-index:1000;"></div>
+<div id="prompt-panel" style="position:relative;top:0;right:0;height:100vh;width:560px;background:#fff;z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.12);">
   <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
     <div id="prompt-panel-title" style="font-size:14px;font-weight:700;color:var(--text);"></div>
     <button onclick="closePromptPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-dim);line-height:1;">×</button>
@@ -1147,7 +1147,7 @@ function ensureJsonOverlay() {
   if (ov) return ov;
   ov = document.createElement('div');
   ov.id = 'json-preview-overlay';
-  ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:40px;';
+  ov.style.cssText = 'display:none;position:relative;inset:0;z-index:9000;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:40px;';
   ov.innerHTML = '<div style="background:#1E293B;border-radius:16px;max-width:780px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);overflow:hidden;"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #334155;"><span style="color:#fff;font-size:14px;font-weight:700;" id="json-preview-title">Preview</span><div style="display:flex;gap:8px;"><button onclick="copyJsonPreview()" style="background:rgba(74,143,214,0.2);border:1px solid rgba(74,143,214,0.3);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">Copy</button><button onclick="closeJsonPreview()" style="background:#334155;border:none;border-radius:6px;padding:5px 12px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600;">Close</button></div></div><pre id="json-preview-content" style="padding:20px;overflow:auto;flex:1;font-size:12px;font-family:var(--mono);color:#E2E8F0;margin:0;white-space:pre-wrap;word-break:break-all;"></pre></div>';
   document.body.appendChild(ov);
   ov.addEventListener('click', e => { if (e.target===ov) closeJsonPreview(); });
@@ -1890,7 +1890,7 @@ function showBuildNotification(build) {
   const existing=document.getElementById('friday-build-toast'); if(existing) existing.remove();
   const toast=document.createElement('div');
   toast.id='friday-build-toast';
-  toast.style.cssText='position:fixed;bottom:28px;right:28px;z-index:9999;background:#1a2332;color:#fff;border-radius:16px;padding:18px 22px;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-width:340px;display:flex;align-items:flex-start;gap:14px;border:1px solid rgba(255,255,255,0.08);animation:slideUp 0.3s ease';
+  toast.style.cssText='position:relative;bottom:28px;right:28px;z-index:9999;background:#1a2332;color:#fff;border-radius:16px;padding:18px 22px;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-width:340px;display:flex;align-items:flex-start;gap:14px;border:1px solid rgba(255,255,255,0.08);animation:slideUp 0.3s ease';
   toast.innerHTML='<div style="font-size:24px;flex-shrink:0;margin-top:2px;">✅</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;margin-bottom:4px;color:#4A8FD6;">Build Complete</div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">'+esc(build.project_name||'Build')+'</div><div style="font-size:11px;opacity:0.6;margin-bottom:10px;">'+esc(build.client_name||'')+'</div><button onclick="document.getElementById(\'friday-build-toast\').remove()" style="background:rgba(74,143,214,0.2);border:1px solid rgba(74,143,214,0.3);border-radius:8px;padding:5px 12px;font-size:11px;color:#4A8FD6;cursor:pointer;font-family:inherit;font-weight:600;">Dismiss</button></div>';
   document.body.appendChild(toast);
   setTimeout(()=>{ const t=document.getElementById('friday-build-toast'); if(t) t.remove(); },10000);
