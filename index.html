@@ -177,7 +177,24 @@
     .add-path-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--accent); background: none; border: none; cursor: pointer; padding: 4px 0; }
 
     /* ===== COCKPIT CHAT ===== */
-    #mode-friday { display: flex; flex-direction: column; height: calc(100vh - 180px); min-height: 500px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    #mode-friday { display: flex; flex-direction: row; height: calc(100vh - 180px); min-height: 500px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    /* Sidebar */
+    .cockpit-sidebar { width: 260px; min-width: 260px; background: #1E3348; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.08); overflow: hidden; flex-shrink: 0; }
+    .cs-header { padding: 16px 12px 8px; flex-shrink: 0; }
+    .cs-title { font-size: 12px; font-weight: 700; color: #fff; font-family: var(--font); letter-spacing: 0.02em; }
+    .cs-new-btn { display: block; width: 100%; margin-top: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 12px; padding: 8px 12px; cursor: pointer; font-family: var(--font); text-align: left; transition: background 0.15s; }
+    .cs-new-btn:hover { background: rgba(255,255,255,0.14); }
+    .cs-list { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
+    .cs-list::-webkit-scrollbar { width: 4px; } .cs-list::-webkit-scrollbar-track { background: transparent; } .cs-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .cs-group-label { font-size: 10px; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; padding: 12px 12px 4px; }
+    .cs-item { padding: 8px 12px; border-radius: 6px; cursor: pointer; margin: 1px 4px; transition: background 0.15s; }
+    .cs-item:hover { background: rgba(255,255,255,0.06); }
+    .cs-item.active { background: rgba(255,255,255,0.1); }
+    .cs-item-title { font-size: 12px; color: #94A3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cs-item.active .cs-item-title { color: #fff; }
+    .cs-item-time { font-size: 10px; color: #475569; margin-top: 2px; }
+    /* Right pane */
+    .cockpit-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .cockpit-header { display: flex; align-items: center; justify-content: space-between; height: 48px; min-height: 48px; background: var(--nav); padding: 0 16px; flex-shrink: 0; }
     .cockpit-header-left { display: flex; align-items: center; }
     .cockpit-brand { font-size: 13px; font-weight: 700; color: #fff; font-family: var(--font); }
@@ -523,35 +540,48 @@ async function doLogin() {
   <!-- TAB 1: F.R.I.D.A.Y. COCKPIT                            -->
   <!-- ====================================================== -->
   <div id="mode-friday" class="mode-content">
-    <div class="cockpit-header">
-      <div class="cockpit-header-left">
-        <span class="cockpit-brand">F.R.I.D.A.Y.</span>
-        <span class="cockpit-sep"></span>
-        <span class="cockpit-label">Cockpit</span>
+    <!-- LEFT SIDEBAR -->
+    <div class="cockpit-sidebar" id="cockpit-sidebar">
+      <div class="cs-header">
+        <div class="cs-title">FRIDAY Cockpit</div>
+        <button class="cs-new-btn" onclick="cockpitNewChat()">+ New Chat</button>
       </div>
-      <div class="cockpit-pills">
-        <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#16A34A"></span>Server</span>
-        <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#D97706"></span>n8n</span>
-        <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#16A34A"></span>Supabase</span>
+      <div class="cs-list" id="cs-list">
+        <div style="padding:20px 12px;font-size:11px;color:#475569;">Loading chats…</div>
       </div>
     </div>
-    <div class="cockpit-messages" id="cockpit-messages">
-      <div class="cockpit-empty" id="cockpit-empty">
-        <div class="cockpit-avatar-lg">FR</div>
-        <div class="cockpit-greeting" id="cockpit-greeting"></div>
-        <div class="cockpit-tagline">What are we building today?</div>
+    <!-- RIGHT PANE -->
+    <div class="cockpit-pane">
+      <div class="cockpit-header">
+        <div class="cockpit-header-left">
+          <span class="cockpit-brand">F.R.I.D.A.Y.</span>
+          <span class="cockpit-sep"></span>
+          <span class="cockpit-label" id="cockpit-chat-title">Cockpit</span>
+        </div>
+        <div class="cockpit-pills">
+          <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#16A34A"></span>Server</span>
+          <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#D97706"></span>n8n</span>
+          <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#16A34A"></span>Supabase</span>
+        </div>
       </div>
-    </div>
-    <div class="cockpit-input-bar">
-      <div class="cockpit-chips">
-        <button class="cockpit-chip" onclick="cockpitSendChip('Show active builds')">Show active builds</button>
-        <button class="cockpit-chip" onclick="cockpitSendChip('Check server health')">Check server health</button>
-        <button class="cockpit-chip" onclick="cockpitSendChip('List n8n workflows')">List n8n workflows</button>
-        <button class="cockpit-chip" onclick="cockpitSendChip('Recent errors')">Recent errors</button>
+      <div class="cockpit-messages" id="cockpit-messages">
+        <div class="cockpit-empty" id="cockpit-empty">
+          <div class="cockpit-avatar-lg">FR</div>
+          <div class="cockpit-greeting" id="cockpit-greeting"></div>
+          <div class="cockpit-tagline">What are we building today?</div>
+        </div>
       </div>
-      <div class="cockpit-input-row">
-        <textarea id="cockpit-input" placeholder="Message F.R.I.D.A.Y.…" rows="1"></textarea>
-        <button id="cockpit-send" onclick="cockpitSend()">Send</button>
+      <div class="cockpit-input-bar">
+        <div class="cockpit-chips">
+          <button class="cockpit-chip" onclick="cockpitSendChip('Show active builds')">Show active builds</button>
+          <button class="cockpit-chip" onclick="cockpitSendChip('Check server health')">Check server health</button>
+          <button class="cockpit-chip" onclick="cockpitSendChip('List n8n workflows')">List n8n workflows</button>
+          <button class="cockpit-chip" onclick="cockpitSendChip('Recent errors')">Recent errors</button>
+        </div>
+        <div class="cockpit-input-row">
+          <textarea id="cockpit-input" placeholder="Message F.R.I.D.A.Y.…" rows="1"></textarea>
+          <button id="cockpit-send" onclick="cockpitSend()">Send</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1620,6 +1650,9 @@ async function saveNewClient() {
 
 // ===== COCKPIT CHAT =====
 window._cockpitHistory = [];
+window._currentChatId = null;
+window._currentChatMessages = [];
+window._allChats = [];
 
 function cockpitTimeNow() {
   return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
@@ -1630,6 +1663,7 @@ function initCockpit() {
   const greeting = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
   const g = document.getElementById('cockpit-greeting');
   if (g) g.textContent = greeting;
+  loadCockpitChats();
 }
 
 function cockpitEscapeHtml(s) {
@@ -1664,6 +1698,15 @@ function cockpitScrollBottom() {
 function cockpitHideEmpty() {
   const e = document.getElementById('cockpit-empty');
   if (e) e.style.display = 'none';
+}
+
+function cockpitShowEmpty() {
+  const msgs = document.getElementById('cockpit-messages');
+  if (!msgs) return;
+  msgs.innerHTML = '<div class="cockpit-empty" id="cockpit-empty"><div class="cockpit-avatar-lg">FR</div><div class="cockpit-greeting" id="cockpit-greeting"></div><div class="cockpit-tagline">What are we building today?</div></div>';
+  const h = new Date().getHours();
+  const g = document.getElementById('cockpit-greeting');
+  if (g) g.textContent = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
 }
 
 function cockpitAppendUser(text) {
@@ -1710,6 +1753,156 @@ function cockpitHideTyping() {
   if (t) t.style.display = 'none';
 }
 
+// ---- Sidebar ----
+
+async function loadCockpitChats() {
+  const list = document.getElementById('cs-list');
+  try {
+    const chats = await sbFetch('cockpit_chats?order=updated_at.desc&select=*') || [];
+    window._allChats = chats;
+    renderCockpitSidebar();
+  } catch(e) {
+    if (list) list.innerHTML = '<div style="padding:12px;font-size:11px;color:#475569;">Could not load chats</div>';
+  }
+}
+
+function renderCockpitSidebar() {
+  const list = document.getElementById('cs-list');
+  if (!list) return;
+  const chats = window._allChats;
+  if (!chats.length) {
+    list.innerHTML = '<div style="padding:16px 12px;font-size:11px;color:#475569;">No chats yet. Start one!</div>';
+    return;
+  }
+  const groups = {};
+  chats.forEach(c => {
+    const key = c.client_name || 'General';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(c);
+  });
+  let html = '';
+  Object.keys(groups).forEach(client => {
+    html += '<div class="cs-group-label">' + esc(client) + '</div>';
+    groups[client].forEach(c => {
+      const active = c.id === window._currentChatId ? ' active' : '';
+      const title = esc(c.title || c.project_name || 'New Chat');
+      const time = relTime(c.updated_at);
+      html += '<div class="cs-item' + active + '" onclick="cockpitOpenChat(\'' + c.id + '\')">' +
+        '<div class="cs-item-title">' + title + '</div>' +
+        '<div class="cs-item-time">' + time + '</div>' +
+        '</div>';
+    });
+  });
+  list.innerHTML = html;
+}
+
+function cockpitNewChat() {
+  window._currentChatId = null;
+  window._currentChatMessages = [];
+  window._cockpitHistory = [];
+  const titleEl = document.getElementById('cockpit-chat-title');
+  if (titleEl) titleEl.textContent = 'Cockpit';
+  cockpitShowEmpty();
+  document.querySelectorAll('.cs-item').forEach(el => el.classList.remove('active'));
+}
+
+function cockpitOpenChat(id) {
+  const chat = window._allChats.find(c => c.id === id);
+  if (!chat) return;
+  window._currentChatId = id;
+  window._currentChatMessages = Array.isArray(chat.messages) ? chat.messages : [];
+  window._cockpitHistory = window._currentChatMessages.map(m => ({role: m.role, content: m.content}));
+  const titleEl = document.getElementById('cockpit-chat-title');
+  if (titleEl) titleEl.textContent = chat.title || chat.project_name || 'Cockpit';
+  const msgs = document.getElementById('cockpit-messages');
+  if (!msgs) return;
+  msgs.innerHTML = '';
+  window._currentChatMessages.forEach(m => {
+    if (m.role === 'user') {
+      const wrap = document.createElement('div');
+      wrap.className = 'cockpit-msg-user';
+      const ts = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+      wrap.innerHTML = '<div><div class="cockpit-bubble">' + cockpitEscapeHtml(m.content) + '</div><div class="cockpit-ts">' + ts + '</div></div>';
+      msgs.appendChild(wrap);
+    } else {
+      const wrap = document.createElement('div');
+      wrap.className = 'cockpit-msg-fr';
+      const ts = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+      wrap.innerHTML = '<div class="cockpit-avatar-sm">FR</div><div><div class="cockpit-bubble">' + cockpitMarkdown(m.content) + '</div><div class="cockpit-ts">' + ts + '</div></div>';
+      msgs.appendChild(wrap);
+    }
+  });
+  cockpitScrollBottom();
+  renderCockpitSidebar();
+}
+
+async function cockpitPersistNewChat(firstMsg, firstReply) {
+  const now = new Date().toISOString();
+  const title = firstMsg.slice(0, 50);
+  const messages = [
+    {role: 'user', content: firstMsg, timestamp: now},
+    {role: 'assistant', content: firstReply, timestamp: now}
+  ];
+  const payload = {client_name: 'General', project_name: 'New Chat', title, messages, created_at: now, updated_at: now};
+  const result = await sbFetch('cockpit_chats', 'POST', payload);
+  if (result && result[0]) {
+    window._currentChatId = result[0].id;
+    window._currentChatMessages = messages;
+    window._allChats.unshift(result[0]);
+    renderCockpitSidebar();
+    cockpitAutoTitle(result[0].id, messages);
+  }
+}
+
+async function cockpitPersistUpdate(msg, reply) {
+  if (!window._currentChatId) return;
+  const now = new Date().toISOString();
+  window._currentChatMessages.push({role: 'user', content: msg, timestamp: now});
+  window._currentChatMessages.push({role: 'assistant', content: reply, timestamp: now});
+  const payload = {messages: window._currentChatMessages, updated_at: now};
+  try {
+    await fetch(SB_URL + '/rest/v1/cockpit_chats?id=eq.' + window._currentChatId, {
+      method: 'PATCH',
+      headers: {'apikey': SB_SERVICE_KEY, 'Authorization': 'Bearer ' + SB_SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
+      body: JSON.stringify(payload)
+    });
+    const idx = window._allChats.findIndex(c => c.id === window._currentChatId);
+    if (idx !== -1) { window._allChats[idx].messages = window._currentChatMessages; window._allChats[idx].updated_at = now; }
+    renderCockpitSidebar();
+  } catch(e) {}
+}
+
+async function cockpitAutoTitle(chatId, messages) {
+  if (!messages || messages.length < 2) return;
+  try {
+    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
+      body: JSON.stringify({
+        message: 'Generate a concise 4-6 word title for this conversation. Reply with ONLY the title, no punctuation, no quotes.',
+        history: messages.map(m => ({role: m.role, content: m.content}))
+      })
+    });
+    const data = await resp.json();
+    const title = (data?.reply || data?.message || '').trim().slice(0, 60);
+    if (!title) return;
+    await fetch(SB_URL + '/rest/v1/cockpit_chats?id=eq.' + chatId, {
+      method: 'PATCH',
+      headers: {'apikey': SB_SERVICE_KEY, 'Authorization': 'Bearer ' + SB_SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
+      body: JSON.stringify({title})
+    });
+    const idx = window._allChats.findIndex(c => c.id === chatId);
+    if (idx !== -1) window._allChats[idx].title = title;
+    renderCockpitSidebar();
+    if (chatId === window._currentChatId) {
+      const titleEl = document.getElementById('cockpit-chat-title');
+      if (titleEl) titleEl.textContent = title;
+    }
+  } catch(e) {}
+}
+
+// ---- Send ----
+
 async function cockpitSend() {
   const input = document.getElementById('cockpit-input');
   const sendBtn = document.getElementById('cockpit-send');
@@ -1717,27 +1910,36 @@ async function cockpitSend() {
   if (!msg || sendBtn.disabled) return;
   input.value = '';
   input.style.height = 'auto';
+  const isFirstMessage = window._currentChatMessages.length === 0 && !window._currentChatId;
   cockpitAppendUser(msg);
   window._cockpitHistory.push({role: 'user', content: msg});
   cockpitShowTyping();
   sendBtn.disabled = true;
+  let reply = '';
   try {
-    const resp = await fetch('/api/cockpit', {
+    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
       body: JSON.stringify({message: msg, history: window._cockpitHistory.slice(-10)})
     });
     const data = await resp.json();
     cockpitHideTyping();
-    const reply = data?.reply || data?.message || data?.content || 'No response received.';
-    cockpitAppendFR(cockpitMarkdown(typeof reply === 'string' ? reply : JSON.stringify(reply)));
-    window._cockpitHistory.push({role: 'assistant', content: typeof reply === 'string' ? reply : JSON.stringify(reply)});
+    const raw = data?.reply || data?.message || data?.content || 'No response received.';
+    reply = typeof raw === 'string' ? raw : JSON.stringify(raw);
+    cockpitAppendFR(cockpitMarkdown(reply));
+    window._cockpitHistory.push({role: 'assistant', content: reply});
   } catch(e) {
     cockpitHideTyping();
-    cockpitAppendFR('Connection error — check server status');
+    reply = 'Connection error — check server status';
+    cockpitAppendFR(reply);
   }
   sendBtn.disabled = false;
   cockpitScrollBottom();
+  if (isFirstMessage) {
+    cockpitPersistNewChat(msg, reply);
+  } else {
+    cockpitPersistUpdate(msg, reply);
+  }
 }
 
 function cockpitSendChip(text) {
@@ -1746,7 +1948,7 @@ function cockpitSendChip(text) {
   cockpitSend();
 }
 
-// kept for compatibility — no longer used but safe to call
+// kept for compatibility
 function loadFridayBriefing() { initCockpit(); }
 
 // ===== TAVUS VIDEO =====
