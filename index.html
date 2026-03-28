@@ -1722,7 +1722,7 @@ async function cockpitSend() {
   cockpitShowTyping();
   sendBtn.disabled = true;
   try {
-    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
+    const resp = await fetch('/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
       body: JSON.stringify({message: msg, history: window._cockpitHistory.slice(-10)})
