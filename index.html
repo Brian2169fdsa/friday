@@ -176,54 +176,50 @@
     .btn-icon:hover { border-color: var(--red); color: var(--red); }
     .add-path-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--accent); background: none; border: none; cursor: pointer; padding: 4px 0; }
 
-    /* ===== FRIDAY AGENT PANEL ===== */
-    .rb-layout { display: flex; gap: 20px; min-height: calc(100vh - 260px); }
-    .rb-left { width: 28%; min-width: 240px; }
-    .rb-right { width: 72%; flex: 1; display: flex; flex-direction: column; }
-    .rb-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .rb-photo { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid var(--nav); box-shadow: 0 6px 24px rgba(0,0,0,0.18); display: block; margin: 0 auto; }
-    .rb-name { font-size: 20px; font-weight: 700; color: var(--nav); text-align: center; margin-top: 14px; }
-    .rb-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); text-align: center; margin-top: 4px; }
-    .rb-reports { font-size: 12px; color: var(--accent); text-align: center; margin-top: 4px; }
-    .rb-divider { height: 1px; background: var(--border); margin: 16px 0; }
-    .rb-status { display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; color: var(--green); font-weight: 600; }
-    .rb-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulseDot 2s infinite; }
-    .rb-stats-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-    .rb-pill { background: var(--surface); border-radius: 20px; padding: 6px 14px; font-size: 12px; text-align: center; margin: 4px; }
-    .rb-pill-label { color: var(--text-dim); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-    .rb-pill-value { font-weight: 700; color: var(--text); margin-top: 2px; }
-    .rb-section-head { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 8px; }
-    .rb-list { list-style: none; padding: 0; margin: 0; }
-    .rb-list li { font-size: 13px; color: var(--text); line-height: 1.8; padding-left: 20px; position: relative; }
-    .rb-list li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
-    .rb-chat-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); }
-    .rb-chat-header-left { display: flex; align-items: center; gap: 10px; }
-    .rb-chat-name { font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px; }
-    .rb-chat-name .rb-dot-sm { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
-    .rb-chat-sub { font-size: 11px; color: var(--text-dim); }
-    .rb-clear-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 14px; color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
-    .rb-clear-btn:hover { background: var(--surface); color: var(--text); }
-    #friday-messages { height: calc(100vh - 320px); min-height: 420px; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
-    .rb-msg-row { display: flex; gap: 10px; margin-bottom: 16px; max-width: 75%; }
-    .rb-msg-row.user { margin-left: auto; max-width: 70%; justify-content: flex-end; }
-    .rb-msg-bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; }
-    .rb-msg-bubble.assistant { background: #fff; color: #374151; border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .rb-msg-bubble.user { background: var(--nav); color: #fff; border-radius: 16px 16px 4px 16px; }
-    .rb-msg-meta { font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
-    .rb-typing { display: none; align-items: center; gap: 10px; margin-bottom: 16px; }
-    .rb-typing.visible { display: flex; }
-    .rb-typing-dots { display: flex; gap: 4px; padding: 12px 16px; background: #fff; border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; }
-    .rb-typing-dots span { width: 7px; height: 7px; border-radius: 50%; background: #9ca3af; animation: rbBounce 1.2s infinite; }
-    .rb-typing-dots span:nth-child(2) { animation-delay: 0.15s; }
-    .rb-typing-dots span:nth-child(3) { animation-delay: 0.3s; }
-    #friday-suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 16px; }
-    .rb-suggestion { border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 13px; cursor: pointer; background: #fff; color: var(--text); transition: background 0.15s; font-family: var(--font); }
-    .rb-suggestion:hover { background: var(--surface); }
-    .rb-input-area { display: flex; align-items: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
-    #friday-input { flex: 1; border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 14px; resize: none; height: 44px; max-height: 120px; font-family: var(--font); outline: none; transition: border-color 0.2s; }
-    #friday-input:focus { border-color: var(--accent); }
-    #friday-send { width: 44px; height: 44px; border-radius: 50%; background: var(--nav); color: #fff; border: none; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
-    #friday-send:hover { background: #2a4a6e; }
+    /* ===== COCKPIT CHAT ===== */
+    #mode-friday { display: flex; flex-direction: column; height: calc(100vh - 180px); min-height: 500px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .cockpit-header { display: flex; align-items: center; justify-content: space-between; height: 48px; min-height: 48px; background: var(--nav); padding: 0 16px; flex-shrink: 0; }
+    .cockpit-header-left { display: flex; align-items: center; }
+    .cockpit-brand { font-size: 13px; font-weight: 700; color: #fff; font-family: var(--font); }
+    .cockpit-sep { width: 1px; height: 14px; background: rgba(255,255,255,0.2); margin: 0 10px; }
+    .cockpit-label { font-size: 13px; font-weight: 400; color: #94A3B8; font-family: var(--font); }
+    .cockpit-pills { display: flex; align-items: center; gap: 8px; }
+    .cockpit-pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 3px 10px; font-size: 10px; color: #94A3B8; font-family: var(--font); }
+    .cockpit-pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .cockpit-messages { flex: 1; overflow-y: auto; padding: 20px; background: #F8FAFC; scroll-behavior: smooth; }
+    .cockpit-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; }
+    .cockpit-avatar-lg { width: 64px; height: 64px; border-radius: 50%; background: var(--nav); color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cockpit-greeting { font-size: 18px; font-weight: 700; color: var(--text); }
+    .cockpit-tagline { font-size: 14px; color: #64748B; }
+    .cockpit-msg-user { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+    .cockpit-msg-user .cockpit-bubble { background: var(--nav); color: #fff; font-size: 13px; line-height: 1.6; border-radius: 16px 16px 4px 16px; max-width: 72%; padding: 10px 14px; }
+    .cockpit-msg-user .cockpit-ts { text-align: right; font-size: 10px; color: #94A3B8; margin-top: 4px; }
+    .cockpit-msg-fr { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 16px; }
+    .cockpit-avatar-sm { width: 24px; height: 24px; border-radius: 50%; background: var(--nav); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .cockpit-msg-fr .cockpit-bubble { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px 16px 16px 4px; color: #1E293B; font-size: 13px; line-height: 1.6; max-width: 82%; padding: 12px 16px; }
+    .cockpit-msg-fr .cockpit-ts { font-size: 10px; color: #94A3B8; margin-top: 4px; }
+    .cockpit-bubble code { background: #1E293B; color: #E2E8F0; padding: 1px 5px; border-radius: 4px; font-family: var(--mono); font-size: 12px; }
+    .cockpit-bubble pre { background: #1E293B; color: #E2E8F0; border-radius: 8px; padding: 12px 14px; margin: 8px 0; overflow-x: auto; position: relative; }
+    .cockpit-bubble pre code { background: none; padding: 0; }
+    .cockpit-copy-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); border: none; border-radius: 5px; padding: 3px 8px; font-size: 10px; color: #94A3B8; cursor: pointer; font-family: var(--font); }
+    .cockpit-copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .cockpit-bubble ul { padding-left: 18px; margin: 6px 0; }
+    .cockpit-bubble li { margin-bottom: 3px; }
+    .cockpit-typing-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 16px; }
+    .cockpit-typing-dots { display: flex; gap: 4px; padding: 12px 16px; background: #fff; border: 1px solid #E2E8F0; border-radius: 16px 16px 16px 4px; }
+    .cockpit-typing-dots span { width: 7px; height: 7px; border-radius: 50%; background: #94A3B8; animation: cockpitBounce 1.2s infinite; }
+    .cockpit-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .cockpit-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes cockpitBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+    .cockpit-input-bar { background: #fff; border-top: 1px solid #E2E8F0; padding: 12px 16px 16px; flex-shrink: 0; }
+    .cockpit-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .cockpit-chip { border: 1px solid #E2E8F0; border-radius: 20px; padding: 4px 12px; font-size: 11px; color: #64748B; background: #fff; cursor: pointer; font-family: var(--font); transition: border-color 0.15s, color 0.15s; }
+    .cockpit-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .cockpit-input-row { display: flex; align-items: flex-end; gap: 10px; }
+    #cockpit-input { flex: 1; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 14px; font-size: 13px; resize: none; min-height: 40px; max-height: 120px; font-family: var(--font); outline: none; transition: border-color 0.2s; }
+    #cockpit-input:focus { border-color: var(--accent); }
+    #cockpit-send { background: var(--nav); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0; transition: opacity 0.15s; font-family: var(--font); }
+    #cockpit-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* ===== CLIENTS ===== */
     .client-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
@@ -527,66 +523,35 @@ async function doLogin() {
   <!-- TAB 1: F.R.I.D.A.Y. AGENT                             -->
   <!-- ====================================================== -->
   <div id="mode-friday" class="mode-content">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px;">
-      <button onclick="startFridayVideo()" style="background:linear-gradient(135deg,#1a5fb4,#4a90d9);color:white;border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(74,144,217,0.35);font-family:inherit;">📹 Video Call with F.R.I.D.A.Y.</button>
-      <button onclick="setMode('intake')" style="background:var(--nav);color:white;border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">➕ New Build Request</button>
-      <button onclick="loadFridayBriefing()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Daily Briefing</button>
-    </div>
-    <div class="rb-layout">
-      <div class="rb-left">
-        <div class="rb-card">
-          <img src="https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp" alt="F.R.I.D.A.Y." class="rb-photo">
-          <div class="rb-name">F.R.I.D.A.Y.</div>
-          <div class="rb-title">Build Delivery Intelligence</div>
-          <div class="rb-reports">ManageAI Internal Build OS</div>
-          <div class="rb-divider"></div>
-          <div class="rb-status"><span class="rb-status-dot"></span> Online and Ready</div>
-          <div class="rb-divider"></div>
-          <div class="rb-stats-row">
-            <div class="rb-pill" id="fri-stat-builds"><div class="rb-pill-label">Active Builds</div><div class="rb-pill-value">—</div></div>
-            <div class="rb-pill" id="fri-stat-clients"><div class="rb-pill-label">Clients</div><div class="rb-pill-value">—</div></div>
-            <div class="rb-pill" id="fri-stat-tickets"><div class="rb-pill-label">Open Tickets</div><div class="rb-pill-value">—</div></div>
-          </div>
-          <div class="rb-divider"></div>
-          <div class="rb-section-head">What I Handle</div>
-          <ul class="rb-list">
-            <li>Daily build pipeline briefing</li>
-            <li>Client project status across all accounts</li>
-            <li>Ticket intake and routing to Claude Code</li>
-            <li>Build progress tracking and delivery</li>
-            <li>Flag blocked or overdue builds</li>
-            <li>Assessment of what's built vs. gaps</li>
-            <li>Draft client-facing delivery notes</li>
-            <li>Orchestrate n8n + Make.com pipelines</li>
-          </ul>
-        </div>
+    <div class="cockpit-header">
+      <div class="cockpit-header-left">
+        <span class="cockpit-brand">F.R.I.D.A.Y.</span>
+        <span class="cockpit-sep"></span>
+        <span class="cockpit-label">Cockpit</span>
       </div>
-      <div class="rb-right">
-        <div class="rb-card" style="padding:0;display:flex;flex-direction:column;flex:1;">
-          <div class="rb-chat-header">
-            <div class="rb-chat-header-left">
-              <img src="https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp" alt="F.R.I.D.A.Y." style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
-              <div>
-                <div class="rb-chat-name">F.R.I.D.A.Y. <span class="rb-dot-sm"></span></div>
-                <div class="rb-chat-sub">Connected to build pipeline, tickets, clients, and delivery data</div>
-              </div>
-            </div>
-            <button class="rb-clear-btn" onclick="clearFridayChat()">Clear</button>
-          </div>
-          <div id="friday-messages"></div>
-          <div id="friday-suggestions">
-            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">What builds are active right now?</button>
-            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">Give me a full pipeline briefing</button>
-            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">Which builds are blocked or overdue?</button>
-            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">What did we deliver this week?</button>
-            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">What tickets are waiting to be built?</button>
-            <button class="rb-suggestion" onclick="fridayUseSuggestion(this)">Run a build assessment for Sunstate</button>
-          </div>
-          <div class="rb-input-area">
-            <textarea id="friday-input" placeholder="Ask F.R.I.D.A.Y. anything about builds, clients, or delivery..." rows="1"></textarea>
-            <button id="friday-send" onclick="sendFridayMessage()">&#9654;</button>
-          </div>
-        </div>
+      <div class="cockpit-pills">
+        <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#16A34A"></span>Server</span>
+        <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#D97706"></span>n8n</span>
+        <span class="cockpit-pill"><span class="cockpit-pill-dot" style="background:#16A34A"></span>Supabase</span>
+      </div>
+    </div>
+    <div class="cockpit-messages" id="cockpit-messages">
+      <div class="cockpit-empty" id="cockpit-empty">
+        <div class="cockpit-avatar-lg">FR</div>
+        <div class="cockpit-greeting" id="cockpit-greeting"></div>
+        <div class="cockpit-tagline">What are we building today?</div>
+      </div>
+    </div>
+    <div class="cockpit-input-bar">
+      <div class="cockpit-chips">
+        <button class="cockpit-chip" onclick="cockpitSendChip('Show active builds')">Show active builds</button>
+        <button class="cockpit-chip" onclick="cockpitSendChip('Check server health')">Check server health</button>
+        <button class="cockpit-chip" onclick="cockpitSendChip('List n8n workflows')">List n8n workflows</button>
+        <button class="cockpit-chip" onclick="cockpitSendChip('Recent errors')">Recent errors</button>
+      </div>
+      <div class="cockpit-input-row">
+        <textarea id="cockpit-input" placeholder="Message F.R.I.D.A.Y.…" rows="1"></textarea>
+        <button id="cockpit-send" onclick="cockpitSend()">Send</button>
       </div>
     </div>
   </div>
@@ -1653,91 +1618,136 @@ async function saveNewClient() {
   closeNewClientModal(); loadClientsData();
 }
 
-// ===== F.R.I.D.A.Y. AGENT CHAT =====
-const FRIDAY_PHOTO = 'https://manageai.io/wp-content/uploads/2026/03/ChatGPT-Image-Mar-16-2026-at-06_06_04-PM-1.webp';
-let fridayConversation = [];
-let fridayStats = {};
-function fridayTimeNow() { return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+// ===== COCKPIT CHAT =====
+window._cockpitHistory = [];
 
-async function loadFridayBriefing() {
-  renderFridayWelcome(null);
+function cockpitTimeNow() {
+  return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+}
+
+function initCockpit() {
+  const h = new Date().getHours();
+  const greeting = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
+  const g = document.getElementById('cockpit-greeting');
+  if (g) g.textContent = greeting;
+}
+
+function cockpitEscapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function cockpitMarkdown(text) {
+  let s = cockpitEscapeHtml(text);
+  s = s.replace(/```(\w*)\n?([\s\S]*?)```/g, function(_, lang, code) {
+    return '<pre><code>' + code.trim() + '</code><button class="cockpit-copy-btn" onclick="cockpitCopy(this)">Copy</button></pre>';
+  });
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/((?:(?:^|\n)- [^\n]+)+)/g, function(block) {
+    const items = block.trim().split('\n').map(l => '<li>' + l.replace(/^- /, '') + '</li>').join('');
+    return '<ul>' + items + '</ul>';
+  });
+  s = s.replace(/\n/g, '<br>');
+  return s;
+}
+
+function cockpitCopy(btn) {
+  const code = btn.parentElement.querySelector('code');
+  if (code) navigator.clipboard.writeText(code.textContent).then(() => { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500); });
+}
+
+function cockpitScrollBottom() {
+  const msgs = document.getElementById('cockpit-messages');
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+}
+
+function cockpitHideEmpty() {
+  const e = document.getElementById('cockpit-empty');
+  if (e) e.style.display = 'none';
+}
+
+function cockpitAppendUser(text) {
+  cockpitHideEmpty();
+  const msgs = document.getElementById('cockpit-messages');
+  if (!msgs) return;
+  const ts = cockpitTimeNow();
+  const wrap = document.createElement('div');
+  wrap.className = 'cockpit-msg-user';
+  wrap.innerHTML = '<div><div class="cockpit-bubble">' + cockpitEscapeHtml(text) + '</div><div class="cockpit-ts">' + ts + '</div></div>';
+  msgs.appendChild(wrap);
+  cockpitScrollBottom();
+}
+
+function cockpitAppendFR(html) {
+  const msgs = document.getElementById('cockpit-messages');
+  if (!msgs) return;
+  const ts = cockpitTimeNow();
+  const wrap = document.createElement('div');
+  wrap.className = 'cockpit-msg-fr';
+  wrap.innerHTML = '<div class="cockpit-avatar-sm">FR</div><div><div class="cockpit-bubble">' + html + '</div><div class="cockpit-ts">' + ts + '</div></div>';
+  msgs.appendChild(wrap);
+  cockpitScrollBottom();
+}
+
+function cockpitShowTyping() {
+  const msgs = document.getElementById('cockpit-messages');
+  if (!msgs) return;
+  let t = document.getElementById('cockpit-typing');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'cockpit-typing';
+    t.className = 'cockpit-typing-row';
+    t.innerHTML = '<div class="cockpit-avatar-sm">FR</div><div class="cockpit-typing-dots"><span></span><span></span><span></span></div>';
+    msgs.appendChild(t);
+  } else {
+    t.style.display = 'flex';
+  }
+  cockpitScrollBottom();
+}
+
+function cockpitHideTyping() {
+  const t = document.getElementById('cockpit-typing');
+  if (t) t.style.display = 'none';
+}
+
+async function cockpitSend() {
+  const input = document.getElementById('cockpit-input');
+  const sendBtn = document.getElementById('cockpit-send');
+  const msg = input.value.trim();
+  if (!msg || sendBtn.disabled) return;
+  input.value = '';
+  input.style.height = 'auto';
+  cockpitAppendUser(msg);
+  window._cockpitHistory.push({role: 'user', content: msg});
+  cockpitShowTyping();
+  sendBtn.disabled = true;
   try {
-    const builds = await sbFetch('friday_builds?select=*&order=created_at.desc&limit=50')||[];
-    const tickets = await sbFetch('friday_tickets?select=*&order=created_at.desc&limit=20')||[];
-    const clients = await sbFetch('friday_customers?select=*')||[];
-    const skillsets = await sbFetch('friday_skillsets?select=name,status,owner,client_name&order=name.asc')||[];
-    const active = builds.filter(b=>['active','building'].includes(b.status));
-    const pending = tickets.filter(t=>t.status==='pending');
-    const done = builds.filter(b=>b.status==='done');
-    fridayStats = {builds,tickets,clients,active,pending,done,skillsets};
-    const el = document.getElementById('friday-briefing');
-    let briefing = `Here's the current state, Boss. You have <b>${active.length}</b> active build${active.length!==1?'s':''} in the pipeline across <b>${clients.length}</b> clients. <b>${pending.length}</b> ticket${pending.length!==1?'s are':' is'} waiting to be built, and <b>${done.length}</b> build${done.length!==1?'s have':' has'} been delivered.`;
-    if (active.length>0) briefing += ` Active now: ${active.slice(0,3).map(b=>'<b>'+esc(b.project_name||'Build')+'</b>').join(', ')}.`;
-    briefing += '<br><br>What do you want to tackle first?';
-    if (el) el.innerHTML = briefing;
-    const pillB=document.querySelector('#fri-stat-builds .rb-pill-value');
-    const pillC=document.querySelector('#fri-stat-clients .rb-pill-value');
-    const pillT=document.querySelector('#fri-stat-tickets .rb-pill-value');
-    if(pillB) pillB.textContent=active.length;
-    if(pillC) pillC.textContent=clients.length;
-    if(pillT) pillT.textContent=pending.length;
-  } catch(e) { const el=document.getElementById('friday-briefing'); if(el) el.textContent='Could not load live data.'; }
+    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
+      body: JSON.stringify({message: msg, history: window._cockpitHistory.slice(-10)})
+    });
+    const data = await resp.json();
+    cockpitHideTyping();
+    const reply = data?.reply || data?.message || data?.content || 'No response received.';
+    cockpitAppendFR(cockpitMarkdown(typeof reply === 'string' ? reply : JSON.stringify(reply)));
+    window._cockpitHistory.push({role: 'assistant', content: typeof reply === 'string' ? reply : JSON.stringify(reply)});
+  } catch(e) {
+    cockpitHideTyping();
+    cockpitAppendFR('Connection error — check server status');
+  }
+  sendBtn.disabled = false;
+  cockpitScrollBottom();
 }
 
-function renderFridayWelcome(briefing) {
-  const msgs=document.getElementById('friday-messages');
-  if (!msgs) return;
-  const text=briefing||'[Loading your briefing…]';
-  msgs.innerHTML=`<div class="rb-msg-row"><img src="${FRIDAY_PHOTO}" alt="F.R.I.D.A.Y." style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;"><div><div class="rb-msg-meta">F.R.I.D.A.Y. · Just now</div><div class="rb-msg-bubble assistant" id="friday-welcome-bubble">Morning, Boss. Let me pull up the build pipeline and see what we're working with today.<br><br><span id="friday-briefing">${text}</span></div></div></div>`;
+function cockpitSendChip(text) {
+  const input = document.getElementById('cockpit-input');
+  if (input) { input.value = text; }
+  cockpitSend();
 }
 
-function fridayAppendMessage(role, text) {
-  const msgs=document.getElementById('friday-messages');
-  if (!msgs) return;
-  const row=document.createElement('div');
-  if (role==='user') { row.className='rb-msg-row user'; row.innerHTML=`<div class="rb-msg-bubble user">${text}</div>`; }
-  else { row.className='rb-msg-row'; row.innerHTML=`<img src="${FRIDAY_PHOTO}" alt="F.R.I.D.A.Y." style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;"><div><div class="rb-msg-meta">F.R.I.D.A.Y. · ${fridayTimeNow()}</div><div class="rb-msg-bubble assistant">${text}</div></div>`; }
-  msgs.appendChild(row);
-  msgs.scrollTop=msgs.scrollHeight;
-}
-
-function fridayShowTyping() {
-  const msgs=document.getElementById('friday-messages');
-  if (!msgs) return;
-  let t=document.getElementById('friday-typing');
-  if (!t) { t=document.createElement('div'); t.id='friday-typing'; t.className='rb-typing visible'; t.innerHTML=`<img src="${FRIDAY_PHOTO}" alt="F.R.I.D.A.Y." style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;"><div class="rb-typing-dots"><span></span><span></span><span></span></div>`; msgs.appendChild(t); }
-  else { t.classList.add('visible'); t.style.display='flex'; }
-  msgs.scrollTop=msgs.scrollHeight;
-}
-function fridayHideTyping() { const t=document.getElementById('friday-typing'); if(t){t.classList.remove('visible');t.style.display='none';} }
-
-async function sendFridayMessage() {
-  const input=document.getElementById('friday-input');
-  const userMsg=input.value.trim();
-  if (!userMsg) return;
-  input.value=''; input.style.height='44px';
-  document.getElementById('friday-suggestions').style.display='none';
-  fridayAppendMessage('user',userMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
-  fridayShowTyping();
-  const systemContext=`You are F.R.I.D.A.Y., an AI build delivery intelligence for ManageAI. Active builds: ${(fridayStats.active||[]).length}. Active: ${(fridayStats.active||[]).map(b=>b.project_name||'Build').join(', ')||'none'}. Pending tickets: ${(fridayStats.pending||[]).length}. Clients: ${(fridayStats.clients||[]).length}. Delivered: ${(fridayStats.done||[]).length}. Speak like a direct, sharp ops manager. User (${(window._currentUser||{}).name||'Boss'}): ${userMsg}`;
-  try {
-    const resp=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[...fridayConversation,{role:'user',content:userMsg}],system:systemContext,max_tokens:1000})});
-    const data=await resp.json();
-    fridayHideTyping();
-    const reply=data?.reply||data?.content?.[0]?.text||'Something went wrong on my end, Boss. Try again.';
-    fridayAppendMessage('assistant',reply.replace(/\n/g,'<br>'));
-    fridayConversation.push({role:'user',content:userMsg});
-    fridayConversation.push({role:'assistant',content:reply});
-  } catch(e) { fridayHideTyping(); fridayAppendMessage('assistant','Connection trouble, Boss. Try again in a moment.'); }
-}
-
-function clearFridayChat() {
-  fridayConversation=[];
-  const brief=document.getElementById('friday-briefing');
-  renderFridayWelcome(brief?brief.innerHTML:'');
-  document.getElementById('friday-suggestions').style.display='flex';
-}
-function fridayUseSuggestion(el) { const input=document.getElementById('friday-input'); if(input) input.value=el.textContent; sendFridayMessage(); }
+// kept for compatibility — no longer used but safe to call
+function loadFridayBriefing() { initCockpit(); }
 
 // ===== TAVUS VIDEO =====
 let fridayConversationId=null, fridayCallObject=null, fridaySessionActive=false, fridayPttActive=false;
@@ -1914,13 +1924,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initDashboard();
     loadIntakeClients();
     setMode('friday');
-    loadFridayBriefing();
+    initCockpit();
     initRealtimeSubscriptions();
   }
-  const input=document.getElementById('friday-input');
+  const input=document.getElementById('cockpit-input');
   if (input) {
-    input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendFridayMessage();} });
-    input.addEventListener('input',function(){ this.style.height='44px'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
+    input.addEventListener('keydown',e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();cockpitSend();} });
+    input.addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
   }
   const pop=document.getElementById('friday-video-popover');
   if (pop) pop.addEventListener('click',e=>{ if(e.target===pop) endFridayVideo(); });
