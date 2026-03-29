@@ -518,27 +518,25 @@
     .clients-search-bar input:focus { border-color: var(--accent); }
 
   /* ===== FRIDAY AVATAR ===== */
-  @keyframes fridayBreathe { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-  @keyframes fridayBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-  @keyframes fridayTilt { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(-5deg)} }
-  @keyframes fridayDotPulse { 0%,100%{opacity:0.2} 50%{opacity:1} }
-  @keyframes fridaySpark { 0%,100%{opacity:0;transform:scale(0.5)} 40%,60%{opacity:1;transform:scale(1)} }
+  @keyframes fridayBreathe { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+  @keyframes fridayDotPulse { 0%,100%{opacity:0.25} 50%{opacity:1} }
+  @keyframes fridaySpark { 0%,100%{opacity:0} 40%,60%{opacity:1} }
   @keyframes fridayCursor { 0%,49%{opacity:1} 50%,100%{opacity:0} }
-  @keyframes fridayCelebrate { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes fridayCelebrate { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
   @keyframes fridayShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+  @keyframes fridayThinkPulse { 0%,100%{opacity:0.4;transform:scale(0.94)} 50%{opacity:1;transform:scale(1)} }
   @keyframes fridayTypeArm { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-  .fr-av-breathe { animation: fridayBreathe 3s ease-in-out infinite; transform-origin: center bottom; }
-  .fr-av-bob { animation: fridayBob 0.9s ease-in-out infinite; transform-origin: center bottom; }
-  .fr-av-tilt { animation: fridayTilt 2s ease-in-out infinite; transform-origin: 50% 70%; }
-  .fr-av-dot1 { animation: fridayDotPulse 1.4s ease-in-out infinite 0s; }
-  .fr-av-dot2 { animation: fridayDotPulse 1.4s ease-in-out infinite 0.47s; }
-  .fr-av-dot3 { animation: fridayDotPulse 1.4s ease-in-out infinite 0.94s; }
-  .fr-av-spark1 { animation: fridaySpark 0.9s ease-in-out infinite 0s; }
-  .fr-av-spark2 { animation: fridaySpark 0.9s ease-in-out infinite 0.3s; }
-  .fr-av-spark3 { animation: fridaySpark 0.9s ease-in-out infinite 0.6s; }
+  .fr-av-breathe { animation: fridayBreathe 3s ease-in-out infinite; }
+  .fr-av-dot1 { animation: fridayDotPulse 1.2s ease-in-out infinite 0s; }
+  .fr-av-dot2 { animation: fridayDotPulse 1.2s ease-in-out infinite 0.4s; }
+  .fr-av-dot3 { animation: fridayDotPulse 1.2s ease-in-out infinite 0.8s; }
+  .fr-av-spark1 { animation: fridaySpark 0.8s ease-in-out infinite 0s; }
+  .fr-av-spark2 { animation: fridaySpark 0.8s ease-in-out infinite 0.27s; }
+  .fr-av-spark3 { animation: fridaySpark 0.8s ease-in-out infinite 0.54s; }
   .fr-av-cursor { animation: fridayCursor 1s step-end infinite; }
-  .fr-av-celebrate { animation: fridayCelebrate 0.65s ease-in-out infinite; }
+  .fr-av-celebrate { animation: fridayCelebrate 0.6s ease-in-out infinite; }
   .fr-av-shake { animation: fridayShake 0.5s ease-in-out infinite; }
+  .fr-av-think { animation: fridayThinkPulse 1.5s ease-in-out infinite; }
   .fr-av-arm { animation: fridayTypeArm 0.4s ease-in-out infinite; }
   #friday-avatar-card {
     position: fixed; bottom: 24px; right: 24px; z-index: 999;
@@ -2336,14 +2334,7 @@ function showToolIndicator(bubbleId, tool) {
 function typewriterEffect(bubbleId, text) {
   const el = document.getElementById(bubbleId + '-text');
   if (!el) return;
-  try {
-    const html = cockpitMarkdown(text);
-    el.innerHTML = html || text;
-  } catch(e) {
-    el.textContent = text;
-  }
-  // Fallback: if nothing visible after markdown, set plain text
-  if (!el.textContent.replace(/▋/g, '').trim()) el.textContent = text;
+  el.innerHTML = cockpitMarkdown(text);
   const msgs = document.getElementById('cockpit-messages');
   if (msgs) msgs.scrollTop = msgs.scrollHeight;
 }
@@ -2385,9 +2376,6 @@ async function sendCockpitMessage(message, history, clientId, skillsetId, chatId
     const raw = data?.reply || data?.message || data?.content || 'No response received.';
     const fullReply = typeof raw === 'string' ? raw : JSON.stringify(raw);
     typewriterEffect(bubbleId, fullReply);
-    // Ensure text shows even if markdown fails
-    const _el = document.getElementById(bubbleId + '-text');
-    if (_el && !_el.textContent.replace(/▋/g, '').trim()) _el.textContent = fullReply;
     finalizeStreamBubble(bubbleId);
     return fullReply;
   }
@@ -2407,34 +2395,9 @@ async function sendCockpitMessage(message, history, clientId, skillsetId, chatId
       if (!line.startsWith('data: ')) continue;
       try {
         const event = JSON.parse(line.slice(6));
-        if (event.type === 'tool') {
-          showToolIndicator(bubbleId, event.data);
-          if (event.data && event.data.name === 'submit_build') {
-            window._fridayState = 'building';
-            window._fridayStatusText = 'Building…';
-            if (window._fridayForceRender) window._fridayForceRender();
-          }
-        }
-        if (event.type === 'reply') {
-          fullReply = event.data;
-          typewriterEffect(bubbleId, fullReply);
-          // Ensure text is visible even if markdown fails
-          const _el = document.getElementById(bubbleId + '-text');
-          if (_el && !_el.textContent.replace(/▋/g, '').trim()) _el.textContent = fullReply;
-        }
-        if (event.type === 'done') {
-          finalizeStreamBubble(bubbleId);
-          window._fridayState = 'done';
-          window._fridayStatusText = 'Done!';
-          if (window._fridayForceRender) window._fridayForceRender();
-          setTimeout(function() {
-            if (window._fridayState === 'done') {
-              window._fridayState = 'idle';
-              window._fridayStatusText = 'Ready';
-              if (window._fridayForceRender) window._fridayForceRender();
-            }
-          }, 3000);
-        }
+        if (event.type === 'tool') showToolIndicator(bubbleId, event.data);
+        if (event.type === 'reply') { fullReply = event.data; typewriterEffect(bubbleId, fullReply); }
+        if (event.type === 'done') finalizeStreamBubble(bubbleId);
       } catch(e) {}
     }
   }
@@ -2767,24 +2730,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (state === 'building') {
       return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
-        +'<g class="fr-av-bob">'
-        +'<rect x="38" y="22" width="44" height="8" rx="4" fill="#D97706"/>'
-        +'<rect x="56" y="17" width="8" height="13" rx="2" fill="#F59E0B"/>'
         +'<rect x="46" y="30" width="28" height="24" rx="6" fill="#1E3348"/>'
         +'<rect x="51" y="36" width="5" height="5" rx="1.5" fill="#D97706"/>'
         +'<rect x="64" y="36" width="5" height="5" rx="1.5" fill="#D97706"/>'
-        +'<rect x="53" y="47" width="14" height="2" rx="1" fill="#D97706" opacity="0.6"/>'
+        +'<rect x="38" y="22" width="44" height="8" rx="4" fill="#D97706"/>'
+        +'<rect x="56" y="18" width="8" height="12" rx="2" fill="#F59E0B"/>'
         +'<rect x="42" y="54" width="36" height="20" rx="6" fill="#2D4A6B"/>'
         +'<line x1="60" y1="54" x2="60" y2="74" stroke="#1E3348" stroke-width="1.5"/>'
+        +'<g class="fr-av-arm"><rect x="78" y="54" width="7" height="18" rx="3.5" fill="#2D4A6B"/>'
+        +'<rect x="82" y="68" width="14" height="5" rx="2" fill="#92400E" transform="rotate(-30 82 68)"/></g>'
         +'<rect x="35" y="56" width="7" height="14" rx="3.5" fill="#2D4A6B"/>'
         +'<rect x="48" y="74" width="10" height="14" rx="3" fill="#2D4A6B"/>'
         +'<rect x="62" y="74" width="10" height="14" rx="3" fill="#2D4A6B"/>'
-        +'<g class="fr-av-arm"><rect x="78" y="54" width="7" height="18" rx="3.5" fill="#2D4A6B"/>'
-        +'<rect x="82" y="67" width="14" height="5" rx="2" fill="#92400E" transform="rotate(-30 82 67)"/></g>'
-        +'</g>'
-        +'<circle class="fr-av-spark1" cx="97" cy="58" r="3" fill="#FBBF24"/>'
-        +'<circle class="fr-av-spark2" cx="103" cy="50" r="2.5" fill="#F59E0B"/>'
-        +'<circle class="fr-av-spark3" cx="94" cy="48" r="2" fill="#FCD34D"/>'
+        +'<circle class="fr-av-spark1" cx="96" cy="62" r="2.5" fill="#FBBF24"/>'
+        +'<circle class="fr-av-spark2" cx="100" cy="56" r="2" fill="#F59E0B"/>'
+        +'<circle class="fr-av-spark3" cx="93" cy="56" r="1.5" fill="#FCD34D"/>'
         +'</svg>';
     }
     if (state === 'coding') {
@@ -2805,7 +2765,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (state === 'thinking') {
       return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
-        +'<g class="fr-av-tilt">'
+        +'<g class="fr-av-think">'
         +'<rect x="46" y="34" width="28" height="24" rx="6" fill="#1E3348"/>'
         +'<rect x="51" y="40" width="5" height="5" rx="1.5" fill="#94A3B8"/>'
         +'<rect x="64" y="40" width="5" height="5" rx="1.5" fill="#94A3B8"/>'
@@ -2818,11 +2778,11 @@ document.addEventListener('DOMContentLoaded', function() {
         +'<rect x="48" y="78" width="10" height="14" rx="3" fill="#2D4A6B"/>'
         +'<rect x="62" y="78" width="10" height="14" rx="3" fill="#2D4A6B"/>'
         +'<rect x="35" y="72" width="10" height="8" rx="3" fill="#2D4A6B" transform="rotate(-15 35 72)"/>'
-        +'<circle cx="80" cy="20" r="15" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>'
-        +'<circle class="fr-av-dot1" cx="75" cy="20" r="2" fill="#64748B"/>'
-        +'<circle class="fr-av-dot2" cx="80" cy="20" r="2" fill="#64748B"/>'
-        +'<circle class="fr-av-dot3" cx="85" cy="20" r="2" fill="#64748B"/>'
-        +'<path d="M67 33 L72 26" stroke="#CBD5E1" stroke-width="1.5"/>'
+        +'<circle cx="78" cy="22" r="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>'
+        +'<circle class="fr-av-dot1" cx="74" cy="22" r="1.8" fill="#64748B"/>'
+        +'<circle class="fr-av-dot2" cx="78" cy="22" r="1.8" fill="#64748B"/>'
+        +'<circle class="fr-av-dot3" cx="82" cy="22" r="1.8" fill="#64748B"/>'
+        +'<path d="M66 34 L70 26" stroke="#CBD5E1" stroke-width="1.5"/>'
         +'</svg>';
     }
     if (state === 'done') {
@@ -2919,14 +2879,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof setMode === 'function') setMode('cockpit');
   };
 
-  // Expose force-render so external code (streaming) can push state changes immediately
-  window._fridayForceRender = function(state, statusText) {
-    if (state !== undefined) window._fridayState = state;
-    if (statusText !== undefined) window._fridayStatusText = statusText;
-    _fridayLastRenderedState = null;
-    _fridayRender();
-  };
-
   function _fridayInitAvatar() {
     fridayAvatarShow();
     if (_fridayAvatarInterval) clearInterval(_fridayAvatarInterval);
@@ -2965,7 +2917,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window._fridayStatusText = _FRIDAY_STATUS.idle;
             _fridayLastRenderedState = null; _fridayRender();
           }
-        }, 3000);
+        }, 5000);
       };
     }
 
