@@ -685,6 +685,7 @@ async function doLogin() {
       <button class="sb-nav-item" id="tab-clients" onclick="setMode('clients')"><span class="sb-icon">👥</span>All Clients</button>
       <div class="sb-section-label">Control</div>
       <button class="sb-nav-item active" id="tab-friday" onclick="setMode('friday')"><span class="sb-icon">🤖</span>Cockpit</button>
+      <button class="sb-nav-item" id="tab-terminal" onclick="showTerminal()"><span class="sb-icon" style="font-family:monospace;font-size:13px;">&gt;_</span>Terminal</button>
       <button class="sb-nav-item" id="tab-feedback" onclick="setMode('feedback')"><span class="sb-icon">💬</span>Feedback</button>
     </div>
     <div class="sb-user">
@@ -1000,6 +1001,22 @@ async function doLogin() {
     </div>
     </div><!-- /page-body -->
   </div><!-- /mode-feedback -->
+
+  <!-- ====================================================== -->
+  <!-- TERMINAL                                               -->
+  <!-- ====================================================== -->
+  <div id="view-terminal" class="mode-content hidden" style="display:none;flex-direction:column;background:#0F172A;height:100%;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;height:40px;min-height:40px;background:#1E3348;padding:0 16px;flex-shrink:0;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fff;font-weight:500;">&gt;_ Terminal</span>
+      <div style="display:flex;gap:6px;">
+        <button onclick="terminalOpenSession('bash')" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:11px;font-family:var(--font);border-radius:4px;padding:4px 10px;cursor:pointer;">Bash</button>
+        <button onclick="terminalOpenSession('claude')" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:11px;font-family:var(--font);border-radius:4px;padding:4px 10px;cursor:pointer;">Claude Code</button>
+        <button onclick="terminalOpenSession('pm2')" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:11px;font-family:var(--font);border-radius:4px;padding:4px 10px;cursor:pointer;">PM2 Logs</button>
+      </div>
+    </div>
+    <iframe id="terminal-iframe" src="" style="border:none;width:100%;flex:1;display:block;" allow="clipboard-read; clipboard-write"></iframe>
+  </div><!-- /view-terminal -->
+
     </div><!-- /page -->
   </div><!-- /app-main -->
 </div><!-- /app-wrapper -->
@@ -1190,6 +1207,11 @@ function industryTopColor(industry) {
 let currentMode = 'friday';
 function setMode(mode) {
   currentMode = mode;
+  // Hide terminal when switching to any standard mode
+  const terminalEl = document.getElementById('view-terminal');
+  if (terminalEl) terminalEl.style.display = 'none';
+  const terminalTab = document.getElementById('tab-terminal');
+  if (terminalTab) terminalTab.classList.remove('active');
   ['friday','dashboard','intake','clients','builds','feedback'].forEach(m => {
     const el = document.getElementById('mode-' + m);
     if (el) el.classList.toggle('hidden', m !== mode);
@@ -1201,6 +1223,30 @@ function setMode(mode) {
   if (mode === 'dashboard') loadDashboardData();
   if (mode === 'clients') loadClientsData();
   if (mode === 'builds') loadBuildsData();
+}
+
+function showTerminal() {
+  // Hide all standard mode views
+  ['friday','dashboard','intake','clients','builds','feedback'].forEach(m => {
+    const el = document.getElementById('mode-' + m);
+    if (el) el.classList.add('hidden');
+    const tab = document.getElementById('tab-' + m);
+    if (tab) tab.classList.remove('active');
+  });
+  // Show terminal
+  const terminalEl = document.getElementById('view-terminal');
+  if (terminalEl) terminalEl.style.display = 'flex';
+  const terminalTab = document.getElementById('tab-terminal');
+  if (terminalTab) terminalTab.classList.add('active');
+  // Load default session if not already set
+  const iframe = document.getElementById('terminal-iframe');
+  if (iframe && !iframe.src) iframe.src = 'http://5.223.79.255:7681';
+}
+
+function terminalOpenSession(type) {
+  const iframe = document.getElementById('terminal-iframe');
+  if (!iframe) return;
+  iframe.src = 'http://5.223.79.255:7681';
 }
 
 // ===== DASHBOARD =====
