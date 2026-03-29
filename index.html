@@ -179,20 +179,38 @@
     /* ===== COCKPIT CHAT ===== */
     #mode-friday { display: flex; flex-direction: row; height: calc(100vh - 180px); min-height: 500px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
     /* Sidebar */
-    .cockpit-sidebar { width: 260px; min-width: 260px; background: #1E3348; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.08); overflow: hidden; flex-shrink: 0; }
-    .cs-header { padding: 16px 12px 8px; flex-shrink: 0; }
-    .cs-title { font-size: 12px; font-weight: 700; color: #fff; font-family: var(--font); letter-spacing: 0.02em; }
-    .cs-new-btn { display: block; width: 100%; margin-top: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 12px; padding: 8px 12px; cursor: pointer; font-family: var(--font); text-align: left; transition: background 0.15s; }
+    .cockpit-sidebar { width: 260px; min-width: 260px; background: #0F172A; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.07); overflow: hidden; flex-shrink: 0; }
+    /* Logo row */
+    .cs-logo-row { display: flex; align-items: center; gap: 8px; padding: 16px 16px 14px; flex-shrink: 0; }
+    .cs-logo-badge { width: 24px; height: 24px; border-radius: 50%; background: #1E3348; color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cs-logo-text { font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.02em; }
+    /* Context selectors */
+    .cs-selectors { padding: 0 12px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+    .cs-select { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 12px; font-family: var(--font); outline: none; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+    .cs-select:focus { border-color: rgba(74,143,214,0.5); }
+    .cs-select option { background: #1E293B; color: #fff; }
+    /* New chat btn */
+    .cs-new-section { padding: 0 12px 8px; flex-shrink: 0; }
+    .cs-new-btn { display: block; width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 12px; padding: 8px 12px; cursor: pointer; font-family: var(--font); text-align: left; transition: background 0.15s; }
     .cs-new-btn:hover { background: rgba(255,255,255,0.14); }
-    .cs-list { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
-    .cs-list::-webkit-scrollbar { width: 4px; } .cs-list::-webkit-scrollbar-track { background: transparent; } .cs-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-    .cs-group-label { font-size: 10px; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; padding: 12px 12px 4px; }
-    .cs-item { padding: 8px 12px; border-radius: 6px; cursor: pointer; margin: 1px 4px; transition: background 0.15s; }
-    .cs-item:hover { background: rgba(255,255,255,0.06); }
-    .cs-item.active { background: rgba(255,255,255,0.1); }
-    .cs-item-title { font-size: 12px; color: #94A3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Chat list */
+    .cs-list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
+    .cs-list::-webkit-scrollbar { width: 3px; } .cs-list::-webkit-scrollbar-track { background: transparent; } .cs-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .cs-group-label { font-size: 10px; color: #334155; text-transform: uppercase; letter-spacing: 0.08em; padding: 12px 8px 4px; }
+    .cs-item { padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s; position: relative; border-left: 2px solid transparent; }
+    .cs-item:hover { background: rgba(255,255,255,0.05); }
+    .cs-item.active { background: rgba(255,255,255,0.1); border-left-color: #4A8FD6; }
+    .cs-item-title { font-size: 12px; font-weight: 500; color: #94A3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cs-item.active .cs-item-title { color: #fff; }
-    .cs-item-time { font-size: 10px; color: #475569; margin-top: 2px; }
+    .cs-item-meta { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .cs-item-time { font-size: 10px; color: #475569; }
+    .cs-item-badge { font-size: 9px; background: #334155; color: #64748B; border-radius: 4px; padding: 1px 5px; }
+    .cs-item-summary { font-size: 11px; color: #475569; margin-top: 3px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    /* Bottom user row */
+    .cs-user-row { padding: 12px; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+    .cs-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: #1E3348; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cs-user-name { font-size: 12px; font-weight: 600; color: #fff; }
+    .cs-user-role { font-size: 10px; color: #64748B; margin-top: 1px; }
     /* Right pane */
     .cockpit-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .cockpit-header { display: flex; align-items: center; justify-content: space-between; height: 48px; min-height: 48px; background: var(--nav); padding: 0 16px; flex-shrink: 0; }
@@ -682,12 +700,35 @@ async function doLogin() {
   <div id="mode-friday" class="mode-content">
     <!-- LEFT SIDEBAR -->
     <div class="cockpit-sidebar" id="cockpit-sidebar">
-      <div class="cs-header">
-        <div class="cs-title">FRIDAY Cockpit</div>
+      <!-- Section 1: Logo -->
+      <div class="cs-logo-row">
+        <div class="cs-logo-badge">FR</div>
+        <div class="cs-logo-text">FRIDAY Cockpit</div>
+      </div>
+      <!-- Section 2: Context Selectors -->
+      <div class="cs-selectors">
+        <select class="cs-select" id="cs-client-select" onchange="onCockpitClientChange(this)">
+          <option value="">— General —</option>
+        </select>
+        <select class="cs-select" id="cs-skillset-select" onchange="onCockpitSkillsetChange(this)" style="display:none;">
+          <option value="">— All Skillsets —</option>
+        </select>
+      </div>
+      <!-- Section 3: New Chat -->
+      <div class="cs-new-section">
         <button class="cs-new-btn" onclick="cockpitNewChat()">+ New Chat</button>
       </div>
+      <!-- Section 4: Chat List -->
       <div class="cs-list" id="cs-list">
-        <div style="padding:20px 12px;font-size:11px;color:#475569;">Loading chats…</div>
+        <div style="padding:16px 8px;font-size:11px;color:#475569;">Loading chats…</div>
+      </div>
+      <!-- Section 5: User -->
+      <div class="cs-user-row">
+        <div class="cs-user-avatar">B</div>
+        <div>
+          <div class="cs-user-name">Brian</div>
+          <div class="cs-user-role">Build Lead</div>
+        </div>
       </div>
     </div>
     <!-- RIGHT PANE -->
@@ -705,11 +746,7 @@ async function doLogin() {
         </div>
       </div>
       <div class="cockpit-messages" id="cockpit-messages">
-        <div class="cockpit-empty" id="cockpit-empty">
-          <div class="cockpit-avatar-lg">FR</div>
-          <div class="cockpit-greeting" id="cockpit-greeting"></div>
-          <div class="cockpit-tagline">What are we building today?</div>
-        </div>
+        <div class="cockpit-empty" id="cockpit-empty"></div>
       </div>
       <div class="cockpit-input-bar">
         <div class="cockpit-chips">
@@ -1817,17 +1854,80 @@ window._cockpitHistory = [];
 window._currentChatId = null;
 window._currentChatMessages = [];
 window._allChats = [];
+window._cockpitClientId = null;
+window._cockpitClientName = null;
+window._cockpitSkillsetId = null;
 
 function cockpitTimeNow() {
   return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 }
 
 function initCockpit() {
-  const h = new Date().getHours();
-  const greeting = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
-  const g = document.getElementById('cockpit-greeting');
-  if (g) g.textContent = greeting;
+  cockpitShowEmpty();
+  loadCockpitClients();
   loadCockpitChats();
+}
+
+async function loadCockpitClients() {
+  const sel = document.getElementById('cs-client-select');
+  if (!sel) return;
+  try {
+    const resp = await fetch(SB_URL + '/rest/v1/friday_customers?select=id,name,health_score&order=name.asc', {
+      headers: {'apikey': SB_SERVICE_KEY, 'Authorization': 'Bearer ' + SB_SERVICE_KEY}
+    });
+    const clients = await resp.json();
+    if (!Array.isArray(clients)) return;
+    window._cockpitClients = clients;
+    sel.innerHTML = '<option value="">— General —</option>';
+    clients.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+function onCockpitClientChange(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  window._cockpitClientId = sel.value || null;
+  window._cockpitClientName = sel.value ? opt.textContent : null;
+  window._cockpitSkillsetId = null;
+  const ssSel = document.getElementById('cs-skillset-select');
+  if (ssSel) {
+    ssSel.innerHTML = '<option value="">— All Skillsets —</option>';
+    ssSel.style.display = sel.value ? 'block' : 'none';
+  }
+  if (sel.value) loadCockpitSkillsets(sel.value);
+  renderCockpitSidebar();
+  if (!window._currentChatId) cockpitShowEmpty();
+}
+
+async function loadCockpitSkillsets(clientId) {
+  const sel = document.getElementById('cs-skillset-select');
+  if (!sel) return;
+  try {
+    const resp = await fetch(SB_URL + '/rest/v1/friday_skillsets?customer_id=eq.' + clientId + '&select=id,name,version,primary_platform&order=name.asc', {
+      headers: {'apikey': SB_SERVICE_KEY, 'Authorization': 'Bearer ' + SB_SERVICE_KEY}
+    });
+    const skills = await resp.json();
+    if (!Array.isArray(skills)) return;
+    window._cockpitSkillsets = skills;
+    sel.innerHTML = '<option value="">— All Skillsets —</option>';
+    skills.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.dataset.name = s.name;
+      opt.textContent = s.name + (s.version ? ' v' + s.version : '') + (s.primary_platform ? ' · ' + s.primary_platform : '');
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+function onCockpitSkillsetChange(sel) {
+  window._cockpitSkillsetId = sel.value || null;
+  renderCockpitSidebar();
+  if (!window._currentChatId) cockpitShowEmpty();
 }
 
 function cockpitEscapeHtml(s) {
@@ -1867,10 +1967,73 @@ function cockpitHideEmpty() {
 function cockpitShowEmpty() {
   const msgs = document.getElementById('cockpit-messages');
   if (!msgs) return;
-  msgs.innerHTML = '<div class="cockpit-empty" id="cockpit-empty"><div class="cockpit-avatar-lg">FR</div><div class="cockpit-greeting" id="cockpit-greeting"></div><div class="cockpit-tagline">What are we building today?</div></div>';
-  const h = new Date().getHours();
-  const g = document.getElementById('cockpit-greeting');
-  if (g) g.textContent = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
+  msgs.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'cockpit-empty';
+  wrap.id = 'cockpit-empty';
+
+  if (window._cockpitSkillsetId) {
+    // Skillset selected state
+    const ss = (window._cockpitSkillsets || []).find(s => s.id === window._cockpitSkillsetId);
+    const ssName = ss ? ss.name : 'Skillset';
+    const platform = ss ? (ss.primary_platform || '') : '';
+    const version = ss ? (ss.version ? 'v' + ss.version : '') : '';
+    const subtitle = [platform, version].filter(Boolean).join(' · ');
+    wrap.innerHTML =
+      '<div style="width:64px;height:64px;border-radius:50%;background:var(--accent);color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + esc(ssName.slice(0,2).toUpperCase()) + '</div>' +
+      '<div class="cockpit-greeting">' + esc(ssName) + '</div>' +
+      (subtitle ? '<div class="cockpit-tagline">' + esc(subtitle) + '</div>' : '') +
+      '<div class="cockpit-chips" style="margin-top:8px;">' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Check n8n status\')">Check n8n status</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'View last build\')">View last build</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Show credentials\')">Show credentials</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Run health check\')">Run health check</button>' +
+      '</div>';
+  } else if (window._cockpitClientId && window._cockpitClientName) {
+    // Client selected state
+    const clientChats = (window._allChats || []).filter(c => c.client_name === window._cockpitClientName).slice(0, 3);
+    const initials = window._cockpitClientName.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const colors = ['#4A8FD6','#16A34A','#7C3AED','#D97706','#DC2626'];
+    const colorIdx = window._cockpitClientName.charCodeAt(0) % colors.length;
+    const color = colors[colorIdx];
+    let recentHtml = '';
+    if (clientChats.length) {
+      recentHtml = '<div style="width:100%;max-width:320px;margin-top:8px;">';
+      clientChats.forEach(c => {
+        recentHtml += '<div onclick="cockpitOpenChat(\'' + c.id + '\')" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;background:#fff;text-align:left;" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
+          '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(c.title || c.project_name || 'Chat') + '</div>' +
+          '<div style="font-size:10px;color:var(--text-dim);margin-top:2px;">' + relTime(c.updated_at) + '</div>' +
+        '</div>';
+      });
+      recentHtml += '</div>';
+    }
+    wrap.innerHTML =
+      '<div style="width:64px;height:64px;border-radius:50%;background:' + color + ';color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + initials + '</div>' +
+      '<div class="cockpit-greeting">' + esc(window._cockpitClientName) + '</div>' +
+      '<div class="cockpit-tagline">Select a skillset or start a new chat</div>' +
+      recentHtml +
+      '<div class="cockpit-chips" style="margin-top:8px;">' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Show builds\')">Show builds</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Check workflows\')">Check workflows</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'View skillsets\')">View skillsets</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Run audit\')">Run audit</button>' +
+      '</div>';
+  } else {
+    // General / no client state
+    const h = new Date().getHours();
+    const greeting = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
+    wrap.innerHTML =
+      '<div class="cockpit-avatar-lg">FR</div>' +
+      '<div class="cockpit-greeting">' + greeting + '</div>' +
+      '<div class="cockpit-tagline">What are we building today?</div>' +
+      '<div class="cockpit-chips" style="margin-top:8px;">' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Show active builds\')">Show active builds</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Check server health\')">Check server health</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'List n8n workflows\')">List n8n workflows</button>' +
+        '<button class="cockpit-chip" onclick="cockpitSendChip(\'Recent errors\')">Recent errors</button>' +
+      '</div>';
+  }
+  msgs.appendChild(wrap);
 }
 
 function cockpitAppendUser(text) {
@@ -1933,27 +2096,55 @@ async function loadCockpitChats() {
 function renderCockpitSidebar() {
   const list = document.getElementById('cs-list');
   if (!list) return;
-  const chats = window._allChats;
+  let chats = (window._allChats || []).slice();
+
+  // Filter by client
+  if (window._cockpitClientId && window._cockpitClientName) {
+    chats = chats.filter(c => c.client_name === window._cockpitClientName);
+  }
+  // Filter by skillset
+  if (window._cockpitSkillsetId) {
+    chats = chats.filter(c => c.skillset_id === window._cockpitSkillsetId);
+  }
+
   if (!chats.length) {
-    list.innerHTML = '<div style="padding:16px 12px;font-size:11px;color:#475569;">No chats yet. Start one!</div>';
+    list.innerHTML = '<div style="padding:16px 8px;font-size:11px;color:#475569;">No chats yet. Start one!</div>';
     return;
   }
-  const groups = {};
+
+  // Group by date bucket
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+  const yesterdayStr = yesterday.toDateString();
+  const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+
+  const buckets = {TODAY: [], YESTERDAY: [], 'THIS WEEK': [], OLDER: []};
   chats.forEach(c => {
-    const key = c.client_name || 'General';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(c);
+    const d = c.updated_at ? new Date(c.updated_at) : new Date(0);
+    const ds = d.toDateString();
+    if (ds === todayStr) buckets.TODAY.push(c);
+    else if (ds === yesterdayStr) buckets.YESTERDAY.push(c);
+    else if (d >= weekAgo) buckets['THIS WEEK'].push(c);
+    else buckets.OLDER.push(c);
   });
+
   let html = '';
-  Object.keys(groups).forEach(client => {
-    html += '<div class="cs-group-label">' + esc(client) + '</div>';
-    groups[client].forEach(c => {
+  ['TODAY','YESTERDAY','THIS WEEK','OLDER'].forEach(label => {
+    const group = buckets[label];
+    if (!group.length) return;
+    html += '<div class="cs-group-label">' + label + '</div>';
+    group.forEach(c => {
       const active = c.id === window._currentChatId ? ' active' : '';
       const title = esc(c.title || c.project_name || 'New Chat');
       const time = relTime(c.updated_at);
+      const clientBadge = (!window._cockpitClientId && c.client_name && c.client_name !== 'General')
+        ? '<span class="cs-item-badge">' + esc(c.client_name.slice(0,12)) + '</span>' : '';
+      const summary = c.summary ? '<div class="cs-item-summary">' + esc(c.summary) + '</div>' : '';
       html += '<div class="cs-item' + active + '" onclick="cockpitOpenChat(\'' + c.id + '\')">' +
         '<div class="cs-item-title">' + title + '</div>' +
-        '<div class="cs-item-time">' + time + '</div>' +
+        '<div class="cs-item-meta"><span class="cs-item-time">' + time + '</span>' + clientBadge + '</div>' +
+        summary +
         '</div>';
     });
   });
@@ -1967,7 +2158,7 @@ function cockpitNewChat() {
   const titleEl = document.getElementById('cockpit-chat-title');
   if (titleEl) titleEl.textContent = 'Cockpit';
   cockpitShowEmpty();
-  document.querySelectorAll('.cs-item').forEach(el => el.classList.remove('active'));
+  renderCockpitSidebar();
 }
 
 function cockpitOpenChat(id) {
@@ -2007,15 +2198,41 @@ async function cockpitPersistNewChat(firstMsg, firstReply) {
     {role: 'user', content: firstMsg, timestamp: now},
     {role: 'assistant', content: firstReply, timestamp: now}
   ];
-  const payload = {client_name: 'General', project_name: 'New Chat', title, messages, created_at: now, updated_at: now};
-  const result = await sbFetch('cockpit_chats', 'POST', payload);
-  if (result && result[0]) {
-    window._currentChatId = result[0].id;
-    window._currentChatMessages = messages;
-    window._allChats.unshift(result[0]);
-    renderCockpitSidebar();
-    cockpitAutoTitle(result[0].id, messages);
-  }
+  const clientName = window._cockpitClientName || 'General';
+  const mode = window._cockpitClientId ? (window._cockpitSkillsetId ? 'skillset' : 'client') : 'general';
+  const payload = {
+    title,
+    client_name: clientName,
+    customer_id: window._cockpitClientId || null,
+    skillset_id: window._cockpitSkillsetId || null,
+    mode,
+    messages,
+    message_count: messages.length,
+    last_message: firstMsg.slice(0, 100),
+    project_name: 'New Chat',
+    created_at: now,
+    updated_at: now
+  };
+  try {
+    const resp = await fetch(SB_URL + '/rest/v1/cockpit_chats', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_SERVICE_KEY,
+        'Authorization': 'Bearer ' + SB_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await resp.json();
+    if (result && result[0]) {
+      window._currentChatId = result[0].id;
+      window._currentChatMessages = messages;
+      window._allChats.unshift(result[0]);
+      renderCockpitSidebar();
+      cockpitAutoTitle(result[0].id, messages);
+    }
+  } catch(e) {}
 }
 
 async function cockpitPersistUpdate(msg, reply) {
@@ -2023,7 +2240,13 @@ async function cockpitPersistUpdate(msg, reply) {
   const now = new Date().toISOString();
   window._currentChatMessages.push({role: 'user', content: msg, timestamp: now});
   window._currentChatMessages.push({role: 'assistant', content: reply, timestamp: now});
-  const payload = {messages: window._currentChatMessages, updated_at: now};
+  const lastContent = (window._currentChatMessages[window._currentChatMessages.length - 2] || {}).content || '';
+  const payload = {
+    messages: window._currentChatMessages,
+    message_count: window._currentChatMessages.length,
+    last_message: lastContent.slice(0, 100),
+    updated_at: now
+  };
   try {
     await fetch(SB_URL + '/rest/v1/cockpit_chats?id=eq.' + window._currentChatId, {
       method: 'PATCH',
@@ -2031,7 +2254,11 @@ async function cockpitPersistUpdate(msg, reply) {
       body: JSON.stringify(payload)
     });
     const idx = window._allChats.findIndex(c => c.id === window._currentChatId);
-    if (idx !== -1) { window._allChats[idx].messages = window._currentChatMessages; window._allChats[idx].updated_at = now; }
+    if (idx !== -1) {
+      window._allChats[idx].messages = window._currentChatMessages;
+      window._allChats[idx].updated_at = now;
+      window._allChats[idx].last_message = lastContent.slice(0, 100);
+    }
     renderCockpitSidebar();
   } catch(e) {}
 }
@@ -2039,7 +2266,7 @@ async function cockpitPersistUpdate(msg, reply) {
 async function cockpitAutoTitle(chatId, messages) {
   if (!messages || messages.length < 2) return;
   try {
-    const resp = await fetch('/api/cockpit', {
+    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
       body: JSON.stringify({
@@ -2081,10 +2308,16 @@ async function cockpitSend() {
   sendBtn.disabled = true;
   let reply = '';
   try {
-    const resp = await fetch('/api/cockpit', {
+    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
-      body: JSON.stringify({message: msg, history: window._cockpitHistory.slice(-10)})
+      body: JSON.stringify({
+        message: msg,
+        history: window._cockpitHistory.slice(-10),
+        client_id: window._cockpitClientId || null,
+        skillset_id: window._cockpitSkillsetId || null,
+        chat_id: window._currentChatId || null
+      })
     });
     const data = await resp.json();
     cockpitHideTyping();
