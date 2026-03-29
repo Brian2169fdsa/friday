@@ -1009,9 +1009,9 @@ async function doLogin() {
     <div style="height:40px;background:#1E3348;display:flex;align-items:center;justify-content:space-between;padding:0 20px;">
       <span style="color:white;font-family:monospace;font-size:13px;">&gt;_ Terminal</span>
       <div style="display:flex;gap:8px;">
-        <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:rgba(255,255,255,0.1);color:white;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">Bash</button>
-        <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:rgba(74,143,214,0.3);color:#4A8FD6;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">Claude Code</button>
-        <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:rgba(255,255,255,0.1);color:white;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">PM2 Logs</button>
+        <button onclick="window.open('https://5.223.79.255:7682','_blank')" style="background:rgba(255,255,255,0.1);color:white;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">Bash</button>
+        <button onclick="window.open('https://5.223.79.255:7682','_blank')" style="background:rgba(74,143,214,0.3);color:#4A8FD6;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">Claude Code</button>
+        <button onclick="window.open('https://5.223.79.255:7682','_blank')" style="background:rgba(255,255,255,0.1);color:white;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">PM2 Logs</button>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 40px);gap:20px;">
@@ -1021,7 +1021,7 @@ async function doLogin() {
         Opens in a new browser tab. Log in with:<br>
         <span style="color:#4A8FD6;font-family:monospace;">brian / ManageAI2026</span>
       </div>
-      <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:#4A8FD6;color:white;border:none;border-radius:8px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;">Open Terminal ↗</button>
+      <button onclick="window.open('https://5.223.79.255:7682','_blank')" style="background:#4A8FD6;color:white;border:none;border-radius:8px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;">Open Terminal ↗</button>
       <div style="color:#1E3348;font-size:11px;font-family:monospace;">5.223.79.255:7681</div>
     </div>
   </div><!-- /view-terminal -->
@@ -1249,13 +1249,13 @@ function showTerminal() {
   if (terminalTab) terminalTab.classList.add('active');
   // Load default session if not already set
   const iframe = document.getElementById('terminal-iframe');
-  if (iframe && !iframe.src) iframe.src = 'http://5.223.79.255:7681';
+  if (iframe && !iframe.src) iframe.src = 'https://5.223.79.255:7682';
 }
 
 function terminalOpenSession(type) {
   const iframe = document.getElementById('terminal-iframe');
   if (!iframe) return;
-  iframe.src = 'http://5.223.79.255:7681';
+  iframe.src = 'https://5.223.79.255:7682';
 }
 
 // ===== DASHBOARD =====
