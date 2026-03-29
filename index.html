@@ -238,20 +238,6 @@
     #cockpit-send { background: var(--nav); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0; transition: opacity 0.15s; font-family: var(--font); }
     #cockpit-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* ===== COCKPIT CONTEXT SELECTORS ===== */
-    .cs-selectors { padding: 0 12px 4px; }
-    .cs-select { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; font-size: 12px; padding: 6px 10px; margin-bottom: 6px; font-family: var(--font); outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; display: block; }
-    .cs-select option { background: #1E3348; color: #fff; }
-    .cs-select:focus { border-color: rgba(255,255,255,0.3); }
-    .cs-item-summary { font-size: 10px; color: #475569; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cs-item.active .cs-item-summary { color: #64748B; }
-    .cockpit-empty .cs-session-recall { width: 100%; max-width: 320px; margin-top: 4px; }
-    .cockpit-empty .cs-session-title { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-    .cockpit-empty .cs-session-item { padding: 9px 12px; border-radius: 8px; cursor: pointer; background: rgba(30,51,72,0.06); margin-bottom: 6px; transition: background 0.15s; border: 1px solid rgba(30,51,72,0.1); }
-    .cockpit-empty .cs-session-item:hover { background: rgba(30,51,72,0.1); }
-    .cockpit-empty .cs-session-item-title { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cockpit-empty .cs-session-item-date { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
-
     /* ===== CLIENTS ===== */
     .client-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .client-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px; cursor: pointer; transition: background 0.15s; }
@@ -623,14 +609,6 @@ async function doLogin() {
     <div class="cockpit-sidebar" id="cockpit-sidebar">
       <div class="cs-header">
         <div class="cs-title">FRIDAY Cockpit</div>
-        <div class="cs-selectors">
-          <select class="cs-select" id="cockpit-client-select" onchange="onCockpitClientChange(this)">
-            <option value="">All Clients</option>
-          </select>
-          <select class="cs-select" id="cockpit-skillset-select" onchange="onCockpitSkillsetChange(this)" style="display:none;">
-            <option value="">All Skillsets</option>
-          </select>
-        </div>
         <button class="cs-new-btn" onclick="cockpitNewChat()">+ New Chat</button>
       </div>
       <div class="cs-list" id="cs-list">
@@ -1764,9 +1742,6 @@ window._cockpitHistory = [];
 window._currentChatId = null;
 window._currentChatMessages = [];
 window._allChats = [];
-window._cockpitClientId = null;
-window._cockpitClientName = null;
-window._cockpitSkillsetId = null;
 
 function cockpitTimeNow() {
   return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
@@ -1777,7 +1752,6 @@ function initCockpit() {
   const greeting = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
   const g = document.getElementById('cockpit-greeting');
   if (g) g.textContent = greeting;
-  loadCockpitClients();
   loadCockpitChats();
 }
 
@@ -1818,30 +1792,10 @@ function cockpitHideEmpty() {
 function cockpitShowEmpty() {
   const msgs = document.getElementById('cockpit-messages');
   if (!msgs) return;
+  msgs.innerHTML = '<div class="cockpit-empty" id="cockpit-empty"><div class="cockpit-avatar-lg">FR</div><div class="cockpit-greeting" id="cockpit-greeting"></div><div class="cockpit-tagline">What are we building today?</div></div>';
   const h = new Date().getHours();
-  const greeting = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
-  // CHANGE 4: client selected → show session recall
-  if (window._cockpitClientId && window._cockpitClientName && window._allChats.length) {
-    const clientChats = window._allChats.filter(c => c.client_name === window._cockpitClientName).slice(0, 3);
-    const recentHtml = clientChats.length
-      ? clientChats.map(c =>
-          '<div class="cs-session-item" onclick="cockpitOpenChat('' + c.id + '')">' +
-          '<div class="cs-session-item-title">' + esc(c.title || c.project_name || 'Untitled') + '</div>' +
-          '<div class="cs-session-item-date">' + relTime(c.updated_at) + '</div>' +
-          '</div>'
-        ).join('')
-      : '<div style="font-size:11px;color:var(--text-dim);padding:4px 0;">No previous sessions.</div>';
-    msgs.innerHTML = '<div class="cockpit-empty">' +
-      '<div class="cockpit-avatar-lg">FR</div>' +
-      '<div class="cockpit-greeting">' + esc(greeting) + '</div>' +
-      '<div class="cockpit-tagline" style="font-weight:700;color:var(--accent);margin-bottom:16px;">' + esc(window._cockpitClientName) + '</div>' +
-      '<div class="cs-session-recall"><div class="cs-session-title">Recent Sessions</div>' + recentHtml + '</div>' +
-      '</div>';
-  } else {
-    msgs.innerHTML = '<div class="cockpit-empty" id="cockpit-empty"><div class="cockpit-avatar-lg">FR</div><div class="cockpit-greeting" id="cockpit-greeting"></div><div class="cockpit-tagline">What are we building today?</div></div>';
-    const g = document.getElementById('cockpit-greeting');
-    if (g) g.textContent = greeting;
-  }
+  const g = document.getElementById('cockpit-greeting');
+  if (g) g.textContent = h < 12 ? 'Good morning, Brian' : h < 18 ? 'Good afternoon, Brian' : 'Good evening, Brian';
 }
 
 function cockpitAppendUser(text) {
@@ -1944,10 +1898,6 @@ function cockpitNewChat() {
 function cockpitOpenChat(id) {
   const chat = window._allChats.find(c => c.id === id);
   if (!chat) return;
-  // CHANGE 3: summarize current chat in background before switching
-  if (window._currentChatId && window._currentChatId !== id && window._currentChatMessages.length > 3) {
-    cockpitSummarizeInBackground(window._currentChatId, window._currentChatMessages.slice());
-  }
   window._currentChatId = id;
   window._currentChatMessages = Array.isArray(chat.messages) ? chat.messages : [];
   window._cockpitHistory = window._currentChatMessages.map(m => ({role: m.role, content: m.content}));
@@ -1982,8 +1932,7 @@ async function cockpitPersistNewChat(firstMsg, firstReply) {
     {role: 'user', content: firstMsg, timestamp: now},
     {role: 'assistant', content: firstReply, timestamp: now}
   ];
-  const clientName = window._cockpitClientName || 'General';
-  const payload = {client_name: clientName, project_name: 'New Chat', title, messages, created_at: now, updated_at: now};
+  const payload = {client_name: 'General', project_name: 'New Chat', title, messages, created_at: now, updated_at: now};
   const result = await sbFetch('cockpit_chats', 'POST', payload);
   if (result && result[0]) {
     window._currentChatId = result[0].id;
@@ -2015,7 +1964,7 @@ async function cockpitPersistUpdate(msg, reply) {
 async function cockpitAutoTitle(chatId, messages) {
   if (!messages || messages.length < 2) return;
   try {
-    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
+    const resp = await fetch('/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
       body: JSON.stringify({
@@ -2057,16 +2006,10 @@ async function cockpitSend() {
   sendBtn.disabled = true;
   let reply = '';
   try {
-    const resp = await fetch('http://5.223.79.255:3000/api/cockpit', {
+    const resp = await fetch('/api/cockpit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
-      body: JSON.stringify({
-        message: msg,
-        history: window._cockpitHistory.slice(-10),
-        client_id: window._cockpitClientId || null,
-        skillset_id: window._cockpitSkillsetId || null,
-        chat_id: window._currentChatId || null
-      })
+      body: JSON.stringify({message: msg, history: window._cockpitHistory.slice(-10)})
     });
     const data = await resp.json();
     cockpitHideTyping();
@@ -2092,83 +2035,6 @@ function cockpitSendChip(text) {
   const input = document.getElementById('cockpit-input');
   if (input) { input.value = text; }
   cockpitSend();
-}
-
-// ===== COCKPIT CLIENT/SKILLSET CONTEXT =====
-async function loadCockpitClients() {
-  const sel = document.getElementById('cockpit-client-select');
-  if (!sel) return;
-  try {
-    const r = await fetch(SB_URL + '/rest/v1/friday_customers?select=id,name&order=name.asc', {
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
-    });
-    const clients = await r.json();
-    if (!Array.isArray(clients)) return;
-    sel.innerHTML = '<option value="">All Clients</option>' +
-      clients.map(c => '<option value="' + esc(c.id) + '">' + esc(c.name) + '</option>').join('');
-  } catch(e) {}
-}
-
-async function onCockpitClientChange(sel) {
-  const clientId = sel.value;
-  window._cockpitClientId = clientId || null;
-  window._cockpitClientName = clientId ? (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : null) : null;
-  window._cockpitSkillsetId = null;
-  const ssSel = document.getElementById('cockpit-skillset-select');
-  if (ssSel) {
-    ssSel.innerHTML = '<option value="">All Skillsets</option>';
-    ssSel.style.display = clientId ? 'block' : 'none';
-  }
-  if (clientId) loadCockpitSkillsets(clientId);
-  renderCockpitSidebar();
-  if (!window._currentChatId) cockpitShowEmpty();
-}
-
-async function loadCockpitSkillsets(clientId) {
-  const sel = document.getElementById('cockpit-skillset-select');
-  if (!sel) return;
-  try {
-    const r = await fetch(SB_URL + '/rest/v1/friday_skillsets?customer_id=eq.' + encodeURIComponent(clientId) + '&select=id,name,version,primary_platform&order=name.asc', {
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
-    });
-    const skillsets = await r.json();
-    if (!Array.isArray(skillsets)) return;
-    sel.innerHTML = '<option value="">All Skillsets</option>' +
-      skillsets.map(s => {
-        const label = esc(s.name) + (s.version ? ' ' + esc(s.version) : '') + (s.primary_platform ? ' · ' + esc(s.primary_platform) : '');
-        return '<option value="' + esc(s.id) + '" data-name="' + esc(s.name) + '">' + label + '</option>';
-      }).join('');
-  } catch(e) {}
-}
-
-function onCockpitSkillsetChange(sel) {
-  window._cockpitSkillsetId = sel.value || null;
-  renderCockpitSidebar();
-}
-
-// ===== COCKPIT AUTO-SUMMARIZE =====
-async function cockpitSummarizeInBackground(chatId, messages) {
-  try {
-    const resp = await fetch('http://5.223.79.255:3000/api/cockpit/summarize', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'x-cockpit-key': 'friday-cockpit-2026'},
-      body: JSON.stringify({chat_id: chatId, messages})
-    });
-    if (!resp.ok) return;
-    const data = await resp.json();
-    const summary = data.summary || data.reply || '';
-    if (!summary) return;
-    const idx = window._allChats.findIndex(c => c.id === chatId);
-    if (idx !== -1) {
-      window._allChats[idx].summary = summary;
-      renderCockpitSidebar();
-    }
-    await fetch(SB_URL + '/rest/v1/cockpit_chats?id=eq.' + chatId, {
-      method: 'PATCH',
-      headers: {'apikey': SB_SERVICE_KEY, 'Authorization': 'Bearer ' + SB_SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
-      body: JSON.stringify({summary})
-    });
-  } catch(e) {}
 }
 
 // kept for compatibility
