@@ -1005,16 +1005,25 @@ async function doLogin() {
   <!-- ====================================================== -->
   <!-- TERMINAL                                               -->
   <!-- ====================================================== -->
-  <div id="view-terminal" class="mode-content hidden" style="display:none;flex-direction:column;background:#0F172A;height:100%;overflow:hidden;">
-    <div style="display:flex;align-items:center;justify-content:space-between;height:40px;min-height:40px;background:#1E3348;padding:0 16px;flex-shrink:0;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fff;font-weight:500;">&gt;_ Terminal</span>
-      <div style="display:flex;gap:6px;">
-        <button onclick="terminalOpenSession('bash')" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:11px;font-family:var(--font);border-radius:4px;padding:4px 10px;cursor:pointer;">Bash</button>
-        <button onclick="terminalOpenSession('claude')" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:11px;font-family:var(--font);border-radius:4px;padding:4px 10px;cursor:pointer;">Claude Code</button>
-        <button onclick="terminalOpenSession('pm2')" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:11px;font-family:var(--font);border-radius:4px;padding:4px 10px;cursor:pointer;">PM2 Logs</button>
+  <div id="view-terminal" style="display:none;height:100vh;background:#0F172A;">
+    <div style="height:40px;background:#1E3348;display:flex;align-items:center;justify-content:space-between;padding:0 20px;">
+      <span style="color:white;font-family:monospace;font-size:13px;">&gt;_ Terminal</span>
+      <div style="display:flex;gap:8px;">
+        <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:rgba(255,255,255,0.1);color:white;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">Bash</button>
+        <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:rgba(74,143,214,0.3);color:#4A8FD6;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">Claude Code</button>
+        <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:rgba(255,255,255,0.1);color:white;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;">PM2 Logs</button>
       </div>
     </div>
-    <iframe id="terminal-iframe" src="" style="border:none;width:100%;flex:1;display:block;" allow="clipboard-read; clipboard-write"></iframe>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 40px);gap:20px;">
+      <div style="font-size:64px;">⌨️</div>
+      <div style="color:white;font-size:20px;font-weight:700;font-family:monospace;">ManageAI Server Terminal</div>
+      <div style="color:#64748B;font-size:13px;text-align:center;max-width:400px;line-height:1.6;">
+        Opens in a new browser tab. Log in with:<br>
+        <span style="color:#4A8FD6;font-family:monospace;">brian / ManageAI2026</span>
+      </div>
+      <button onclick="window.open('http://5.223.79.255:7681','_blank')" style="background:#4A8FD6;color:white;border:none;border-radius:8px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;">Open Terminal ↗</button>
+      <div style="color:#1E3348;font-size:11px;font-family:monospace;">5.223.79.255:7681</div>
+    </div>
   </div><!-- /view-terminal -->
 
     </div><!-- /page -->
