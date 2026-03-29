@@ -498,6 +498,81 @@
     .clients-search-bar { margin-bottom: 18px; }
     .clients-search-bar input { width: 100%; max-width: 400px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 13px; font-family: var(--font); color: var(--text); outline: none; background: #fff; transition: border-color 0.2s; }
     .clients-search-bar input:focus { border-color: var(--accent); }
+
+  /* ===== FRIDAY AVATAR ===== */
+  @keyframes fridayBreathe { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+  @keyframes fridayDotPulse { 0%,100%{opacity:0.25} 50%{opacity:1} }
+  @keyframes fridaySpark { 0%,100%{opacity:0} 40%,60%{opacity:1} }
+  @keyframes fridayCursor { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  @keyframes fridayCelebrate { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  @keyframes fridayShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+  @keyframes fridayThinkPulse { 0%,100%{opacity:0.4;transform:scale(0.94)} 50%{opacity:1;transform:scale(1)} }
+  @keyframes fridayTypeArm { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  .fr-av-breathe { animation: fridayBreathe 3s ease-in-out infinite; }
+  .fr-av-dot1 { animation: fridayDotPulse 1.2s ease-in-out infinite 0s; }
+  .fr-av-dot2 { animation: fridayDotPulse 1.2s ease-in-out infinite 0.4s; }
+  .fr-av-dot3 { animation: fridayDotPulse 1.2s ease-in-out infinite 0.8s; }
+  .fr-av-spark1 { animation: fridaySpark 0.8s ease-in-out infinite 0s; }
+  .fr-av-spark2 { animation: fridaySpark 0.8s ease-in-out infinite 0.27s; }
+  .fr-av-spark3 { animation: fridaySpark 0.8s ease-in-out infinite 0.54s; }
+  .fr-av-cursor { animation: fridayCursor 1s step-end infinite; }
+  .fr-av-celebrate { animation: fridayCelebrate 0.6s ease-in-out infinite; }
+  .fr-av-shake { animation: fridayShake 0.5s ease-in-out infinite; }
+  .fr-av-think { animation: fridayThinkPulse 1.5s ease-in-out infinite; }
+  .fr-av-arm { animation: fridayTypeArm 0.4s ease-in-out infinite; }
+  #friday-avatar-card {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    width: 200px; background: #fff; border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #E2E8F0;
+    overflow: hidden; display: none; flex-direction: column;
+    font-family: 'Montserrat', sans-serif; transition: box-shadow 0.2s;
+  }
+  #friday-avatar-card.av-open { display: flex; }
+  #friday-avatar-card.av-minimized #friday-avatar-scene,
+  #friday-avatar-card.av-minimized #friday-avatar-status,
+  #friday-avatar-card.av-minimized #friday-avatar-footer { display: none; }
+  #friday-avatar-stripe { height: 3px; width: 100%; transition: background 0.4s; }
+  #friday-avatar-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px 6px; border-bottom: 1px solid #F1F5F9;
+  }
+  #friday-avatar-label {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; color: #1E3348; letter-spacing: 0.5px;
+  }
+  .fr-av-dot { width: 7px; height: 7px; border-radius: 50%; transition: background 0.4s; }
+  .fr-av-btns { display: flex; gap: 2px; }
+  .fr-av-btn {
+    background: none; border: none; padding: 0 4px; line-height: 1;
+    color: #94A3B8; cursor: pointer; font-size: 14px;
+  }
+  .fr-av-btn:hover { color: #1E3348; }
+  #friday-avatar-scene {
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 0 4px; min-height: 108px;
+  }
+  #friday-avatar-status {
+    font-size: 13px; color: #64748B; text-align: center;
+    padding: 0 12px 10px; line-height: 1.4;
+  }
+  #friday-avatar-footer {
+    border-top: 1px solid #F1F5F9; padding: 7px 12px;
+  }
+  #friday-avatar-footer a {
+    font-size: 11px; font-weight: 600; color: #4A8FD6;
+    cursor: pointer; text-decoration: none;
+  }
+  #friday-avatar-footer a:hover { text-decoration: underline; }
+  #friday-avatar-bubble {
+    position: fixed; bottom: 24px; right: 24px; z-index: 800;
+    width: 44px; height: 44px; border-radius: 50%; background: #1E3348;
+    display: none; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #fff;
+    box-shadow: 0 4px 16px rgba(30,51,72,0.35); cursor: pointer;
+    border: none; font-family: 'Montserrat', sans-serif;
+  }
+  #friday-avatar-bubble.av-open { display: flex; }
+
   </style>
 </head>
 <body>
@@ -2252,6 +2327,286 @@ document.addEventListener('DOMContentLoaded', function() {
     <button onclick="frPanelSend()">Send</button>
   </div>
 </div>
+
+
+<!-- ===== FRIDAY AVATAR ===== -->
+<div id="friday-avatar-card">
+  <div id="friday-avatar-stripe"></div>
+  <div id="friday-avatar-header">
+    <div id="friday-avatar-label">
+      <span class="fr-av-dot" id="fr-av-state-dot"></span>FRIDAY
+    </div>
+    <div class="fr-av-btns">
+      <button class="fr-av-btn" id="fr-av-min-btn" onclick="fridayAvatarMinimize()" title="Minimize">—</button>
+      <button class="fr-av-btn" onclick="fridayAvatarClose()" title="Close">×</button>
+    </div>
+  </div>
+  <div id="friday-avatar-scene"></div>
+  <div id="friday-avatar-status">Ready</div>
+  <div id="friday-avatar-footer"><a onclick="fridayAvatarOpenCockpit()">Open Cockpit →</a></div>
+</div>
+<button id="friday-avatar-bubble" onclick="fridayAvatarShow()" title="Open FRIDAY">FR</button>
+
+<script>
+(function(){
+  window._fridayState = 'idle';
+  window._fridayStatusText = 'Ready';
+  window._fridayAvatarMinimized = false;
+  var _fridayLastRenderedState = null;
+  var _fridayAvatarInterval = null;
+
+  var _FRIDAY_ACCENTS = {
+    idle:'#4A8FD6', building:'#D97706', coding:'#4A8FD6',
+    thinking:'#94A3B8', done:'#16A34A', error:'#DC2626'
+  };
+  var _FRIDAY_STATUS = {
+    idle:'Ready', building:'Building…', coding:'Coding…',
+    thinking:'F.R.I.D.A.Y. is thinking…', done:'Done!', error:'Something went wrong'
+  };
+
+  function _fridayScene(state) {
+    if (state === 'idle') {
+      return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        +'<g class="fr-av-breathe">'
+        +'<rect x="46" y="38" width="28" height="24" rx="6" fill="#1E3348"/>'
+        +'<rect x="51" y="44" width="5" height="5" rx="1.5" fill="#4A8FD6"/>'
+        +'<rect x="64" y="44" width="5" height="5" rx="1.5" fill="#4A8FD6"/>'
+        +'<rect x="53" y="54" width="14" height="2.5" rx="1.2" fill="#4A8FD6" opacity="0.5"/>'
+        +'<rect x="42" y="62" width="36" height="20" rx="6" fill="#2D4A6B"/>'
+        +'<line x1="60" y1="62" x2="60" y2="82" stroke="#1E3348" stroke-width="1.5"/>'
+        +'<rect x="35" y="64" width="7" height="14" rx="3.5" fill="#2D4A6B"/>'
+        +'<rect x="78" y="64" width="7" height="14" rx="3.5" fill="#2D4A6B"/>'
+        +'<rect x="48" y="82" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'<rect x="62" y="82" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'</g>'
+        +'<circle cx="78" cy="28" r="12" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>'
+        +'<circle class="fr-av-dot1" cx="74" cy="28" r="1.5" fill="#94A3B8"/>'
+        +'<circle class="fr-av-dot2" cx="78" cy="28" r="1.5" fill="#94A3B8"/>'
+        +'<circle class="fr-av-dot3" cx="82" cy="28" r="1.5" fill="#94A3B8"/>'
+        +'<path d="M68 37 L72 30" stroke="#CBD5E1" stroke-width="1.5"/>'
+        +'</svg>';
+    }
+    if (state === 'building') {
+      return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        +'<rect x="46" y="30" width="28" height="24" rx="6" fill="#1E3348"/>'
+        +'<rect x="51" y="36" width="5" height="5" rx="1.5" fill="#D97706"/>'
+        +'<rect x="64" y="36" width="5" height="5" rx="1.5" fill="#D97706"/>'
+        +'<rect x="38" y="22" width="44" height="8" rx="4" fill="#D97706"/>'
+        +'<rect x="56" y="18" width="8" height="12" rx="2" fill="#F59E0B"/>'
+        +'<rect x="42" y="54" width="36" height="20" rx="6" fill="#2D4A6B"/>'
+        +'<line x1="60" y1="54" x2="60" y2="74" stroke="#1E3348" stroke-width="1.5"/>'
+        +'<g class="fr-av-arm"><rect x="78" y="54" width="7" height="18" rx="3.5" fill="#2D4A6B"/>'
+        +'<rect x="82" y="68" width="14" height="5" rx="2" fill="#92400E" transform="rotate(-30 82 68)"/></g>'
+        +'<rect x="35" y="56" width="7" height="14" rx="3.5" fill="#2D4A6B"/>'
+        +'<rect x="48" y="74" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'<rect x="62" y="74" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'<circle class="fr-av-spark1" cx="96" cy="62" r="2.5" fill="#FBBF24"/>'
+        +'<circle class="fr-av-spark2" cx="100" cy="56" r="2" fill="#F59E0B"/>'
+        +'<circle class="fr-av-spark3" cx="93" cy="56" r="1.5" fill="#FCD34D"/>'
+        +'</svg>';
+    }
+    if (state === 'coding') {
+      return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        +'<rect x="30" y="40" width="60" height="40" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1.5"/>'
+        +'<rect x="34" y="44" width="52" height="32" rx="2" fill="#0F172A"/>'
+        +'<rect x="38" y="48" width="20" height="2" rx="1" fill="#4A8FD6" opacity="0.8"/>'
+        +'<rect x="38" y="53" width="32" height="2" rx="1" fill="#94A3B8" opacity="0.6"/>'
+        +'<rect x="38" y="58" width="16" height="2" rx="1" fill="#34D399" opacity="0.7"/>'
+        +'<rect x="38" y="63" width="26" height="2" rx="1" fill="#94A3B8" opacity="0.5"/>'
+        +'<rect class="fr-av-cursor" x="65" y="63" width="1.5" height="2" fill="#fff"/>'
+        +'<rect x="46" y="20" width="28" height="20" rx="6" fill="#1E3348"/>'
+        +'<rect x="51" y="25" width="5" height="5" rx="1.5" fill="#4A8FD6"/>'
+        +'<rect x="64" y="25" width="5" height="5" rx="1.5" fill="#4A8FD6"/>'
+        +'<g class="fr-av-arm"><rect x="28" y="70" width="7" height="12" rx="3.5" fill="#2D4A6B" transform="rotate(20 28 70)"/></g>'
+        +'<g class="fr-av-arm" style="animation-delay:0.2s"><rect x="85" y="70" width="7" height="12" rx="3.5" fill="#2D4A6B" transform="rotate(-20 85 70)"/></g>'
+        +'</svg>';
+    }
+    if (state === 'thinking') {
+      return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        +'<g class="fr-av-think">'
+        +'<rect x="46" y="34" width="28" height="24" rx="6" fill="#1E3348"/>'
+        +'<rect x="51" y="40" width="5" height="5" rx="1.5" fill="#94A3B8"/>'
+        +'<rect x="64" y="40" width="5" height="5" rx="1.5" fill="#94A3B8"/>'
+        +'<path d="M54 50 Q60 53 66 50" stroke="#94A3B8" stroke-width="1.5" fill="none" stroke-linecap="round"/>'
+        +'</g>'
+        +'<rect x="42" y="58" width="36" height="20" rx="6" fill="#2D4A6B"/>'
+        +'<line x1="60" y1="58" x2="60" y2="78" stroke="#1E3348" stroke-width="1.5"/>'
+        +'<rect x="35" y="60" width="7" height="14" rx="3.5" fill="#2D4A6B"/>'
+        +'<rect x="78" y="60" width="7" height="14" rx="3.5" fill="#2D4A6B"/>'
+        +'<rect x="48" y="78" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'<rect x="62" y="78" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'<rect x="35" y="72" width="10" height="8" rx="3" fill="#2D4A6B" transform="rotate(-15 35 72)"/>'
+        +'<circle cx="78" cy="22" r="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>'
+        +'<circle class="fr-av-dot1" cx="74" cy="22" r="1.8" fill="#64748B"/>'
+        +'<circle class="fr-av-dot2" cx="78" cy="22" r="1.8" fill="#64748B"/>'
+        +'<circle class="fr-av-dot3" cx="82" cy="22" r="1.8" fill="#64748B"/>'
+        +'<path d="M66 34 L70 26" stroke="#CBD5E1" stroke-width="1.5"/>'
+        +'</svg>';
+    }
+    if (state === 'done') {
+      return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        +'<g class="fr-av-celebrate">'
+        +'<rect x="46" y="36" width="28" height="24" rx="6" fill="#1E3348"/>'
+        +'<rect x="51" y="42" width="5" height="5" rx="1.5" fill="#16A34A"/>'
+        +'<rect x="64" y="42" width="5" height="5" rx="1.5" fill="#16A34A"/>'
+        +'<path d="M52 52 Q60 56 68 52" stroke="#16A34A" stroke-width="2" fill="none" stroke-linecap="round"/>'
+        +'<rect x="42" y="60" width="36" height="20" rx="6" fill="#2D4A6B"/>'
+        +'<line x1="60" y1="60" x2="60" y2="80" stroke="#1E3348" stroke-width="1.5"/>'
+        +'<rect x="48" y="80" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'<rect x="62" y="80" width="10" height="14" rx="3" fill="#2D4A6B"/>'
+        +'<rect x="28" y="46" width="7" height="18" rx="3.5" fill="#2D4A6B" transform="rotate(-30 28 46)"/>'
+        +'<rect x="85" y="46" width="7" height="18" rx="3.5" fill="#2D4A6B" transform="rotate(30 85 46)"/>'
+        +'</g>'
+        +'<circle cx="90" cy="20" r="10" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5"/>'
+        +'<path d="M86 20 L89 23 L94 16" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+        +'<circle class="fr-av-spark1" cx="30" cy="24" r="3" fill="#4ADE80"/>'
+        +'<circle class="fr-av-spark2" cx="24" cy="32" r="2" fill="#86EFAC"/>'
+        +'<circle class="fr-av-spark3" cx="36" cy="16" r="2" fill="#16A34A"/>'
+        +'</svg>';
+    }
+    if (state === 'error') {
+      return '<svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        +'<g class="fr-av-shake">'
+        +'<rect x="46" y="44" width="28" height="24" rx="6" fill="#1E3348"/>'
+        +'<line x1="51" y1="49" x2="56" y2="54" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>'
+        +'<line x1="56" y1="49" x2="51" y2="54" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>'
+        +'<line x1="64" y1="49" x2="69" y2="54" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>'
+        +'<line x1="69" y1="49" x2="64" y2="54" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>'
+        +'<path d="M54 60 Q60 58 66 60" stroke="#DC2626" stroke-width="1.5" fill="none" stroke-linecap="round"/>'
+        +'<rect x="42" y="68" width="36" height="20" rx="6" fill="#2D4A6B" transform="rotate(-5 42 68)"/>'
+        +'</g>'
+        +'<circle cx="88" cy="22" r="11" fill="#FEF2F2" stroke="#DC2626" stroke-width="1.5"/>'
+        +'<line x1="84" y1="18" x2="92" y2="26" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>'
+        +'<line x1="92" y1="18" x2="84" y2="26" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>'
+        +'</svg>';
+    }
+    return '';
+  }
+
+  function _fridayRender() {
+    var state = window._fridayState || 'idle';
+    if (state === _fridayLastRenderedState) return;
+    _fridayLastRenderedState = state;
+    var stripe = document.getElementById('friday-avatar-stripe');
+    var dot = document.getElementById('fr-av-state-dot');
+    var scene = document.getElementById('friday-avatar-scene');
+    var statusEl = document.getElementById('friday-avatar-status');
+    if (!stripe) return;
+    var color = _FRIDAY_ACCENTS[state] || '#4A8FD6';
+    stripe.style.background = color;
+    if (dot) { dot.style.background = color; }
+    if (scene) { scene.innerHTML = _fridayScene(state); }
+    if (statusEl) { statusEl.textContent = window._fridayStatusText || _FRIDAY_STATUS[state] || 'Ready'; }
+  }
+
+  function _fridayPollStatus() {
+    _fridayRender();
+  }
+
+  window.fridayAvatarShow = function() {
+    var card = document.getElementById('friday-avatar-card');
+    var bubble = document.getElementById('friday-avatar-bubble');
+    if (card) { card.classList.add('av-open'); }
+    if (bubble) { bubble.classList.remove('av-open'); }
+    _fridayLastRenderedState = null;
+    _fridayRender();
+  };
+
+  window.fridayAvatarClose = function() {
+    var card = document.getElementById('friday-avatar-card');
+    var bubble = document.getElementById('friday-avatar-bubble');
+    if (card) { card.classList.remove('av-open'); }
+    if (bubble) { bubble.classList.add('av-open'); }
+  };
+
+  window.fridayAvatarMinimize = function() {
+    var card = document.getElementById('friday-avatar-card');
+    var btn = document.getElementById('fr-av-min-btn');
+    if (!card) return;
+    window._fridayAvatarMinimized = !window._fridayAvatarMinimized;
+    if (window._fridayAvatarMinimized) {
+      card.classList.add('av-minimized');
+      if (btn) btn.textContent = '+';
+    } else {
+      card.classList.remove('av-minimized');
+      if (btn) btn.textContent = '—';
+    }
+  };
+
+  window.fridayAvatarOpenCockpit = function() {
+    if (typeof setMode === 'function') setMode('cockpit');
+  };
+
+  function _fridayInitAvatar() {
+    fridayAvatarShow();
+    if (_fridayAvatarInterval) clearInterval(_fridayAvatarInterval);
+    _fridayAvatarInterval = setInterval(_fridayPollStatus, 2000);
+    _fridayLastRenderedState = null;
+    _fridayRender();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Wire state changes into existing functions
+    var _origCockpitSend = window.cockpitSend;
+    if (_origCockpitSend) {
+      window.cockpitSend = async function() {
+        window._fridayState = 'thinking';
+        window._fridayStatusText = _FRIDAY_STATUS.thinking;
+        _fridayLastRenderedState = null; _fridayRender();
+        await _origCockpitSend.apply(this, arguments);
+        if (window._fridayState === 'thinking') {
+          window._fridayState = 'idle';
+          window._fridayStatusText = _FRIDAY_STATUS.idle;
+          _fridayLastRenderedState = null; _fridayRender();
+        }
+      };
+    }
+
+    var _origShowBuild = window.showBuildNotification;
+    if (_origShowBuild) {
+      window.showBuildNotification = function() {
+        _origShowBuild.apply(this, arguments);
+        window._fridayState = 'done';
+        window._fridayStatusText = 'Build complete!';
+        _fridayLastRenderedState = null; _fridayRender();
+        setTimeout(function() {
+          if (window._fridayState === 'done') {
+            window._fridayState = 'idle';
+            window._fridayStatusText = _FRIDAY_STATUS.idle;
+            _fridayLastRenderedState = null; _fridayRender();
+          }
+        }, 5000);
+      };
+    }
+
+    var _origSubmitTicket = window.submitIntakeTicket;
+    if (_origSubmitTicket) {
+      window.submitIntakeTicket = async function() {
+        window._fridayState = 'building';
+        window._fridayStatusText = _FRIDAY_STATUS.building;
+        _fridayLastRenderedState = null; _fridayRender();
+        await _origSubmitTicket.apply(this, arguments);
+        if (window._fridayState === 'building') {
+          window._fridayState = 'idle';
+          window._fridayStatusText = _FRIDAY_STATUS.idle;
+          _fridayLastRenderedState = null; _fridayRender();
+        }
+      };
+    }
+
+    var _origDoLogin = window.doLogin;
+    if (_origDoLogin) {
+      window.doLogin = async function() {
+        await _origDoLogin.apply(this, arguments);
+        var loginScreen = document.getElementById('login-screen');
+        if (loginScreen && loginScreen.classList.contains('hidden')) {
+          _fridayInitAvatar();
+        }
+      };
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
