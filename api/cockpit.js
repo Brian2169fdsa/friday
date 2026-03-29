@@ -1,36 +1,35 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+export const config = { runtime: 'edge' };
+
+export default async function handler(req) {
+  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+  
   try {
+    const body = await req.json();
     const response = await fetch('http://5.223.79.255:3000/api/cockpit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': req.headers['accept'] || 'application/json',
+        'Accept': req.headers.get('accept') || 'application/json',
         'x-cockpit-key': 'friday-cockpit-2026'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(body)
     });
 
-    if (req.headers['accept'] === 'text/event-stream') {
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-
-      const reader = response.body.getReader();
-      const pump = async () => {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) { res.end(); break; }
-          res.write(value);
+    if (req.headers.get('accept') === 'text/event-stream') {
+      return new Response(response.body, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Access-Control-Allow-Origin': '*'
         }
-      };
-      await pump();
-    } else {
-      const data = await response.json();
-      res.json(data);
+      });
     }
+
+    const data = await response.json();
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch(e) {
-    res.status(500).json({ error: e.message });
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
 }
