@@ -683,9 +683,21 @@ async function doLogin() {
       <button class="sb-nav-item" id="tab-builds" onclick="setMode('builds')"><span class="sb-icon">🔧</span>Builds</button>
       <div class="sb-section-label">Clients</div>
       <button class="sb-nav-item" id="tab-clients" onclick="setMode('clients')"><span class="sb-icon">👥</span>All Clients</button>
+      <button class="sb-nav-item" id="tab-pipeline" onclick="setMode('pipeline')"><span class="sb-icon">📈</span>Pipeline</button>
+      <div class="sb-section-label">Intelligence</div>
+      <button class="sb-nav-item" id="tab-dossiers" onclick="setMode('dossiers')"><span class="sb-icon">📁</span>Dossiers</button>
+      <button class="sb-nav-item" id="tab-opportunities" onclick="setMode('opportunities')"><span class="sb-icon">💎</span>Opportunities</button>
+      <button class="sb-nav-item" id="tab-transcripts" onclick="setMode('transcripts')"><span class="sb-icon">🎙️</span>Transcripts</button>
       <div class="sb-section-label">Control</div>
       <button class="sb-nav-item active" id="tab-friday" onclick="setMode('friday')"><span class="sb-icon">🤖</span>Cockpit</button>
+      <button class="sb-nav-item" id="tab-agentmonitor" onclick="setMode('agentmonitor')"><span class="sb-icon">📡</span>Agent Monitor</button>
+      <button class="sb-nav-item" id="tab-allagents" onclick="setMode('allagents')"><span class="sb-icon">🧩</span>All Agents</button>
+      <button class="sb-nav-item" id="tab-agenthealth" onclick="setMode('agenthealth')"><span class="sb-icon">💓</span>Agent Health</button>
       <button class="sb-nav-item" id="tab-terminal" onclick="showTerminal()"><span class="sb-icon" style="font-family:monospace;font-size:13px;">&gt;_</span>Terminal</button>
+      <div class="sb-section-label">System</div>
+      <button class="sb-nav-item" id="tab-issuefeed" onclick="setMode('issuefeed')"><span class="sb-icon">🐛</span>Issue Feed</button>
+      <button class="sb-nav-item" id="tab-platform" onclick="setMode('platform')"><span class="sb-icon">⚙️</span>Platform</button>
+      <button class="sb-nav-item" id="tab-settings" onclick="setMode('settings')"><span class="sb-icon">🔧</span>Settings</button>
       <button class="sb-nav-item" id="tab-feedback" onclick="setMode('feedback')"><span class="sb-icon">💬</span>Feedback</button>
     </div>
     <div class="sb-user">
@@ -779,6 +791,15 @@ async function doLogin() {
       <div class="page-topbar-actions"><button class="btn-primary" onclick="setMode('intake')" style="font-size:12px;padding:9px 18px;">+ New Build</button></div>
     </div>
     <div class="page-body">
+    <!-- Approval Queue (hidden if empty) -->
+    <div id="d-approval-queue" style="display:none;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <span style="font-size:16px;">🔔</span>
+        <span style="font-size:14px;font-weight:800;color:var(--text);">Awaiting Approval</span>
+        <span id="d-approval-count" style="background:var(--red);color:#fff;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700;">0</span>
+      </div>
+      <div id="d-approval-cards" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
     <div class="dash-grid" id="dash-kpi-row">
       <div class="dash-kpi dash-kpi-accent"><div class="dash-kpi-label">Active Builds</div><div class="dash-kpi-value" id="d-active-builds">—</div><div class="dash-kpi-sub">In pipeline now</div></div>
       <div class="dash-kpi dash-kpi-green"><div class="dash-kpi-label">Delivered This Month</div><div class="dash-kpi-value" id="d-delivered">—</div><div class="dash-kpi-sub">Completed builds</div></div>
@@ -790,6 +811,11 @@ async function doLogin() {
       <div class="card" style="margin-bottom:0;padding:22px;"><div class="dash-section-title">Recent Tickets</div><div id="d-recent-tickets"><div class="dash-loading"><div class="dash-loading-ring"></div> Loading tickets...</div></div></div>
     </div>
     <div style="margin-top:14px;" class="card" style="padding:22px;"><div class="dash-section-title">Build Activity by Client</div><div id="d-client-activity"><div class="dash-loading"><div class="dash-loading-ring"></div> Loading client activity...</div></div></div>
+    <!-- Activity Feed -->
+    <div style="margin-top:14px;" class="card" style="padding:22px;">
+      <div class="dash-section-title">⚡ Recent Activity</div>
+      <div id="d-activity-feed"><div class="dash-loading"><div class="dash-loading-ring"></div> Loading activity...</div></div>
+    </div>
     </div><!-- /page-body -->
   </div><!-- /mode-dashboard -->
 
@@ -1026,6 +1052,68 @@ async function doLogin() {
     </div>
   </div><!-- /view-terminal -->
 
+  <!-- ===== PLACEHOLDER TABS ===== -->
+  <div id="mode-pipeline" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Pipeline</h1><p>Visual pipeline management</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">📈</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Pipeline</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Visual drag-and-drop pipeline for tracking builds from intake through delivery.</div><div style="font-size:11px;color:var(--text-dim);">Powered by FRIDAY Build OS</div></div>
+    </div>
+  </div>
+  <div id="mode-agentmonitor" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Agent Monitor</h1><p>Real-time agent activity</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">📡</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Agent Monitor</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Live monitoring of all running AI agents, their status, and resource usage.</div><div style="font-size:11px;color:var(--text-dim);">Powered by FRIDAY Agent Runtime</div></div>
+    </div>
+  </div>
+  <div id="mode-allagents" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>All Agents</h1><p>Agent registry and configuration</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">🧩</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">All Agents</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Browse and configure all AI agents deployed across client skillsets.</div><div style="font-size:11px;color:var(--text-dim);">Powered by Anthropic Claude</div></div>
+    </div>
+  </div>
+  <div id="mode-agenthealth" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Agent Health</h1><p>Performance and reliability metrics</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">💓</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Agent Health</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Monitor agent uptime, error rates, latency, and token usage across all deployments.</div><div style="font-size:11px;color:var(--text-dim);">Powered by FRIDAY Observability</div></div>
+    </div>
+  </div>
+  <div id="mode-dossiers" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Dossiers</h1><p>Client intelligence dossiers</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">📁</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Dossiers</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Comprehensive client dossiers compiled from discovery calls, CRM data, and agent interactions.</div><div style="font-size:11px;color:var(--text-dim);">Powered by Charlie Intelligence Engine</div></div>
+    </div>
+  </div>
+  <div id="mode-opportunities" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Opportunities</h1><p>Sales intelligence and opportunity tracking</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">💎</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Opportunities</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">AI-identified upsell and expansion opportunities extracted from client interactions.</div><div style="font-size:11px;color:var(--text-dim);">Powered by Charlie + Pipedrive</div></div>
+    </div>
+  </div>
+  <div id="mode-transcripts" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Transcripts</h1><p>Call and meeting transcripts</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">🎙️</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Transcripts</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Searchable archive of all client call transcripts with AI-generated summaries and action items.</div><div style="font-size:11px;color:var(--text-dim);">Powered by Microsoft Teams + Charlie</div></div>
+    </div>
+  </div>
+  <div id="mode-issuefeed" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Issue Feed</h1><p>Bug tracking and issue management</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">🐛</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Issue Feed</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Track and resolve build issues, client-reported bugs, and system alerts in one feed.</div><div style="font-size:11px;color:var(--text-dim);">Powered by FRIDAY Issue Tracker</div></div>
+    </div>
+  </div>
+  <div id="mode-platform" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Platform</h1><p>Infrastructure and system management</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">⚙️</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Platform</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Manage server infrastructure, n8n instances, Supabase databases, and deployment pipelines.</div><div style="font-size:11px;color:var(--text-dim);">Powered by Vultr + Vercel + n8n</div></div>
+    </div>
+  </div>
+  <div id="mode-settings" class="mode-content hidden">
+    <div class="page-topbar"><div class="page-topbar-left"><h1>Settings</h1><p>System configuration</p></div></div>
+    <div class="page-body" style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="text-align:center;"><div style="font-size:64px;margin-bottom:16px;">🔧</div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Settings</div><div style="font-size:13px;color:var(--text-mid);max-width:320px;margin:0 auto 12px;">Configure team members, API keys, notification preferences, and system-wide defaults.</div><div style="font-size:11px;color:var(--text-dim);">Powered by FRIDAY Build OS</div></div>
+    </div>
+  </div>
+
     </div><!-- /page -->
   </div><!-- /app-main -->
 </div><!-- /app-wrapper -->
@@ -1131,6 +1219,53 @@ async function doLogin() {
 </div>
 
 <script>
+// ===== MISSING UTILITY FUNCTIONS =====
+function updateSidebarUser() {
+  var u = window._currentUser;
+  if (!u) return;
+  var nameEl = document.getElementById('sb-user-name');
+  var avatarEl = document.getElementById('sb-user-avatar');
+  if (nameEl) nameEl.textContent = u.name || u.email || '—';
+  if (avatarEl) avatarEl.textContent = (u.name || u.email || '?').charAt(0).toUpperCase();
+}
+
+function toggleFrPanel() {
+  var panel = document.getElementById('fr-panel');
+  var overlay = document.getElementById('fr-panel-overlay');
+  if (!panel) return;
+  var isOpen = panel.classList.contains('open');
+  if (isOpen) { panel.classList.remove('open'); if (overlay) overlay.style.display = 'none'; }
+  else { panel.classList.add('open'); if (overlay) overlay.style.display = 'block'; }
+}
+
+async function frPanelSend() {
+  var input = document.getElementById('fr-panel-input');
+  var msgs = document.getElementById('fr-panel-messages');
+  if (!input || !msgs) return;
+  var msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  msgs.innerHTML += '<div class="fr-msg-user">' + esc(msg) + '</div>';
+  msgs.scrollTop = msgs.scrollHeight;
+  try {
+    var resp = await fetch('/api/cockpit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, history: [] }) });
+    var data = await resp.json();
+    var reply = data.reply || data.message || 'No response.';
+    msgs.innerHTML += '<div class="fr-msg-ai">' + esc(reply) + '</div>';
+  } catch(e) { msgs.innerHTML += '<div class="fr-msg-ai">Connection error.</div>'; }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function filterClientsGrid(query) {
+  var cards = document.querySelectorAll('#clients-grid .client-grid-card');
+  var q = (query || '').toLowerCase();
+  cards.forEach(function(card) {
+    var name = (card.querySelector('.cgc-name') || {}).textContent || '';
+    var industry = (card.querySelector('.cgc-industry') || {}).textContent || '';
+    card.style.display = (!q || name.toLowerCase().includes(q) || industry.toLowerCase().includes(q)) ? '' : 'none';
+  });
+}
+
 // ===== WORKFLOW REGISTRY =====
 // WF-01: wf-01-intake | WF-07: QPYPMrAtjr4AqEzg | WF-09: IA99G4pCRIpCSxgU
 // WF-10: eS9ieOklfksp6DLh | WF-14: YXtnQesH3rzksJnD | WF-15: fvtExcc2wvzXrzRX
@@ -1221,7 +1356,7 @@ function setMode(mode) {
   if (terminalEl) terminalEl.style.display = 'none';
   const terminalTab = document.getElementById('tab-terminal');
   if (terminalTab) terminalTab.classList.remove('active');
-  ['friday','dashboard','intake','clients','builds','feedback'].forEach(m => {
+  ['friday','dashboard','intake','clients','builds','feedback','pipeline','agentmonitor','allagents','agenthealth','dossiers','opportunities','transcripts','issuefeed','platform','settings'].forEach(m => {
     const el = document.getElementById('mode-' + m);
     if (el) el.classList.toggle('hidden', m !== mode);
     const tab = document.getElementById('tab-' + m);
@@ -1229,14 +1364,14 @@ function setMode(mode) {
   });
   const frBtn = document.getElementById('fr-float-btn');
   if (frBtn) frBtn.style.display = (mode !== 'friday') ? 'flex' : 'none';
-  if (mode === 'dashboard') loadDashboardData();
+  if (mode === 'dashboard') { loadDashboardData(); loadApprovalQueue(); loadActivityFeed(); }
   if (mode === 'clients') loadClientsData();
   if (mode === 'builds') loadBuildsData();
 }
 
 function showTerminal() {
   // Hide all standard mode views
-  ['friday','dashboard','intake','clients','builds','feedback'].forEach(m => {
+  ['friday','dashboard','intake','clients','builds','feedback','pipeline','agentmonitor','allagents','agenthealth','dossiers','opportunities','transcripts','issuefeed','platform','settings'].forEach(m => {
     const el = document.getElementById('mode-' + m);
     if (el) el.classList.add('hidden');
     const tab = document.getElementById('tab-' + m);
@@ -1301,6 +1436,110 @@ async function loadDashboardData() {
   else { caEl.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;">' + clients.slice(0,6).map(c => { const cb = builds.filter(b => b.client_id===c.id||b.client_name===c.name).length; const ca = builds.filter(b => (b.client_id===c.id||b.client_name===c.name)&&['active','building'].includes(b.status)).length; return '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px;"><div style="width:32px;height:32px;border-radius:8px;background:var(--nav);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(c.name||'?').charAt(0)+'</div><div style="flex:1;font-size:13px;font-weight:600;color:var(--text);">'+esc(c.name||'')+'</div><div style="font-size:11px;color:var(--text-dim);">'+cb+' builds total</div>'+(ca>0?'<span class="status-chip active"><div class="status-chip-dot"></div>'+ca+' active</span>':'')+'</div>'; }).join('') + '</div>'; }
 }
 
+// ===== APPROVAL QUEUE =====
+async function loadApprovalQueue() {
+  var builds = await sbFetch('friday_builds?review_status=eq.awaiting_approval&order=updated_at.desc&select=*') || [];
+  var container = document.getElementById('d-approval-queue');
+  var cards = document.getElementById('d-approval-cards');
+  var countEl = document.getElementById('d-approval-count');
+  if (!container || !cards) return;
+  if (!builds.length) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  countEl.textContent = builds.length;
+  cards.innerHTML = builds.map(function(b) {
+    var qa = b.progress_pct || 0;
+    var qaColor = qa >= 75 ? 'var(--green)' : qa >= 60 ? 'var(--amber)' : 'var(--red)';
+    var waitMins = b.updated_at ? Math.floor((Date.now() - new Date(b.updated_at).getTime()) / 60000) : 0;
+    var waitStr = waitMins < 60 ? waitMins + ' minutes' : Math.floor(waitMins / 60) + 'h ' + (waitMins % 60) + 'm';
+    return '<div class="card" style="margin-bottom:0;padding:18px 22px;" id="aq-card-' + b.id + '">'
+      + '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">'
+      + '<div><span style="font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;">' + esc(b.ticket_id || '—') + '</span>'
+      + '<div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">' + esc(b.client_name || '') + ' — ' + esc(b.project_name || 'Build') + '</div></div>'
+      + '<div style="text-align:right;"><span style="font-size:18px;font-weight:800;color:' + qaColor + ';">' + qa + '</span><span style="font-size:11px;color:var(--text-dim);">/100</span>'
+      + '<div style="font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-top:2px;">Waiting ' + waitStr + '</div></div></div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+      + '<button onclick="approvalAction(\'' + b.id + '\',\'approve\')" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">✅ Approve</button>'
+      + '<button onclick="approvalRequestChanges(\'' + b.id + '\')" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Request Changes</button>'
+      + '<button onclick="approvalAction(\'' + b.id + '\',\'reject\')" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">❌ Reject</button>'
+      + '</div>'
+      + '<div id="aq-changes-' + b.id + '" style="display:none;margin-top:10px;">'
+      + '<textarea id="aq-notes-' + b.id + '" placeholder="What needs to change?" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font);min-height:60px;resize:vertical;outline:none;margin-bottom:6px;"></textarea>'
+      + '<button onclick="approvalSendChanges(\'' + b.id + '\')" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">Send</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function approvalRequestChanges(id) {
+  var el = document.getElementById('aq-changes-' + id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function approvalSendChanges(id) {
+  var notes = document.getElementById('aq-notes-' + id);
+  if (!notes || !notes.value.trim()) { alert('Please describe what needs to change.'); return; }
+  try {
+    await fetch('/api/build-action?id=' + id + '&action=request-changes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: notes.value.trim() }) });
+    var card = document.getElementById('aq-card-' + id);
+    if (card) card.remove();
+    showFridayToast('Changes requested');
+    loadApprovalQueue();
+  } catch(e) { alert('Failed: ' + e.message); }
+}
+
+async function approvalAction(id, action) {
+  if (action === 'reject' && !confirm('Reject this build? This cannot be undone.')) return;
+  var endpoint = action === 'approve' ? 'approve' : 'cancel';
+  try {
+    await fetch('/api/build-action?id=' + id + '&action=' + endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    var card = document.getElementById('aq-card-' + id);
+    if (card) card.remove();
+    var msg = action === 'approve' ? 'Build approved — delivering' : 'Build rejected';
+    showFridayToast(msg);
+    loadApprovalQueue();
+  } catch(e) { alert('Failed: ' + e.message); }
+}
+
+function showFridayToast(msg) {
+  var existing = document.getElementById('friday-toast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.id = 'friday-toast';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--nav);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(0,0,0,0.3);animation:slideUp 0.3s ease;font-family:var(--font);';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { var el = document.getElementById('friday-toast'); if (el) el.remove(); }, 4000);
+}
+
+// ===== ACTIVITY FEED =====
+var _activityFeedInterval = null;
+async function loadActivityFeed() {
+  var el = document.getElementById('d-activity-feed');
+  if (!el) return;
+  try {
+    var resp = await fetch('/api/activity');
+    var data = await resp.json();
+    var items = Array.isArray(data) ? data : (data && data.items ? data.items : []);
+    if (!items.length) { el.innerHTML = '<div class="dash-empty">No recent activity.</div>'; return; }
+    var iconMap = { build: '🏗️', done: '✅', issue: '⚠️', agent: '🤖', delivery: '📦' };
+    el.innerHTML = items.slice(0, 20).map(function(a) {
+      var icon = iconMap[a.event_type] || '📌';
+      return '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">'
+        + '<span style="font-size:18px;flex-shrink:0;">' + icon + '</span>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:13px;font-weight:700;color:var(--text);">' + esc(a.title || a.message || 'Activity') + '</div>'
+        + (a.client_name ? '<div style="font-size:11px;color:var(--text-dim);">' + esc(a.client_name) + '</div>' : '')
+        + '</div>'
+        + '<span style="font-size:11px;color:var(--text-dim);font-family:var(--mono);flex-shrink:0;white-space:nowrap;">' + relTime(a.created_at || a.timestamp) + '</span>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="dash-empty">No recent activity.</div>';
+  }
+  // Auto-refresh every 60s
+  if (_activityFeedInterval) clearInterval(_activityFeedInterval);
+  _activityFeedInterval = setInterval(loadActivityFeed, 60000);
+}
+
 // ===== CLIENTS — 3-VIEW SYSTEM =====
 let _currentClientName = '';
 let _currentBuildId = '';
@@ -1349,7 +1588,11 @@ async function loadClientsData() {
     const last = cBuilds[0] ? (cBuilds[0].updated_at||cBuilds[0].created_at) : null;
     const topColor = industryTopColor(c.industry);
     const desc = c.notes||'';
-    return '<div class="client-grid-card" style="border-top:3px solid '+topColor+';" onclick="openClientDetail(\''+esc(c.name||'').replace(/'/g,"\\'")+'\')">'
+    var hs = c.health_score;
+    var hsDot = hs != null ? (hs >= 75 ? 'var(--green)' : hs >= 50 ? 'var(--amber)' : 'var(--red)') : '#CBD5E1';
+    var hsLabel = hs != null ? hs : '—';
+    return '<div class="client-grid-card" style="border-top:3px solid '+topColor+';position:relative;" onclick="openClientDetail(\''+esc(c.name||'').replace(/'/g,"\\'")+'\')">'
+      + '<div style="position:absolute;top:12px;right:14px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:50%;background:'+hsDot+';display:inline-block;flex-shrink:0;"></span><span style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text-dim);">'+hsLabel+'</span></div>'
       + '<div class="cgc-top"><div class="cgc-name">'+esc(c.name||'')+'</div>'+(active>0?'<span class="cgc-active-badge">ACTIVE</span>':'')+'</div>'
       + '<div class="cgc-industry">'+esc(c.industry||'')+'</div>'
       + (desc?'<div class="cgc-desc">'+esc(desc)+'</div>':'')
@@ -2439,6 +2682,7 @@ async function sendCockpitMessage(message, history, clientId, skillsetId, chatId
   const decoder = new TextDecoder();
   let buffer = '';
   let fullReply = '';
+  let streamingText = '';
 
   while (true) {
     const { done, value } = await reader.read();
@@ -2451,16 +2695,36 @@ async function sendCockpitMessage(message, history, clientId, skillsetId, chatId
       try {
         const event = JSON.parse(line.slice(6));
         if (event.type === 'tool') showToolIndicator(bubbleId, event.data);
-        if (event.type === 'reply') { fullReply = event.data; typewriterEffect(bubbleId, fullReply); }
+        if (event.type === 'text' || event.type === 'chunk' || event.type === 'delta') {
+          // Incremental streaming text
+          streamingText += (typeof event.data === 'string' ? event.data : '');
+          typewriterEffect(bubbleId, streamingText);
+          cockpitScrollBottom();
+        }
+        if (event.type === 'reply') {
+          // Full reply text (may come as single event or final event)
+          fullReply = typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
+          typewriterEffect(bubbleId, fullReply);
+          cockpitScrollBottom();
+        }
         if (event.type === 'done') finalizeStreamBubble(bubbleId);
       } catch(e) {}
     }
   }
 
-  // If stream ended without a reply event, treat body as plain JSON
+  // Use streaming text if no reply event was received
+  if (!fullReply && streamingText) fullReply = streamingText;
+
+  // If stream ended without any content, check DOM
   if (!fullReply) {
     const el = document.getElementById(bubbleId + '-text');
     if (el) { const t = el.textContent.trim(); if (t && t !== '▋') fullReply = t; }
+  }
+
+  // Show "Done." if still no content
+  if (!fullReply) {
+    fullReply = 'Done.';
+    typewriterEffect(bubbleId, fullReply);
   }
 
   finalizeStreamBubble(bubbleId);
